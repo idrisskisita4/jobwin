@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>JOBWIN — Simulateur d'Entretien IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#0d1b35;--navy-2:#152447;--navy-3:#1c3064;
+  --blue:#2563eb;--blue-h:#1d4ed8;--blue-light:#eff6ff;--blue-mid:#bfdbfe;
+  --white:#ffffff;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;
+  --gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;
+  --gray-700:#334155;--gray-800:#1e293b;
+  --green:#059669;--green-l:#d1fae5;--green-v:#34d399;
+  --amber:#d97706;--amber-l:#fef3c7;--amber-v:#fbbf24;
+  --red:#dc2626;--red-l:#fee2e2;--red-v:#f87171;
+  --purple:#7c3aed;--purple-l:#ede9fe;
+  --r:16px;--r-sm:10px;--r-xs:8px;
+  --shadow:0 2px 16px rgba(13,27,53,.07);
+  --shadow-md:0 6px 24px rgba(13,27,53,.1);
+  --shadow-lg:0 12px 48px rgba(13,27,53,.15);
+  --t:.22s cubic-bezier(.4,0,.2,1);
+}
+html{height:100%}
+body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-50);color:var(--gray-800);-webkit-font-smoothing:antialiased;overflow:hidden}
+
+/* SCREENS */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);background:var(--gray-50);-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.screen.active{transform:translateX(0)}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;padding-top:calc(14px + env(safe-area-inset-top));background:var(--white);border-bottom:1px solid var(--gray-100);position:sticky;top:0;z-index:50;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:19px;color:var(--navy);text-decoration:none}
+.logo-icon{width:34px;height:34px;background:var(--navy);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.logo span{color:var(--blue)}
+.nav-back{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--gray-500);background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:var(--r-xs);transition:color var(--t),background var(--t)}
+.nav-back:hover{color:var(--navy);background:var(--gray-100)}
+.content{flex:1;padding:24px 20px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+
+/* TYPOGRAPHY */
+h1,h2,h3{font-family:'Syne',sans-serif;color:var(--navy)}
+h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
+.eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.eyebrow-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-dot 2.4s ease infinite}
+.eyebrow-text{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--gray-400)}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+.slabel{font-size:11px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--gray-400);margin-bottom:14px}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);border:1px solid var(--gray-100)}
+
+/* MODE CARDS */
+.mode-card{display:flex;align-items:center;gap:14px;background:var(--white);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);border:2px solid var(--gray-100);cursor:pointer;transition:border-color var(--t),transform var(--t),box-shadow var(--t);margin-bottom:12px}
+.mode-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.mode-card:active{transform:scale(.99)}
+.mode-card.express{border-color:#fde68a;background:linear-gradient(135deg,#fffdf0,#fff)}
+.mode-card.complet{border-color:var(--blue-mid);background:linear-gradient(135deg,#f0f7ff,#fff)}
+.mode-card.history-card{border-color:var(--purple-l);background:linear-gradient(135deg,#faf5ff,#fff)}
+.mode-card-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.mode-card.express .mode-card-icon{background:#fef3c7}
+.mode-card.complet .mode-card-icon{background:var(--blue-light)}
+.mode-card.history-card .mode-card-icon{background:var(--purple-l)}
+.mode-card-body{flex:1;min-width:0}
+.mode-card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:3px}
+.mode-card-desc{font-size:12.5px;color:var(--gray-500);line-height:1.45}
+.badge{padding:5px 11px;border-radius:20px;font-size:11.5px;font-weight:600;flex-shrink:0;white-space:nowrap}
+.badge-free{background:var(--green-l);color:var(--green)}
+.badge-pack{background:var(--blue-light);color:var(--blue)}
+.badge-hist{background:var(--purple-l);color:var(--purple)}
+
+/* API BOX */
+.api-box{background:var(--blue-light);border:1.5px solid var(--blue-mid);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.api-box-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.api-input{width:100%;padding:11px 14px;background:var(--white);border:1.5px solid var(--blue-mid);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--gray-800);outline:none;transition:border-color var(--t)}
+.api-input:focus{border-color:var(--blue)}
+.api-note{font-size:11px;color:var(--gray-400);margin-top:7px}
+.faq-item{background:var(--white);border-radius:var(--r-sm);padding:15px;box-shadow:var(--shadow);border:1px solid var(--gray-100);margin-bottom:10px}
+.faq-q{font-weight:600;font-size:13.5px;color:var(--navy)}
+.faq-a{font-size:13px;color:var(--gray-500);line-height:1.55;margin-top:8px}
+
+/* FORM */
+.form-group{margin-bottom:18px}
+.form-label{font-size:12.5px;font-weight:600;color:var(--gray-700);display:block;margin-bottom:8px}
+.form-input{width:100%;padding:13px 15px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--gray-800);outline:none;transition:border-color var(--t),background var(--t)}
+.form-input:focus{border-color:var(--blue);background:var(--white)}
+.form-input::placeholder{color:var(--gray-400)}
+.form-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:42px}
+.pill-group{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:8px 15px;border-radius:20px;font-size:13px;font-weight:500;background:var(--gray-100);color:var(--gray-600);border:2px solid transparent;cursor:pointer;transition:all var(--t);user-select:none}
+.pill.active{background:var(--blue-light);color:var(--blue);border-color:var(--blue-mid);font-weight:600}
+.p-card{border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:14px 16px;cursor:pointer;transition:all var(--t);margin-bottom:10px;display:flex;align-items:center;gap:13px;user-select:none}
+.p-card:active{transform:scale(.99)}
+.p-card.active{border-color:var(--blue);background:var(--blue-light)}
+.p-card-icon{font-size:22px;flex-shrink:0}
+.p-card-body{flex:1}
+.p-card-title{font-weight:600;font-size:14px;color:var(--navy);margin-bottom:2px}
+.p-card-desc{font-size:12.5px;color:var(--gray-500)}
+.p-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--gray-300);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;transition:all var(--t)}
+.p-card.active .p-check{background:var(--blue);border-color:var(--blue);color:white}
+.toggle-group{display:flex;gap:8px}
+.toggle-btn{flex:1;padding:11px 12px;border-radius:var(--r-sm);font-size:13.5px;font-weight:500;background:var(--gray-100);color:var(--gray-500);border:2px solid transparent;cursor:pointer;text-align:center;transition:all var(--t);user-select:none}
+.toggle-btn.active{background:var(--blue-light);color:var(--blue);border-color:var(--blue-mid);font-weight:600}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 22px;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:15.5px;font-weight:500;border:none;cursor:pointer;transition:all var(--t);text-decoration:none}
+.btn-primary{background:var(--blue);color:var(--white);box-shadow:0 4px 16px rgba(37,99,235,.3)}
+.btn-primary:hover{background:var(--blue-h);transform:translateY(-1px);box-shadow:0 8px 24px rgba(37,99,235,.4)}
+.btn-primary:active{transform:translateY(0);box-shadow:none}
+.btn-secondary{background:var(--gray-100);color:var(--gray-700)}
+.btn-secondary:hover{background:var(--gray-200)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+.divider{height:1px;background:var(--gray-100);margin:20px 0}
+.alert{display:flex;align-items:flex-start;gap:10px;padding:13px 15px;border-radius:var(--r-sm);font-size:13.5px;margin-bottom:14px}
+.alert-warn{background:var(--amber-l);color:#78350f;border-left:3px solid var(--amber)}
+.alert-error{background:var(--red-l);color:#991b1b;border-left:3px solid var(--red)}
+.dot-loader{display:flex;gap:5px;align-items:center}
+.dot-loader span{width:7px;height:7px;border-radius:50%;background:var(--blue);display:block;animation:dotpulse 1.3s ease-in-out infinite both}
+.dot-loader span:nth-child(2){animation-delay:.18s}
+.dot-loader span:nth-child(3){animation-delay:.36s}
+@keyframes dotpulse{0%,80%,100%{transform:scale(.4);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* CODE INPUT */
+.code-input-big{width:100%;padding:16px;font-size:20px;font-weight:600;text-align:center;letter-spacing:3px;text-transform:uppercase;border:2px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white);outline:none;font-family:'Syne',sans-serif;color:var(--navy);transition:border-color var(--t)}
+.code-input-big:focus{border-color:var(--blue)}
+.code-input-big::placeholder{color:var(--gray-300);font-size:16px;letter-spacing:2px}
+
+/* ======= INTERVIEW SCREEN ======= */
+#screen-interview{background:var(--gray-50)}
+.interview-top{background:var(--navy);flex-shrink:0;padding:env(safe-area-inset-top) 0 0}
+.interview-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 0}
+.q-label{font-size:11px;color:rgba(255,255,255,.45);font-weight:500;margin-bottom:1px}
+.q-num{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--white);line-height:1}
+.apt-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px}
+.apt-dot{width:6px;height:6px;border-radius:50%;background:var(--green-v);flex-shrink:0}
+
+/* TIMER */
+.timer-wrap{display:flex;align-items:center;gap:8px}
+.timer-display{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--white);letter-spacing:.5px;min-width:52px}
+.timer-display.urgent{color:var(--red-v);animation:timer-blink .8s ease infinite}
+@keyframes timer-blink{0%,100%{opacity:1}50%{opacity:.5}}
+.timer-label{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px}
+
+.recruiter-row{display:flex;align-items:center;gap:10px;padding:14px 20px 0}
+.recruiter-av{width:38px;height:38px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid rgba(255,255,255,.12);flex-shrink:0}
+.recruiter-meta-name{font-size:13.5px;font-weight:600;color:var(--white)}
+.recruiter-meta-role{font-size:11px;color:rgba(255,255,255,.4)}
+.progress-track{height:2px;background:rgba(255,255,255,.1);margin:14px 0 0}
+.progress-fill{height:100%;background:var(--blue);transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* BUBBLES & ANSWER */
+.q-bubble-wrap{padding:16px 20px 0}
+.q-bubble{background:var(--white);border-radius:0 16px 16px 16px;padding:16px 18px;box-shadow:var(--shadow-md);position:relative}
+.q-bubble::before{content:'';position:absolute;top:0;left:-8px;border-right:10px solid var(--white);border-top:10px solid transparent}
+.q-from{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);margin-bottom:7px}
+.q-text{font-size:15.5px;line-height:1.6;color:var(--gray-800)}
+.answer-wrap{padding:12px 20px 0}
+.answer-box{background:var(--white);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);min-height:72px;font-size:14.5px;line-height:1.6;color:var(--gray-400);font-style:italic;border:1.5px solid var(--gray-100);transition:border-color var(--t)}
+.answer-box.has-answer{color:var(--gray-800);font-style:normal;border-color:var(--blue-mid)}
+.answer-box.recording{border-color:var(--red);background:#fff8f8}
+
+/* WPM CHIP */
+.wpm-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;margin:8px 20px 0}
+.wpm-ok{background:var(--green-l);color:var(--green)}
+.wpm-slow{background:var(--amber-l);color:var(--amber)}
+.wpm-fast{background:var(--red-l);color:var(--red)}
+
+.filler-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;background:var(--amber-l);color:var(--amber);border-radius:20px;font-size:12.5px;font-weight:600;margin:8px 20px 0}
+.feedback-card{margin:12px 20px 0;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:var(--r);padding:14px 16px}
+.feedback-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:7px}
+.feedback-text{font-size:14px;color:var(--gray-700);line-height:1.55}
+
+/* MIC */
+.mic-area{display:flex;flex-direction:column;align-items:center;padding:20px 20px 10px;gap:10px;flex-shrink:0}
+.mic-btn{width:76px;height:76px;border-radius:50%;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 8px 28px rgba(37,99,235,.4);transition:all var(--t);user-select:none;-webkit-user-select:none;touch-action:none;position:relative}
+.mic-btn::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(37,99,235,.2);opacity:0;transition:all var(--t)}
+.mic-btn.recording{background:var(--red);box-shadow:0 8px 28px rgba(220,38,38,.45);animation:mic-pulse 1.4s ease-in-out infinite}
+.mic-btn.recording::after{opacity:1;border-color:rgba(220,38,38,.25);animation:ring-expand 1.4s ease-in-out infinite}
+.mic-btn.analyzing{background:var(--amber);box-shadow:0 8px 28px rgba(217,119,6,.4)}
+@keyframes mic-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes ring-expand{0%{inset:-8px;opacity:.6}100%{inset:-18px;opacity:0}}
+.mic-hint{font-size:12.5px;color:var(--gray-400);text-align:center}
+.interview-actions{display:flex;gap:10px;padding:8px 20px;padding-bottom:calc(8px + env(safe-area-inset-bottom));flex-shrink:0}
+
+/* ======= RESULTS ======= */
+.results-hero{background:var(--navy);padding:28px 20px 36px;text-align:center;flex-shrink:0;position:relative;overflow:hidden;padding-top:calc(28px + env(safe-area-inset-top))}
+.results-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none}
+.results-hero::after{content:'';position:absolute;bottom:-30px;left:-30px;width:150px;height:150px;border-radius:50%;background:rgba(37,99,235,.12);pointer-events:none}
+.score-ring{width:116px;height:116px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 18px;position:relative;z-index:1;border:5px solid rgba(255,255,255,.12);transition:border-color .5s ease}
+.score-ring.green{border-color:var(--green-v)}
+.score-ring.amber{border-color:var(--amber-v)}
+.score-ring.red{border-color:var(--red-v)}
+.score-val{font-family:'Syne',sans-serif;font-weight:800;font-size:38px;color:var(--white);line-height:1}
+.score-unit{font-size:16px;font-weight:600}
+.score-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+.verdict{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:24px;font-family:'Syne',sans-serif;font-size:14.5px;font-weight:700;position:relative;z-index:1}
+.verdict.retenu{background:rgba(52,211,153,.18);color:var(--green-v);border:1.5px solid rgba(52,211,153,.28)}
+.verdict.renforcer{background:rgba(251,191,36,.18);color:var(--amber-v);border:1.5px solid rgba(251,191,36,.28)}
+.verdict.non{background:rgba(248,113,113,.18);color:var(--red-v);border:1.5px solid rgba(248,113,113,.28)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-tile{background:var(--white);border-radius:var(--r-sm);padding:14px;text-align:center;box-shadow:var(--shadow)}
+.stat-tile-val{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;color:var(--navy)}
+.stat-tile-lbl{font-size:11.5px;color:var(--gray-400);margin-top:3px}
+
+/* ======= VOCAL ANALYSIS BARS ======= */
+.vocal-section{background:var(--white);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.vocal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.criteria-bar-row{margin-bottom:14px}
+.criteria-bar-row:last-child{margin-bottom:0}
+.criteria-bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.criteria-bar-name{font-size:13px;font-weight:600;color:var(--gray-700)}
+.criteria-bar-score{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--navy)}
+.criteria-bar-track{height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden}
+.criteria-bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.bar-green{background:linear-gradient(90deg,#059669,#34d399)}
+.bar-blue{background:linear-gradient(90deg,#2563eb,#60a5fa)}
+.bar-purple{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.bar-amber{background:linear-gradient(90deg,#d97706,#fbbf24)}
+.bar-red{background:linear-gradient(90deg,#dc2626,#f87171)}
+
+/* WPM analysis block */
+.wpm-block{background:var(--white);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.wpm-block-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.wpm-block-val{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--navy)}
+.wpm-block-lbl{font-size:12px;color:var(--gray-400);margin-top:2px}
+.wpm-block-tip{font-size:12.5px;font-weight:500;margin-top:2px}
+
+/* Result items */
+.result-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--gray-100);font-size:13.5px;color:var(--gray-700);line-height:1.5}
+.result-item:last-child{border-bottom:none}
+.result-item-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.ideal-item{background:var(--white);border-radius:var(--r-sm);padding:14px 16px;box-shadow:var(--shadow);border-left:3px solid var(--blue);margin-bottom:10px}
+.ideal-q{font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:7px}
+.ideal-a{font-size:13px;color:var(--gray-500);line-height:1.6}
+.fluency-badge{display:flex;align-items:center;gap:12px;background:var(--white);border-radius:var(--r-sm);padding:14px 16px;box-shadow:var(--shadow);margin-bottom:12px}
+.fluency-icon{font-size:20px;flex-shrink:0}
+.fluency-title{font-weight:600;font-size:13.5px;color:var(--navy)}
+.fluency-desc{font-size:12px;color:var(--gray-500);margin-top:2px}
+
+/* ======= HISTORY SCREEN ======= */
+.history-hero{background:linear-gradient(135deg,var(--navy),var(--navy-3));padding:28px 20px;padding-top:calc(28px + env(safe-area-inset-top));flex-shrink:0}
+.history-hero h2{color:var(--white);font-size:22px;margin-bottom:4px}
+.history-hero p{color:rgba(255,255,255,.5);font-size:13px}
+.history-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px}
+.h-stat{background:rgba(255,255,255,.08);border-radius:12px;padding:12px;text-align:center}
+.h-stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--white)}
+.h-stat-lbl{font-size:10.5px;color:rgba(255,255,255,.45);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Trend indicator */
+.trend-up{color:var(--green-v)}
+.trend-down{color:var(--red-v)}
+.trend-flat{color:rgba(255,255,255,.5)}
+
+/* Session card */
+.session-card{background:var(--white);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:10px;display:flex;align-items:center;gap:14px;border:1px solid var(--gray-100)}
+.session-score-badge{width:52px;height:52px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.session-score-badge.green{background:var(--green-l)}
+.session-score-badge.amber{background:var(--amber-l)}
+.session-score-badge.red{background:var(--red-l)}
+.session-score-num{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--navy)}
+.session-score-pct{font-size:10px;color:var(--gray-400)}
+.session-body{flex:1;min-width:0}
+.session-poste{font-weight:600;font-size:14px;color:var(--navy);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.session-meta{font-size:12px;color:var(--gray-400)}
+.session-criteria{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.mini-pill{padding:3px 8px;border-radius:8px;font-size:10.5px;font-weight:600}
+.mini-pill.green{background:var(--green-l);color:var(--green)}
+.mini-pill.amber{background:var(--amber-l);color:var(--amber)}
+.mini-pill.red{background:var(--red-l);color:var(--red)}
+
+/* Progress chart */
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:48px;padding:0 4px}
+.mini-bar{flex:1;border-radius:4px 4px 0 0;min-height:4px;transition:height .5s ease}
+.mini-bar.green{background:var(--green-v)}
+.mini-bar.amber{background:var(--amber-v)}
+.mini-bar.red{background:var(--red-v)}
+
+/* Empty state */
+.empty-state{text-align:center;padding:48px 20px}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--navy);margin-bottom:8px}
+.empty-desc{font-size:14px;color:var(--gray-400);line-height:1.55}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- =========== HOME =========== -->
+<div id="screen-home" class="screen active">
+  <nav class="nav">
+    <div class="logo"><div class="logo-icon">💼</div>Job<span>win</span></div>
+  </nav>
+  <div class="content">
+    <div class="eyebrow"><div class="eyebrow-dot"></div><div class="eyebrow-text">Simulateur d'entretien IA</div></div>
+    <h1 style="font-size:27px;line-height:1.22;margin-bottom:8px;">Décroche ton poste grâce à ce coach privé en ligne</h1>
+    <p style="font-size:14px;color:var(--gray-500);line-height:1.55;margin-bottom:26px;">Entretien vocal IA · Analyse vocale avancée · Score multi-critères</p>
+
+    <div class="slabel">Choisir un mode</div>
+
+    <div class="mode-card express" onclick="selectMode('express')">
+      <div class="mode-card-icon">⚡</div>
+      <div class="mode-card-body">
+        <div class="mode-card-title">Entretien Express — 25 min</div>
+        <div class="mode-card-desc">Questions classiques · Chrono 25 min · Score vocal immédiat</div>
+      </div>
+      <span class="badge badge-free">Gratuit</span>
+    </div>
+
+    <div class="mode-card complet" onclick="selectMode('complet')">
+      <div class="mode-card-icon">🎯</div>
+      <div class="mode-card-body">
+        <div class="mode-card-title">Entretien Complet</div>
+        <div class="mode-card-desc">5 questions IA · Recruteur au choix · Analyse vocale complète + historique</div>
+      </div>
+      <span class="badge badge-pack" id="pack-badge">Pack requis</span>
+    </div>
+
+    <!-- Pack actif -->
+    <div id="pack-info" style="display:none;background:var(--green-l);border:1.5px solid #a7f3d0;border-radius:var(--r-sm);padding:12px 16px;margin-top:-4px;margin-bottom:12px;align-items:center;gap:12px">
+      <div style="font-size:20px">🎟️</div>
+      <div style="flex:1">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--green)" id="pack-name-display">Pack Essentiel</div>
+        <div style="font-size:12px;color:var(--gray-500)" id="pack-remaining-display">8 entretiens restants</div>
+      </div>
+      <button onclick="resetPack()" style="background:none;border:none;font-size:11px;color:var(--gray-400);cursor:pointer;text-decoration:underline">Changer</button>
+    </div>
+
+    <div class="mode-card history-card" id="history-btn" onclick="openHistory()" style="display:none">
+      <div class="mode-card-icon">📈</div>
+      <div class="mode-card-body">
+        <div class="mode-card-title">Ma Progression</div>
+        <div class="mode-card-desc">Historique de tes entretiens et évolution de tes scores</div>
+      </div>
+      <span class="badge badge-hist" id="history-count">0 session</span>
+    </div>
+
+    <div style="height:8px"></div>
+    <div class="api-box">
+      <div class="api-box-title">🔑 Clé API Anthropic</div>
+      <input type="password" class="api-input" id="api-key-input" placeholder="sk-ant-api03-..." oninput="saveApiKey(this.value)" autocomplete="off" spellcheck="false">
+      <div class="api-note">Ta clé reste sur ton appareil uniquement · anthropic.com</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">💡 Pourquoi l'Express est difficile ?</div>
+      <div class="faq-a">Le mode gratuit utilise un recruteur exigeant et un chrono de 25 minutes pour simuler la vraie pression. La plupart des candidats obtiennent moins de 60% sans préparation.</div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- =========== CODE =========== -->
+<div id="screen-code" class="screen">
+  <nav class="nav">
+    <button class="nav-back" onclick="goTo('home','back')">← Retour</button>
+    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);">Job<span>win</span></div>
+    <div style="width:72px"></div>
+  </nav>
+  <div class="content">
+    <h2 style="font-size:22px;margin-bottom:6px;">Clé d'accès</h2>
+    <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px;">Reçue par email après ton achat · jobwin.fr</p>
+
+    <!-- Pack info cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
+      <div style="background:var(--green-l);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--green)">3</div>
+        <div style="font-size:10.5px;color:var(--green);font-weight:600;margin-top:2px">Découverte</div>
+        <div style="font-size:10px;color:var(--gray-500);margin-top:2px">9,90€</div>
+      </div>
+      <div style="background:var(--blue-light);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--blue)">8</div>
+        <div style="font-size:10.5px;color:var(--blue);font-weight:600;margin-top:2px">Essentiel</div>
+        <div style="font-size:10px;color:var(--gray-500);margin-top:2px">19,90€</div>
+      </div>
+      <div style="background:var(--purple-l);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--purple)">20</div>
+        <div style="font-size:10.5px;color:var(--purple);font-weight:600;margin-top:2px">Intensif</div>
+        <div style="font-size:10px;color:var(--gray-500);margin-top:2px">34,90€</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">🎟️ Ta clé de licence</label>
+      <input type="text" class="code-input-big" id="code-input" placeholder="XXXXXXXX-XXXX-XXXX" style="font-size:14px;letter-spacing:1.5px" oninput="this.value=this.value.toUpperCase()">
+      <div style="font-size:11px;color:var(--gray-400);margin-top:7px;text-align:center">Fournie par Lemon Squeezy dans ton email de confirmation</div>
+    </div>
+
+    <div id="code-error" class="alert alert-error" style="display:none">❌ <span id="code-error-msg">Clé invalide ou expirée.</span></div>
+    <div id="code-loading" style="display:none;text-align:center;padding:12px">
+      <div class="dot-loader" style="justify-content:center"><span></span><span></span><span></span></div>
+      <div style="font-size:13px;color:var(--gray-400);margin-top:8px">Vérification en cours...</div>
+    </div>
+
+    <button class="btn btn-primary" id="verify-btn" onclick="verifyCode()">Vérifier ma clé →</button>
+    <div class="divider"></div>
+    <div class="faq-item">
+      <div class="faq-q">🛒 Pas encore de clé ?</div>
+      <div class="faq-a">Achète un pack sur jobwin.fr. Tu reçois ta clé par email immédiatement après le paiement via Lemon Squeezy.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">📧 Clé non reçue ?</div>
+      <div class="faq-a">Vérifie tes spams. Si toujours rien, contacte-nous à support@jobwin.fr avec ton numéro de commande.</div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- =========== CONFIG =========== -->
+<div id="screen-config" class="screen">
+  <nav class="nav">
+    <button class="nav-back" onclick="goTo('home','back')">← Retour</button>
+    <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--navy)">Configurer</span>
+    <div style="width:72px"></div>
+  </nav>
+  <div class="content">
+    <h2 style="font-size:20px;margin-bottom:4px;">Personnalise ton entretien</h2>
+    <p style="font-size:13.5px;color:var(--gray-500);margin-bottom:22px;">Adapte la simulation à ton profil réel</p>
+    <div class="slabel">Ton profil</div>
+    <div class="form-group">
+      <label class="form-label">Poste visé *</label>
+      <input type="text" class="form-input" id="cfg-poste" placeholder="Ex : Développeur web, Commercial, Manager RH...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Entreprise ciblée <span style="font-weight:400;color:var(--gray-400)">(optionnel)</span></label>
+      <input type="text" class="form-input" id="cfg-entreprise" placeholder="Ex : LVMH, BNP, startup SaaS...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Niveau d'expérience</label>
+      <div class="pill-group" id="niveau-group">
+        <div class="pill active" onclick="selectPill('niveau',this,'debutant')">Débutant</div>
+        <div class="pill" onclick="selectPill('niveau',this,'junior')">Junior</div>
+        <div class="pill" onclick="selectPill('niveau',this,'confirme')">Confirmé</div>
+        <div class="pill" onclick="selectPill('niveau',this,'senior')">Senior</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Secteur</label>
+      <select class="form-input form-select" id="cfg-secteur">
+        <option value="commerce">Commerce / Vente</option>
+        <option value="tech">Tech / Digital</option>
+        <option value="finance">Finance / Banque</option>
+        <option value="sante">Santé / Médical</option>
+        <option value="marketing">Marketing / Communication</option>
+        <option value="rh">RH / Management</option>
+        <option value="juridique">Juridique / Droit</option>
+        <option value="autre">Autre</option>
+      </select>
+    </div>
+    <div class="divider"></div>
+    <div class="slabel">Personnalité du recruteur</div>
+    <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Standard — Bienveillant</div><div class="p-card-desc">Chaleureux, encourageant. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
+    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Exigeant — Professionnel</div><div class="p-card-desc">Neutre, précis, challengeant. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
+    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Hardcore — Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Style CAC40.</div></div><div class="p-check"></div></div>
+    <div class="divider"></div>
+    <div class="slabel">Recruteur IA</div>
+    <div class="form-group">
+      <label class="form-label">Genre du recruteur</label>
+      <div class="toggle-group" id="genre-group">
+        <div class="toggle-btn active" onclick="selectToggle('genre',this,'homme')">👨 Thomas</div>
+        <div class="toggle-btn" onclick="selectToggle('genre',this,'femme')">👩 Sophie</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Voix du recruteur</label>
+      <div class="toggle-group" id="voix-group">
+        <div class="toggle-btn active" onclick="selectToggle('voix',this,'on')">🔊 Activée</div>
+        <div class="toggle-btn" onclick="selectToggle('voix',this,'off')">🔇 Désactivée</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="slabel">Mode spécial</div>
+    <div class="p-card" id="pc-aleatoire" onclick="toggleAleatoire()"><div class="p-card-icon">🎲</div><div class="p-card-body"><div class="p-card-title">Entretien Aléatoire</div><div class="p-card-desc">Poste et secteur choisis au hasard — entraîne ton adaptabilité</div></div><div class="p-check" id="alea-check"></div></div>
+    <div style="height:16px"></div>
+    <button class="btn btn-primary" onclick="launchInterview()" style="font-size:16px;padding:17px;">Lancer l'entretien →</button>
+    <div style="height:32px"></div>
+  </div>
+</div>
+
+<!-- =========== INTERVIEW =========== -->
+<div id="screen-interview" class="screen">
+  <div class="interview-top">
+    <div class="interview-bar">
+      <div>
+        <div class="q-label">Question</div>
+        <div class="q-num" id="q-counter">1 / 8</div>
+      </div>
+      <!-- Timer (Express) or Recruiter name (Complet) -->
+      <div id="center-display">
+        <div class="timer-wrap" id="timer-wrap" style="display:none;flex-direction:column;align-items:center">
+          <div class="timer-display" id="timer-display">25:00</div>
+          <div class="timer-label">restantes</div>
+        </div>
+        <div id="recruiter-center" style="text-align:center">
+          <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px">Recruteur</div>
+          <div style="font-size:13px;font-weight:600;color:white" id="r-name-top">Thomas</div>
+        </div>
+      </div>
+      <div class="apt-chip" id="apt-chip"><div class="apt-dot"></div><span id="apt-text">—%</span></div>
+    </div>
+    <div class="recruiter-row">
+      <div class="recruiter-av" id="r-avatar">🧑‍💼</div>
+      <div>
+        <div class="recruiter-meta-name" id="r-meta-name">Thomas</div>
+        <div class="recruiter-meta-role" id="r-meta-role">Recruteur IA · Entretien en cours</div>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:12.5%"></div></div>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;" id="interview-scroll">
+    <div class="q-bubble-wrap">
+      <div class="q-bubble">
+        <div class="q-from" id="q-from">Thomas dit</div>
+        <div class="q-text" id="q-text"><div class="dot-loader"><span></span><span></span><span></span></div></div>
+      </div>
+    </div>
+    <div class="answer-wrap">
+      <div class="answer-box" id="answer-box">Ta réponse apparaîtra ici...</div>
+    </div>
+    <div id="wpm-display" style="display:none"></div>
+    <div id="filler-wrap" style="display:none;padding:0 20px 0">
+      <div class="filler-pill">⚠️ <span id="filler-txt">0 mot parasite</span></div>
+    </div>
+    <div id="feedback-wrap" style="display:none">
+      <div class="feedback-card">
+        <div class="feedback-label">💬 Réaction du recruteur</div>
+        <div class="feedback-text" id="feedback-txt"><div class="dot-loader"><span></span><span></span><span></span></div></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+
+  <div class="mic-area">
+    <button class="mic-btn" id="mic-btn"
+      ontouchstart="startRec(event)" ontouchend="stopRec(event)" ontouchcancel="stopRec(event)"
+      onmousedown="startRec(event)" onmouseup="stopRec(event)" onmouseleave="stopRec(event)">🎙️</button>
+    <div class="mic-hint" id="mic-hint">Maintenir pour parler</div>
+  </div>
+  <div class="interview-actions" id="int-actions" style="display:none">
+    <button class="btn btn-secondary" style="flex:0.45;font-size:13.5px" onclick="abandon()">Abandonner</button>
+    <button class="btn btn-primary" id="next-btn" onclick="nextQ()">Question suivante →</button>
+  </div>
+</div>
+
+<!-- =========== RESULTS =========== -->
+<div id="screen-results" class="screen">
+  <div class="results-hero">
+    <div class="score-ring" id="score-ring">
+      <div class="score-val" id="score-val">0<span class="score-unit">%</span></div>
+      <div class="score-sub">aptitude globale</div>
+    </div>
+    <div class="verdict retenu" id="verdict">✅ Profil retenu</div>
+    <p style="margin-top:10px;color:rgba(255,255,255,.5);font-size:13px;position:relative;z-index:1">Bilan vocal complet</p>
+  </div>
+
+  <div class="content" style="padding-top:20px">
+    <!-- Multi-criteria vocal analysis -->
+    <div class="vocal-section">
+      <div class="vocal-title">🎙️ Analyse vocale multi-critères</div>
+      <div class="criteria-bar-row">
+        <div class="criteria-bar-header"><span class="criteria-bar-name">📐 Structure</span><span class="criteria-bar-score" id="bar-structure-val">—</span></div>
+        <div class="criteria-bar-track"><div class="criteria-bar-fill bar-blue" id="bar-structure" style="width:0%"></div></div>
+      </div>
+      <div class="criteria-bar-row">
+        <div class="criteria-bar-header"><span class="criteria-bar-name">💪 Confiance</span><span class="criteria-bar-score" id="bar-confiance-val">—</span></div>
+        <div class="criteria-bar-track"><div class="criteria-bar-fill bar-green" id="bar-confiance" style="width:0%"></div></div>
+      </div>
+      <div class="criteria-bar-row">
+        <div class="criteria-bar-header"><span class="criteria-bar-name">🎯 Pertinence</span><span class="criteria-bar-score" id="bar-pertinence-val">—</span></div>
+        <div class="criteria-bar-track"><div class="criteria-bar-fill bar-purple" id="bar-pertinence" style="width:0%"></div></div>
+      </div>
+      <div class="criteria-bar-row">
+        <div class="criteria-bar-header"><span class="criteria-bar-name">📚 Vocabulaire</span><span class="criteria-bar-score" id="bar-vocabulaire-val">—</span></div>
+        <div class="criteria-bar-track"><div class="criteria-bar-fill bar-amber" id="bar-vocabulaire" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- WPM Block -->
+    <div class="wpm-block" id="wpm-block">
+      <div class="wpm-block-icon" id="wpm-icon" style="background:var(--green-l)">🗣️</div>
+      <div>
+        <div class="wpm-block-val" id="wpm-val">— mots/min</div>
+        <div class="wpm-block-lbl">Débit de parole moyen</div>
+        <div class="wpm-block-tip" id="wpm-tip" style="color:var(--green)">Calcul en cours...</div>
+      </div>
+    </div>
+
+    <div class="slabel">Statistiques</div>
+    <div class="stats-grid">
+      <div class="stat-tile"><div class="stat-tile-val" id="s-duree">—</div><div class="stat-tile-lbl">Durée totale</div></div>
+      <div class="stat-tile"><div class="stat-tile-val" id="s-mots">—</div><div class="stat-tile-lbl">Mots / réponse</div></div>
+      <div class="stat-tile"><div class="stat-tile-val" id="s-para">0</div><div class="stat-tile-lbl">Mots parasites</div></div>
+      <div class="stat-tile"><div class="stat-tile-val" id="s-sil">0</div><div class="stat-tile-lbl">Silences</div></div>
+    </div>
+
+    <div class="fluency-badge">
+      <div class="fluency-icon" id="fl-icon">🟢</div>
+      <div><div class="fluency-title" id="fl-title">Fluidité excellente</div><div class="fluency-desc" id="fl-desc">Aucun mot parasite détecté.</div></div>
+    </div>
+    <div id="filler-warn" class="alert alert-warn" style="display:none">⚠️ <span id="filler-warn-txt"></span></div>
+
+    <div class="divider"></div>
+    <div class="slabel">✅ Points forts</div>
+    <div id="res-forts" style="margin-bottom:16px"><div class="result-item"><div class="result-item-icon">⏳</div><div>Analyse IA en cours...</div></div></div>
+    <div class="slabel">🎯 Axes d'amélioration</div>
+    <div id="res-axes" style="margin-bottom:16px"><div class="result-item"><div class="result-item-icon">⏳</div><div>Analyse IA en cours...</div></div></div>
+
+    <div class="divider"></div>
+    <div class="slabel">💡 Réponses idéales — Question par question</div>
+    <div id="res-ideals" style="margin-bottom:20px"></div>
+
+    <button class="btn btn-primary" onclick="newInterview()" style="margin-bottom:10px">🔄 Nouvel entretien</button>
+    <button class="btn btn-secondary" onclick="goTo('home','back')">← Retour à l'accueil</button>
+    <div style="height:32px"></div>
+  </div>
+</div>
+
+<!-- =========== HISTORY =========== -->
+<div id="screen-history" class="screen">
+  <div class="history-hero">
+    <button class="nav-back" onclick="goTo('home','back')" style="color:rgba(255,255,255,.6);padding:0;margin-bottom:12px">← Retour</button>
+    <h2>Ma Progression</h2>
+    <p>Évolution de tes performances</p>
+    <div class="history-stats">
+      <div class="h-stat"><div class="h-stat-val" id="h-total">0</div><div class="h-stat-lbl">Sessions</div></div>
+      <div class="h-stat"><div class="h-stat-val" id="h-best">—</div><div class="h-stat-lbl">Meilleur</div></div>
+      <div class="h-stat"><div class="h-stat-val trend-up" id="h-trend">—</div><div class="h-stat-lbl">Tendance</div></div>
+    </div>
+  </div>
+
+  <div class="content" style="padding-top:20px">
+    <!-- Mini chart -->
+    <div id="chart-wrap" style="display:none;margin-bottom:20px">
+      <div class="slabel" style="margin-bottom:10px">Courbe de progression</div>
+      <div class="card" style="padding:16px">
+        <div class="mini-chart" id="mini-chart"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <span style="font-size:11px;color:var(--gray-400)" id="chart-oldest"></span>
+          <span style="font-size:11px;color:var(--gray-400)" id="chart-newest"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="slabel">Historique des sessions</div>
+    <div id="history-list"></div>
+    <div style="height:32px"></div>
+  </div>
+</div>
+
+<script>
+/* ========== STATE ========== */
+const S = {
+  mode: 'express',
+  apiKey: localStorage.getItem('jw_ak') || '',
+  accessCode: '',
+  config: {
+    poste:'', entreprise:'', niveau:'debutant', secteur:'tech',
+    personnalite:'standard', genre:'homme', voix:true, aleatoire:false
+  },
+  itv: { qs:[], currentQ:0, answers:[], scores:[], criteria:[], feedbacks:[], ideals:[], startTime:0 },
+  totalWords:0, totalFillers:0, totalSilences:0,
+  totalWPM:0, wpmCount:0,
+  expressTimer: null, expressSecondsLeft: 25*60
+};
+
+const FILLERS_RE = /\b(euh|bah|ben|hein|quoi|voilà|donc|du\s+coup|genre|en\s+fait|c'est-à-dire|carrément|franchement|grave|ouais bon)\b/gi;
+
+/* ===== LEMON SQUEEZY CONFIG =====
+   Remplace les IDs ci-dessous par tes vrais Product IDs
+   Dashboard LS → Products → clique sur le produit → copie l'ID dans l'URL
+   ================================ */
+const LS_PRODUCTS = {
+  'TON_ID_DECOUVERTE': { name: 'Découverte', interviews: 3 },
+  'TON_ID_ESSENTIEL':  { name: 'Essentiel',  interviews: 8 },
+  'TON_ID_INTENSIF':   { name: 'Intensif',   interviews: 20 }
+};
+const LS_FALLBACK_INTERVIEWS = 5; // Si product ID non reconnu
+
+// Express classic questions (no API needed)
+const EXPRESS_QS = [
+  'Présentez-vous en quelques mots et parlez-moi de votre parcours professionnel.',
+  'Quels sont vos principaux points forts ? Et quel est votre plus grand point faible ?',
+  'Pourquoi cherchez-vous un nouveau poste en ce moment ?',
+  'Décrivez votre plus grande réussite professionnelle.',
+  'Comment gérez-vous une situation de pression ou de stress intense ?',
+  'Racontez un moment où vous avez dû travailler avec quelqu\'un de difficile.',
+  'Pourquoi devrions-nous vous choisir plutôt qu\'un autre candidat ?',
+  'Où vous voyez-vous dans 3 à 5 ans ?'
+];
+
+if (S.apiKey) document.getElementById('api-key-input').value = S.apiKey;
+loadSavedPack();
+updateHistoryBtn();
+
+/* ========== NAVIGATION ========== */
+function goTo(id, dir='forward') {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const next = document.getElementById('screen-'+id);
+  if (!next) return;
+  if (dir === 'back') {
+    next.style.transition = 'none';
+    next.style.transform = 'translateX(-30%)';
+    next.offsetHeight;
+    next.style.transition = '';
+    next.style.transform = '';
+  }
+  next.classList.add('active');
+  next.scrollTo(0, 0);
+}
+
+function saveApiKey(v){ S.apiKey=v; localStorage.setItem('jw_ak',v); }
+
+/* ========== HOME ========== */
+function selectMode(mode) {
+  if (!S.apiKey.trim()) {
+    alert('⚠️ Saisis d\'abord ta clé API Anthropic pour utiliser le simulateur.');
+    document.getElementById('api-key-input').focus(); return;
+  }
+  S.mode = mode;
+  if (mode === 'express') {
+    S.config.personnalite = 'exigeant';
+    S.config.poste = 'poste généraliste';
+    goTo('interview'); initInterview();
+  } else {
+    // Vérifier si pack actif avec entretiens restants
+    const pack = getSavedPack();
+    if(pack){
+      if(pack.interviewsRemaining <= 0){
+        alert('⚠️ Tu n\'as plus d\'entretiens disponibles dans ton pack.\nAchète un nouveau pack sur jobwin.fr');
+        return;
+      }
+      S.accessCode = localStorage.getItem('jw_active_key') || '';
+      goTo('config');
+    } else {
+      goTo('code');
+    }
+  }
+}
+
+/* ========== LEMON SQUEEZY VALIDATION ========== */
+function packKey(licenseKey){ return 'jw_pack_'+licenseKey.replace(/[^A-Z0-9]/g,''); }
+
+function getSavedPack(){
+  const key = localStorage.getItem('jw_active_key');
+  if(!key) return null;
+  try{ return JSON.parse(localStorage.getItem(packKey(key))); }catch(e){ return null; }
+}
+
+function loadSavedPack(){
+  const pack = getSavedPack();
+  if(!pack) return;
+  S.accessCode = localStorage.getItem('jw_active_key') || '';
+  applyPackToUI(pack);
+}
+
+function applyPackToUI(pack){
+  document.getElementById('pack-info').style.display = 'flex';
+  document.getElementById('pack-badge').textContent = pack.name;
+  document.getElementById('pack-badge').style.background = 'var(--green-l)';
+  document.getElementById('pack-badge').style.color = 'var(--green)';
+  document.getElementById('pack-name-display').textContent = 'Pack '+pack.name;
+  const rem = pack.interviewsRemaining;
+  document.getElementById('pack-remaining-display').textContent =
+    rem > 0 ? rem+' entretien'+(rem>1?'s':'')+' restant'+(rem>1?'s':'')
+            : '⚠️ Plus d\'entretiens — rachète un pack';
+}
+
+function resetPack(){
+  if(!confirm('Changer de clé ? Ton historique sera conservé.')) return;
+  localStorage.removeItem('jw_active_key');
+  S.accessCode = '';
+  document.getElementById('pack-info').style.display = 'none';
+  document.getElementById('pack-badge').textContent = 'Pack requis';
+  document.getElementById('pack-badge').style.background = '';
+  document.getElementById('pack-badge').style.color = '';
+  goTo('code');
+}
+
+function decrementInterview(){
+  const key = localStorage.getItem('jw_active_key');
+  if(!key) return;
+  const pk = packKey(key);
+  try{
+    const pack = JSON.parse(localStorage.getItem(pk));
+    if(pack && pack.interviewsRemaining > 0){
+      pack.interviewsRemaining--;
+      localStorage.setItem(pk, JSON.stringify(pack));
+      applyPackToUI(pack);
+    }
+  }catch(e){}
+}
+
+async function verifyCode(){
+  const raw = document.getElementById('code-input').value.trim();
+  if(!raw){ return; }
+
+  const errEl = document.getElementById('code-error');
+  const loadEl = document.getElementById('code-loading');
+  const btn = document.getElementById('verify-btn');
+  errEl.style.display = 'none';
+  loadEl.style.display = 'block';
+  btn.disabled = true;
+
+  // Vérifier si clé déjà utilisée en local
+  const saved = localStorage.getItem(packKey(raw));
+  if(saved){
+    try{
+      const pack = JSON.parse(saved);
+      S.accessCode = raw;
+      localStorage.setItem('jw_active_key', raw);
+      applyPackToUI(pack);
+      loadEl.style.display = 'none';
+      btn.disabled = false;
+      goTo('config');
+      return;
+    }catch(e){}
+  }
+
+  // Valider via API Lemon Squeezy
+  try{
+    const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ license_key: raw, instance_name: 'JOBWIN-APP' })
+    });
+    const data = await res.json();
+
+    if(!data.valid){
+      throw new Error(data.error || 'Clé invalide');
+    }
+
+    // Détecter le pack selon le product_id
+    const productId = String(data.meta?.product_id || '');
+    const packInfo = LS_PRODUCTS[productId] || { name: 'Pack', interviews: LS_FALLBACK_INTERVIEWS };
+
+    const packData = {
+      name: packInfo.name,
+      interviewsTotal: packInfo.interviews,
+      interviewsRemaining: packInfo.interviews,
+      licenseKey: raw,
+      activatedAt: new Date().toISOString()
+    };
+
+    localStorage.setItem(packKey(raw), JSON.stringify(packData));
+    localStorage.setItem('jw_active_key', raw);
+    S.accessCode = raw;
+    applyPackToUI(packData);
+    loadEl.style.display = 'none';
+    btn.disabled = false;
+    goTo('config');
+
+  } catch(e){
+    loadEl.style.display = 'none';
+    btn.disabled = false;
+    errEl.style.display = 'flex';
+    document.getElementById('code-error-msg').textContent =
+      e.message.includes('Failed to fetch')
+        ? 'Erreur réseau. Vérifie ta connexion internet.'
+        : 'Clé invalide ou déjà utilisée sur un autre appareil.';
+  }
+}
+
+/* ========== CONFIG ========== */
+function selectPill(group, el, val) {
+  document.querySelectorAll(`#${group}-group .pill`).forEach(p=>p.classList.remove('active'));
+  el.classList.add('active'); S.config[group]=val;
+}
+function selectPersonality(type) {
+  ['standard','exigeant','hardcore'].forEach(t=>{
+    const c=document.getElementById('pc-'+t);
+    c.classList.remove('active'); c.querySelector('.p-check').textContent='';
+  });
+  const el=document.getElementById('pc-'+type);
+  el.classList.add('active'); el.querySelector('.p-check').textContent='✓';
+  S.config.personnalite=type;
+}
+function selectToggle(group, el, val) {
+  document.querySelectorAll(`#${group}-group .toggle-btn`).forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(group==='voix') S.config.voix=val==='on'; else S.config[group]=val;
+}
+function toggleAleatoire() {
+  S.config.aleatoire=!S.config.aleatoire;
+  document.getElementById('pc-aleatoire').classList.toggle('active',S.config.aleatoire);
+  document.getElementById('alea-check').textContent=S.config.aleatoire?'✓':'';
+}
+function launchInterview() {
+  const poste=document.getElementById('cfg-poste').value.trim();
+  if(!poste && !S.config.aleatoire){
+    document.getElementById('cfg-poste').focus();
+    document.getElementById('cfg-poste').style.borderColor='var(--red)';
+    setTimeout(()=>document.getElementById('cfg-poste').style.borderColor='',2000); return;
+  }
+  S.config.poste=S.config.aleatoire?rndJob():poste;
+  S.config.entreprise=document.getElementById('cfg-entreprise').value.trim();
+  S.config.secteur=document.getElementById('cfg-secteur').value;
+  if(S.config.aleatoire) S.config.secteur=rndSector();
+  goTo('interview'); initInterview();
+}
+function rndJob(){return ['Développeur Frontend','Commercial B2B','Chef de Projet','Responsable Marketing','Data Analyst','Product Manager','Consultant RH','UX Designer'][Math.floor(Math.random()*8)]}
+function rndSector(){return ['tech','commerce','finance','marketing','rh'][Math.floor(Math.random()*5)]}
+
+/* ========== INTERVIEW ========== */
+let recognition=null, isRecording=false, currentTranscript='', recStart=0;
+const synth=window.speechSynthesis;
+
+async function initInterview() {
+  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now()};
+  S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0;
+
+  const name=S.config.genre==='homme'?'Thomas':'Sophie';
+  ['r-name-top','r-meta-name'].forEach(id=>document.getElementById(id).textContent=name);
+  document.getElementById('q-from').textContent=name+' dit';
+  document.getElementById('r-avatar').textContent=S.config.genre==='homme'?'🧑‍💼':'👩‍💼';
+  document.getElementById('apt-text').textContent='—%';
+  document.getElementById('int-actions').style.display='none';
+  document.getElementById('feedback-wrap').style.display='none';
+  document.getElementById('filler-wrap').style.display='none';
+  document.getElementById('wpm-display').style.display='none';
+  document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
+  document.getElementById('answer-box').className='answer-box';
+  document.getElementById('mic-hint').textContent='Maintenir pour parler';
+  document.getElementById('mic-btn').className='mic-btn';
+
+  if (S.mode==='express') {
+    // Show timer, hide recruiter name center
+    document.getElementById('timer-wrap').style.display='flex';
+    document.getElementById('recruiter-center').style.display='none';
+    document.getElementById('r-meta-role').textContent='Recruteur IA · Mode Express — 25 min';
+    S.itv.qs=[...EXPRESS_QS];
+    document.getElementById('q-counter').textContent='1 / '+S.itv.qs.length;
+    document.getElementById('prog-fill').style.width=(1/S.itv.qs.length*100)+'%';
+    startExpressTimer();
+    displayQ(0);
+  } else {
+    document.getElementById('timer-wrap').style.display='none';
+    document.getElementById('recruiter-center').style.display='block';
+    document.getElementById('r-meta-role').textContent='Recruteur IA · Entretien en cours';
+    document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+    try {
+      S.itv.qs=await genQuestions(5);
+      document.getElementById('q-counter').textContent='1 / '+S.itv.qs.length;
+      document.getElementById('prog-fill').style.width=(1/S.itv.qs.length*100)+'%';
+      displayQ(0);
+    } catch(e) {
+      document.getElementById('q-text').textContent='⚠️ Erreur API. Vérifie ta clé Anthropic.';
+    }
+  }
+}
+
+/* EXPRESS TIMER */
+function startExpressTimer() {
+  if (S.expressTimer) clearInterval(S.expressTimer);
+  S.expressSecondsLeft = 25*60;
+  updateTimerDisplay();
+  S.expressTimer = setInterval(()=>{
+    S.expressSecondsLeft--;
+    updateTimerDisplay();
+    if (S.expressSecondsLeft <= 0) { clearInterval(S.expressTimer); showResults(); }
+  }, 1000);
+}
+function stopExpressTimer() { if(S.expressTimer){clearInterval(S.expressTimer);S.expressTimer=null;} }
+function updateTimerDisplay() {
+  const m=Math.floor(S.expressSecondsLeft/60), s=S.expressSecondsLeft%60;
+  const display=document.getElementById('timer-display');
+  display.textContent=m+':'+(s<10?'0':'')+s;
+  display.classList.toggle('urgent', S.expressSecondsLeft<=120);
+}
+
+async function genQuestions(n) {
+  const q1='Pouvez-vous vous présenter en quelques mots et me parler de votre parcours ?';
+  const q2='Quels sont vos principaux points forts ? Et quel est votre point faible principal ?';
+  if(n<=2) return [q1,q2].slice(0,n);
+  const tone=S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
+  const prompt=`Tu es recruteur ${tone}. Poste : ${S.config.poste}${S.config.entreprise?' chez '+S.config.entreprise:''}, niveau ${S.config.niveau}, secteur ${S.config.secteur}.\nGénère exactement ${n-2} questions spécifiques après présentation et points forts/faibles.\nRetourne UNIQUEMENT un tableau JSON. Aucun texte autour.`;
+  const res=await apiCall(prompt,600);
+  try{return [q1,q2,...JSON.parse(res.replace(/```json?|```/g,'').trim())].slice(0,n)}
+  catch(e){return [q1,q2,'Pourquoi ce poste ?','Votre plus grande réussite ?','Où dans 3 ans ?'].slice(0,n)}
+}
+
+function displayQ(i) {
+  const n=S.itv.qs.length;
+  document.getElementById('q-counter').textContent=(i+1)+' / '+n;
+  document.getElementById('prog-fill').style.width=((i+1)/n*100)+'%';
+  document.getElementById('q-text').textContent=S.itv.qs[i];
+  currentTranscript='';
+  document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
+  document.getElementById('answer-box').className='answer-box';
+  document.getElementById('feedback-wrap').style.display='none';
+  document.getElementById('int-actions').style.display='none';
+  document.getElementById('filler-wrap').style.display='none';
+  document.getElementById('wpm-display').style.display='none';
+  document.getElementById('mic-hint').textContent='Maintenir pour parler';
+  document.getElementById('mic-btn').className='mic-btn';
+  if(S.config.voix) speakText(S.itv.qs[i]);
+}
+
+function speakText(txt) {
+  if(!synth) return; synth.cancel();
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang='fr-FR'; u.rate=0.93; u.pitch=S.config.genre==='femme'?1.25:0.88;
+    const voices=synth.getVoices().filter(v=>v.lang.startsWith('fr'));
+    if(voices.length) u.voice=voices[0];
+    synth.speak(u);
+  },150);
+}
+
+/* RECORDING */
+function startRec(e) {
+  e.preventDefault(); if(isRecording) return;
+  synth.cancel(); isRecording=true; currentTranscript=''; recStart=Date.now();
+  document.getElementById('mic-btn').className='mic-btn recording';
+  document.getElementById('mic-hint').textContent='Enregistrement... relâche pour envoyer';
+  document.getElementById('answer-box').textContent='Écoute en cours...';
+  document.getElementById('answer-box').className='answer-box recording';
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){document.getElementById('mic-hint').textContent='Reconnaissance vocale non disponible';isRecording=false;document.getElementById('mic-btn').className='mic-btn';return;}
+  recognition=new SR();
+  recognition.lang='fr-FR'; recognition.continuous=true; recognition.interimResults=true;
+  recognition.onresult=(ev)=>{
+    let final='',interim='';
+    for(let i=ev.resultIndex;i<ev.results.length;i++){
+      if(ev.results[i].isFinal) final+=ev.results[i][0].transcript; else interim+=ev.results[i][0].transcript;
+    }
+    currentTranscript+=final;
+    const disp=(currentTranscript+(interim?' '+interim:'')).trim();
+    document.getElementById('answer-box').textContent=disp||'Parle...';
+    if(disp) document.getElementById('answer-box').classList.add('has-answer');
+  };
+  recognition.start();
+}
+
+async function stopRec(e) {
+  e.preventDefault(); if(!isRecording) return; isRecording=false;
+  const recDuration=(Date.now()-recStart)/1000; // seconds
+  if(recognition){try{recognition.stop()}catch(_){}recognition=null;}
+  document.getElementById('mic-btn').className='mic-btn analyzing';
+  document.getElementById('mic-hint').textContent='Analyse en cours...';
+  await new Promise(r=>setTimeout(r,600));
+  const answer=currentTranscript.trim();
+
+  if(!answer||answer.length<8) {
+    S.totalSilences++;
+    document.getElementById('answer-box').textContent='(Silence comptabilisé)';
+    document.getElementById('answer-box').className='answer-box';
+    document.getElementById('mic-btn').className='mic-btn';
+    document.getElementById('mic-hint').textContent='Maintenir pour parler';
+    S.itv.answers.push(''); S.itv.scores.push(0);
+    S.itv.criteria.push({structure:0,confiance:0,pertinence:0,vocabulaire:0});
+    S.itv.feedbacks.push('Aucune réponse.'); S.itv.ideals.push('');
+    showNextBtn(); return;
+  }
+
+  // WPM calculation
+  const words=answer.trim().split(/\s+/);
+  S.totalWords+=words.length;
+  const wpm=recDuration>2?Math.round((words.length/recDuration)*60):0;
+  if(wpm>0){S.totalWPM+=wpm;S.wpmCount++;}
+
+  // Fillers
+  const fillers=(answer.match(FILLERS_RE)||[]).length;
+  S.totalFillers+=fillers;
+  if(fillers>0){
+    document.getElementById('filler-wrap').style.display='block';
+    document.getElementById('filler-txt').textContent=`${fillers} mot${fillers>1?'s':''} parasite${fillers>1?'s':''} détecté${fillers>1?'s':''}`;
+  }
+
+  // WPM chip
+  if(wpm>0){
+    const {cls,label}=wpmClass(wpm);
+    const wDiv=document.getElementById('wpm-display');
+    wDiv.style.display='block';
+    wDiv.innerHTML=`<div style="padding:0 20px 0"><div class="wpm-chip ${cls}">🗣️ ${wpm} mots/min · ${label}</div></div>`;
+  }
+
+  document.getElementById('answer-box').className='answer-box has-answer';
+  S.itv.answers.push(answer);
+
+  // AI Evaluation
+  document.getElementById('feedback-wrap').style.display='block';
+  document.getElementById('feedback-txt').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  try {
+    const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
+    S.itv.scores.push(ev.score);
+    S.itv.criteria.push({structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire});
+    S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
+    const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
+    document.getElementById('apt-text').textContent=avg+'%';
+    document.getElementById('feedback-txt').textContent=ev.feedback;
+    if(S.config.voix) speakText(ev.feedback);
+    document.getElementById('mic-btn').className='mic-btn';
+    document.getElementById('mic-hint').textContent='✓ Réponse enregistrée';
+    showNextBtn();
+  } catch(err) {
+    S.itv.scores.push(55);
+    S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55});
+    S.itv.feedbacks.push('Réponse enregistrée.'); S.itv.ideals.push('');
+    document.getElementById('feedback-txt').textContent='⚠️ Analyse indisponible.';
+    document.getElementById('mic-btn').className='mic-btn';
+    document.getElementById('mic-hint').textContent='Maintenir pour parler';
+    showNextBtn();
+  }
+}
+
+function wpmClass(wpm){
+  if(wpm<90) return{cls:'wpm-slow',label:'Trop lent — parle avec plus d\'énergie'};
+  if(wpm<=160) return{cls:'wpm-ok',label:'Débit idéal ✓'};
+  return{cls:'wpm-fast',label:'Trop rapide — ralentis'};
+}
+
+function showNextBtn() {
+  const isLast=S.itv.currentQ>=S.itv.qs.length-1;
+  document.getElementById('int-actions').style.display='flex';
+  document.getElementById('next-btn').textContent=isLast?'Voir les résultats →':'Question suivante →';
+  setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},200);
+}
+async function nextQ() {
+  if(S.itv.currentQ>=S.itv.qs.length-1){showResults();return;}
+  S.itv.currentQ++; displayQ(S.itv.currentQ);
+}
+function abandon() {
+  if(!confirm('Abandonner l\'entretien ?')) return;
+  synth.cancel(); stopExpressTimer();
+  if(recognition){try{recognition.stop()}catch(_){}}
+  goTo('home','back');
+}
+
+/* ========== API CALLS ========== */
+async function apiCall(prompt, maxTokens=600) {
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTokens,messages:[{role:'user',content:prompt}]})
+  });
+  if(!res.ok) throw new Error('API '+res.status);
+  const d=await res.json(); return d.content[0].text;
+}
+
+async function evalAnswer(q, answer) {
+  const tone=S.config.personnalite==='hardcore'?'très exigeant, froid':S.config.personnalite==='exigeant'?'professionnel, exigeant':'bienveillant';
+  const prompt=`Recruteur ${tone}, poste : ${S.config.poste}.
+QUESTION : "${q}"
+RÉPONSE : "${answer}"
+
+Retourne UNIQUEMENT ce JSON (sans markdown, sans explication) :
+{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"[1-2 phrases ton ${tone}]","ideal":"[réponse idéale 2-4 phrases]"}
+Chaque note entre 0 et 100.`;
+  const txt=await apiCall(prompt,500);
+  try{return JSON.parse(txt.replace(/```json?|```/g,'').trim())}
+  catch(e){return{score:60,structure:60,confiance:60,pertinence:60,vocabulaire:60,feedback:'Réponse enregistrée.',ideal:''}}
+}
+
+/* ========== RESULTS ========== */
+async function showResults() {
+  synth.cancel(); stopExpressTimer();
+  goTo('results');
+  // Décrémenter le compteur pack (seulement mode complet)
+  if(S.mode === 'complet') decrementInterview();
+
+  const scores=S.itv.scores;
+  const avg=scores.length>0?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
+
+  // Score ring
+  document.getElementById('score-val').innerHTML=avg+'<span class="score-unit">%</span>';
+  document.getElementById('score-ring').className='score-ring '+(avg>=75?'green':avg>=55?'amber':'red');
+
+  // Verdict
+  const vEl=document.getElementById('verdict');
+  if(avg>=75){vEl.className='verdict retenu';vEl.innerHTML='✅ Profil retenu';}
+  else if(avg>=55){vEl.className='verdict renforcer';vEl.innerHTML='⚠️ Profil à renforcer';}
+  else{vEl.className='verdict non';vEl.innerHTML='❌ Profil non retenu';}
+
+  // Criteria averages
+  const crit=S.itv.criteria;
+  if(crit.length>0){
+    const avg4=(k)=>Math.round(crit.reduce((a,c)=>a+(c[k]||0),0)/crit.length);
+    const structure=avg4('structure'), confiance=avg4('confiance'),
+          pertinence=avg4('pertinence'), vocabulaire=avg4('vocabulaire');
+    animBar('bar-structure',structure,'bar-structure-val');
+    animBar('bar-confiance',confiance,'bar-confiance-val');
+    animBar('bar-pertinence',pertinence,'bar-pertinence-val');
+    animBar('bar-vocabulaire',vocabulaire,'bar-vocabulaire-val');
+  }
+
+  // WPM
+  const avgWPM=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
+  if(avgWPM>0){
+    const {cls,label}=wpmClass(avgWPM);
+    document.getElementById('wpm-val').textContent=avgWPM+' mots/min';
+    document.getElementById('wpm-tip').textContent=label;
+    const colors={wpm_ok:'var(--green)',wpm_slow:'var(--amber)',wpm_fast:'var(--red)'};
+    const bgColors={wpm_ok:'var(--green-l)',wpm_slow:'var(--amber-l)',wpm_fast:'var(--red-l)'};
+    const colorKey=cls.replace('-','_');
+    document.getElementById('wpm-tip').style.color=colors[colorKey]||'var(--green)';
+    document.getElementById('wpm-icon').style.background=bgColors[colorKey]||'var(--green-l)';
+  } else {
+    document.getElementById('wpm-val').textContent='Non calculé';
+    document.getElementById('wpm-tip').textContent='Active la reconnaissance vocale pour mesurer ton débit';
+  }
+
+  // Stats
+  const dur=Math.round((Date.now()-S.itv.startTime)/1000);
+  const m=Math.floor(dur/60),s=dur%60;
+  document.getElementById('s-duree').textContent=m+'m'+(s<10?'0':'')+s+'s';
+  const answered=S.itv.answers.filter(a=>a.length>0).length;
+  document.getElementById('s-mots').textContent=answered>0?Math.round(S.totalWords/answered):'—';
+  document.getElementById('s-para').textContent=S.totalFillers;
+  document.getElementById('s-sil').textContent=S.totalSilences;
+
+  // Fluency
+  if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite. Très bonne fluidité.';}
+  else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent='Quelques hésitations — globalement satisfaisant.';}
+  else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent='Trop de mots parasites — travaille ta fluidité.';}
+  if(S.totalFillers>0){document.getElementById('filler-warn').style.display='flex';document.getElementById('filler-warn-txt').textContent=`${S.totalFillers} mot${S.totalFillers>1?'s':''} parasite${S.totalFillers>1?'s':''} détecté${S.totalFillers>1?'s':''}`;}
+
+  // Ideal answers
+  const idealsEl=document.getElementById('res-ideals');
+  idealsEl.innerHTML=S.itv.qs.map((q,i)=>`<div class="ideal-item"><div class="ideal-q">Q${i+1}. ${q}</div><div class="ideal-a">${S.itv.ideals[i]||'<span style="color:var(--gray-400)">Non disponible</span>'}</div></div>`).join('');
+
+  // Save to history (only for pack users)
+  if(S.accessCode){
+    const crit2=S.itv.criteria;
+    const avg4=(k)=>crit2.length>0?Math.round(crit2.reduce((a,c)=>a+(c[k]||0),0)/crit2.length):0;
+    saveSession({
+      date:new Date().toISOString(), score:avg, poste:S.config.poste, mode:S.mode,
+      structure:avg4('structure'), confiance:avg4('confiance'),
+      pertinence:avg4('pertinence'), vocabulaire:avg4('vocabulaire'),
+      wpm:avgWPM
+    });
+    updateHistoryBtn();
+  }
+
+  // AI final analysis
+  await genFinalAnalysis(avg);
+}
+
+function animBar(barId, val, labelId) {
+  setTimeout(()=>{
+    document.getElementById(barId).style.width=val+'%';
+    document.getElementById(labelId).textContent=val+'%';
+  },300);
+}
+
+async function genFinalAnalysis(avg) {
+  const qas=S.itv.qs.map((q,i)=>`Q: ${q}\nR: ${S.itv.answers[i]||'(silence)'}`).join('\n\n');
+  const prompt=`Coach carrière expert. Bilan entretien.\nPOSTE: ${S.config.poste} | SCORE: ${avg}%\n${qas}\n\nRetourne UNIQUEMENT ce JSON:\n{"forts":["Point 1","Point 2","Point 3"],"axes":["Axe 1","Axe 2","Axe 3"]}`;
+  try{
+    const txt=await apiCall(prompt,500);
+    const d=JSON.parse(txt.replace(/```json?|```/g,'').trim());
+    document.getElementById('res-forts').innerHTML=d.forts.map(f=>`<div class="result-item"><div class="result-item-icon">✅</div><div>${f}</div></div>`).join('');
+    document.getElementById('res-axes').innerHTML=d.axes.map(a=>`<div class="result-item"><div class="result-item-icon">🎯</div><div>${a}</div></div>`).join('');
+  }catch(e){
+    document.getElementById('res-forts').innerHTML='<div class="result-item"><div class="result-item-icon">⚠️</div><div>Analyse non disponible</div></div>';
+    document.getElementById('res-axes').innerHTML='<div class="result-item"><div class="result-item-icon">⚠️</div><div>Analyse non disponible</div></div>';
+  }
+}
+
+function newInterview(){if(S.mode==='express') goTo('home','back'); else goTo('config','back');}
+
+/* ========== HISTORY ========== */
+function historyKey(){ return 'jw_hist_'+(S.accessCode||'express'); }
+function getSessions(){ try{return JSON.parse(localStorage.getItem(historyKey())||'[]')}catch(e){return []} }
+function saveSession(data){ const h=getSessions(); h.unshift(data); localStorage.setItem(historyKey(),JSON.stringify(h.slice(0,50))); }
+
+function updateHistoryBtn(){
+  const sessions=getSessions();
+  if(sessions.length>0 || S.accessCode){
+    document.getElementById('history-btn').style.display='flex';
+    document.getElementById('history-count').textContent=sessions.length+' session'+(sessions.length>1?'s':'');
+  }
+}
+
+function openHistory(){
+  const sessions=getSessions();
+  goTo('history');
+
+  document.getElementById('h-total').textContent=sessions.length;
+  if(sessions.length===0){
+    document.getElementById('h-best').textContent='—';
+    document.getElementById('h-trend').textContent='—';
+    document.getElementById('chart-wrap').style.display='none';
+    document.getElementById('history-list').innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Aucune session enregistrée</div><div class="empty-desc">Fais un entretien complet pour voir ta progression ici.</div></div>`;
+    return;
+  }
+
+  const best=Math.max(...sessions.map(s=>s.score));
+  document.getElementById('h-best').textContent=best+'%';
+
+  // Trend
+  if(sessions.length>=2){
+    const diff=sessions[0].score-sessions[1].score;
+    const tEl=document.getElementById('h-trend');
+    if(diff>0){tEl.textContent='↑ +'+diff+'%';tEl.className='h-stat-val trend-up';}
+    else if(diff<0){tEl.textContent='↓ '+diff+'%';tEl.className='h-stat-val trend-down';}
+    else{tEl.textContent='→ Stable';tEl.className='h-stat-val trend-flat';}
+  } else { document.getElementById('h-trend').textContent='—'; }
+
+  // Mini chart
+  if(sessions.length>=2){
+    document.getElementById('chart-wrap').style.display='block';
+    const displayed=sessions.slice(0,10).reverse();
+    const maxScore=Math.max(...displayed.map(s=>s.score));
+    document.getElementById('mini-chart').innerHTML=displayed.map(s=>{
+      const h=Math.max(8,Math.round((s.score/100)*44));
+      const cls=s.score>=75?'green':s.score>=55?'amber':'red';
+      return `<div class="mini-bar ${cls}" style="height:${h}px" title="${s.score}%"></div>`;
+    }).join('');
+    document.getElementById('chart-oldest').textContent=fmtDate(displayed[0].date);
+    document.getElementById('chart-newest').textContent=fmtDate(displayed[displayed.length-1].date);
+  }
+
+  // Session list
+  document.getElementById('history-list').innerHTML=sessions.map((s,i)=>{
+    const cls=s.score>=75?'green':s.score>=55?'amber':'red';
+    const pills=[
+      {k:'structure',label:'Struct.'},
+      {k:'confiance',label:'Conf.'},
+      {k:'pertinence',label:'Pert.'},
+      {k:'vocabulaire',label:'Vocab.'}
+    ].map(p=>{
+      const v=s[p.k];if(!v)return'';
+      const pc=v>=75?'green':v>=55?'amber':'red';
+      return `<span class="mini-pill ${pc}">${p.label} ${v}%</span>`;
+    }).join('');
+    return `<div class="session-card">
+      <div class="session-score-badge ${cls}"><div class="session-score-num">${s.score}</div><div class="session-score-pct">%</div></div>
+      <div class="session-body">
+        <div class="session-poste">${s.poste||'Entretien général'}</div>
+        <div class="session-meta">${fmtDate(s.date)}${s.wpm?' · '+s.wpm+' mots/min':''}</div>
+        <div class="session-criteria">${pills}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function fmtDate(iso){
+  try{const d=new Date(iso);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
+  catch(e){return '—';}
+}
+
+/* Init */
+if(synth){synth.getVoices();synth.addEventListener('voiceschanged',()=>synth.getVoices());}
+</script>
+</body>
+</html>
