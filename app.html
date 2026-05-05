@@ -1088,16 +1088,13 @@ function speakText(txt) {
     method:'POST',
     headers:{'xi-api-key':ELEVENLABS_KEY,'Content-Type':'application/json'},
     body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true}})
-  }).then(r=>{
-    if(!r.ok){ console.error('ElevenLabs error:',r.status,r.statusText); return null; }
-    return r.blob();
-  }).then(blob=>{
+  }).then(r=>r.ok?r.blob():null).then(blob=>{
     if(!blob) return;
     const url=URL.createObjectURL(blob);
     currentAudio=new Audio(url);
-    currentAudio.play().catch(e=>console.error('Audio play error:',e));
+    currentAudio.play();
     currentAudio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;};
-  }).catch(e=>console.error('speakText error:',e));
+  }).catch(()=>{});
 }
 
 async function speakTextAsync(txt) {
@@ -1109,10 +1106,7 @@ async function speakTextAsync(txt) {
       method:'POST',
       headers:{'xi-api-key':ELEVENLABS_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true}})
-    }).then(r=>{
-      if(!r.ok){ console.error('ElevenLabs async error:',r.status); resolve(); return null; }
-      return r.blob();
-    }).then(blob=>{
+    }).then(r=>r.ok?r.blob():null).then(blob=>{
       if(!blob){resolve();return;}
       const url=URL.createObjectURL(blob);
       currentAudio=new Audio(url);
@@ -1128,25 +1122,24 @@ async function initInterview() {
   S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now()};
   S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0;
 
-  const name=S.config.genre==='homme'?'Thomas':'Sophie';
-  ['r-name-top','r-meta-name'].forEach(id=>document.getElementById(id).textContent=name);
-  document.getElementById('q-from').textContent=name+' dit';
-  document.getElementById('r-avatar').textContent=S.config.genre==='homme'?'🧑‍💼':'👩‍💼';
-  document.getElementById('apt-text').textContent='—%';
-  document.getElementById('int-actions').style.display='none';
-  document.getElementById('feedback-wrap').style.display='none';
-  document.getElementById('filler-wrap').style.display='none';
-  document.getElementById('wpm-display').style.display='none';
-  document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
-  document.getElementById('answer-box').className='answer-box';
-  document.getElementById('mic-hint').textContent='Maintenir pour parler';
-  document.getElementById('mic-btn').className='mic-btn';
-
   const rec = EXPRESS_RECRUITER;
   S.recruiter = rec;
   S.config.genre = rec.genre;
-  ['r-name-top','r-meta-name'].forEach(id=>document.getElementById(id).textContent=rec.name);
-  document.getElementById('r-avatar').textContent=rec.avatar;
+
+  const safe=(id,fn)=>{ const el=document.getElementById(id); if(el) fn(el); };
+  safe('r-name-top', el=>el.textContent=rec.name);
+  safe('r-meta-name', el=>el.textContent=rec.name);
+  safe('q-from', el=>el.textContent=rec.name+' dit');
+  safe('r-avatar', el=>el.textContent=rec.avatar);
+  safe('apt-text', el=>el.textContent='—%');
+  safe('int-actions', el=>el.style.display='none');
+  safe('feedback-wrap', el=>el.style.display='none');
+  safe('filler-wrap', el=>el.style.display='none');
+  safe('wpm-display', el=>el.style.display='none');
+  safe('answer-box', el=>{ el.textContent='Ta réponse apparaîtra ici...'; el.className='answer-box'; });
+  safe('mic-hint', el=>el.textContent='Maintenir pour parler');
+  safe('mic-btn', el=>el.className='mic-btn');
+  safe('mic-area', el=>el.style.display='flex');
 
   if (S.mode==='express') {
     document.getElementById('timer-wrap').style.display='flex';
