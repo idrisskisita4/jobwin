@@ -1151,7 +1151,7 @@ async function initInterview() {
     startExpressTimer();
     const intro='Je suis '+rec.name+', recruteur IA. Nous allons simuler un entretien. Maintenez le bouton micro pour répondre.';
     document.getElementById('q-text').textContent=intro;
-    document.getElementById('mic-area').style.display='none';
+    if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='none';
     if(S.config.voix) await speakTextAsync(intro);
     else await new Promise(r=>setTimeout(r,1000));
     document.getElementById('mic-area').style.display='flex';
