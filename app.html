@@ -1102,9 +1102,9 @@ async function speakTextAsync(txt) {
   stopAudio();
   const rec = S.recruiter || EXPRESS_RECRUITER;
   return new Promise(resolve=>{
-    fetch('https://api.elevenlabs.io/v1/text-to-speech/'+rec.voiceId+'/stream',{
+    fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
       method:'POST',
-      headers:{'xi-api-key':ELEVENLABS_KEY,'Content-Type':'application/json'},
+      headers:{'content-Type':'application/json'},
       body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true}})
     }).then(r=>r.ok?r.blob():null).then(blob=>{
       if(!blob){resolve();return;}
