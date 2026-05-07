@@ -1154,7 +1154,7 @@ async function initInterview() {
     if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='none';
     if(S.config.voix) await speakTextAsync(intro);
     else await new Promise(r=>setTimeout(r,1000));
-    document.getElementById('mic-area').style.display='flex';
+    if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='flex';
     displayQ(0);
   } else {
     document.getElementById('timer-wrap').style.display='none';
