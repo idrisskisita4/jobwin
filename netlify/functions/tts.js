@@ -2,44 +2,21 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
-
   try {
-    const { text, voice_id } = JSON.parse(event.body);
-    const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-
-    if (!ELEVENLABS_API_KEY) {
-      return { statusCode: 500, body: 'Missing ElevenLabs API key' };
-    }
-
+    const voice_id = (event.queryStringParameters && event.queryStringParameters.voice) || 'pNInz6obpgDQGcFmaJgB';
+    const { text, model_id, voice_settings } = JSON.parse(event.body);
+    const KEY = process.env.ELEVENLABS_API_KEY;
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id || 'pNInz6obpgDQGcFmaJgB'}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}/stream`,
       {
         method: 'POST',
-        headers: {
-          'Accept': 'audio/mpeg',
-          'Content-Type': 'application/json',
-          'xi-api-key': ELEVENLABS_API_KEY
-        },
-        body: JSON.stringify({
-          text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: { stability: 0.5, similarity_boost: 0.75 }
-        })
+        headers: { 'Accept':'audio/mpeg', 'Content-Type':'application/json', 'xi-api-key': KEY },
+        body: JSON.stringify({ text: text||'', model_id: model_id||'eleven_multilingual_v2', voice_settings: voice_settings||{stability:0.5,similarity_boost:0.75} })
       }
     );
-
-    if (!response.ok) {
-      return { statusCode: response.status, body: `ElevenLabs error: ${response.status}` };
-    }
-
+    if (!response.ok) return { statusCode: response.status, body: await response.text() };
     const buffer = await response.arrayBuffer();
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'audio/mpeg' },
-      body: Buffer.from(buffer).toString('base64'),
-      isBase64Encoded: true
-    };
-
+    return { statusCode: 200, headers: {'Content-Type':'audio/mpeg'}, body: Buffer.from(buffer).toString('base64'), isBase64Encoded: true };
   } catch (err) {
     return { statusCode: 500, body: err.message };
   }
