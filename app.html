@@ -632,7 +632,7 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
     <div style="height:16px"></div>
   </div>
 
-  <div class="mic-area">
+  <div class="mic-area" id="mic-area">
     <button class="mic-btn" id="mic-btn"
       ontouchstart="startRec(event)" ontouchend="stopRec(event)" ontouchcancel="stopRec(event)"
       onmousedown="startRec(event)" onmouseup="stopRec(event)" onmouseleave="stopRec(event)">🎙️</button>
@@ -1087,7 +1087,7 @@ function speakText(txt) {
   fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST',
     headers:{'content-Type':'application/json'},
-    body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true}})
+    body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true},speed:1.25})
   }).then(r=>r.ok?r.blob():null).then(blob=>{
     if(!blob) return;
     const url=URL.createObjectURL(blob);
@@ -1105,7 +1105,7 @@ async function speakTextAsync(txt) {
     fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
       method:'POST',
       headers:{'content-Type':'application/json'},
-      body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true}})
+      body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true},speed:1.25})
     }).then(r=>r.ok?r.blob():null).then(blob=>{
       if(!blob){resolve();return;}
       const url=URL.createObjectURL(blob);
@@ -1308,8 +1308,10 @@ async function stopRec(e) {
   S.itv.answers.push(answer);
 
   // AI Evaluation
-  document.getElementById('feedback-wrap').style.display='block';
-  document.getElementById('feedback-txt').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  if(S.itv.currentQ === 0) {
+    document.getElementById('feedback-wrap').style.display='block';
+    document.getElementById('feedback-txt').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  }
   try {
     const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
     S.itv.scores.push(ev.score);
@@ -1317,8 +1319,10 @@ async function stopRec(e) {
     S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
     const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
     document.getElementById('apt-text').textContent=avg+'%';
-    document.getElementById('feedback-txt').textContent=ev.feedback;
-    if(S.config.voix && S.mode!=='express') speakText(ev.feedback);
+    if(S.itv.currentQ === 0) {
+      document.getElementById('feedback-txt').textContent=ev.feedback;
+      if(S.config.voix && S.mode!=='express') speakText(ev.feedback);
+    }
     document.getElementById('mic-btn').className='mic-btn';
     document.getElementById('mic-hint').textContent='✓ Réponse enregistrée';
     showNextBtn();
