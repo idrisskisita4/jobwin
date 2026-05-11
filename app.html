@@ -1004,7 +1004,7 @@ const EXPRESS_QS = [
   'Où vous voyez-vous dans 3 à 5 ans ?'
 ];
 
-if (S.apiKey) document.getElementById('api-key-input').value = S.apiKey;
+const _akEl = document.getElementById('api-key-input'); if (S.apiKey && _akEl) _akEl.value = S.apiKey;
 loadSavedPack();
 updateHistoryBtn();
 
@@ -1362,7 +1362,7 @@ async function initInterview() {
   S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now()};
   S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0;
 
-  const rec = S.RECRUTEUR || { Nom: "Antoine", Genre: "homme", VoiceId: "101A8UFM73tcrunWGirw", Avatar: "🎤" };
+  const rec = (S.recruiter && S.recruiter.name) ? S.recruiter : RECRUITERS.antoine;
   S.recruiter = rec;
   S.config.genre = rec.genre;
 
