@@ -343,6 +343,42 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
 .express-tip{background:var(--green-l);border:1px solid #a7f3d0;border-radius:var(--r);padding:14px 16px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start}
 .express-tip-icon{font-size:18px;flex-shrink:0}
 .express-tip-text{font-size:13.5px;color:#065f46;line-height:1.55}
+/* ===== BRIEF SCREEN ===== */
+#screen-brief .brief-hero{background:var(--navy);border-radius:var(--r);padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:14px}
+#screen-brief .brief-avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1d4ed8);border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+#screen-brief .brief-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:3px}
+#screen-brief .brief-sub{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:7px}
+#screen-brief .brief-badges{display:flex;gap:6px;flex-wrap:wrap}
+#screen-brief .brief-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8)}
+#screen-brief .brief-pills{display:flex;gap:8px;margin-bottom:14px}
+#screen-brief .brief-pill{flex:1;background:#fff;border:1px solid var(--gray-200);border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+#screen-brief .brief-pill-icon{font-size:16px;margin-bottom:3px}
+#screen-brief .brief-pill-label{font-size:10.5px;color:var(--gray-400);margin-bottom:1px}
+#screen-brief .brief-pill-val{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--navy)}
+#screen-brief .brief-mic{background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+#screen-brief .brief-mic-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+#screen-brief .brief-mic-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--navy)}
+#screen-brief .brief-mic-status{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px}
+#screen-brief .mic-ok{background:var(--green-l);color:var(--green)}
+#screen-brief .mic-testing{background:#fef3c7;color:#d97706}
+#screen-brief .mic-error{background:var(--red-l);color:var(--red)}
+#screen-brief .brief-bar-wrap{background:var(--gray-100);border-radius:4px;height:7px;overflow:hidden;margin-bottom:9px}
+#screen-brief .brief-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),#34d399);width:0%;transition:width .1s}
+@keyframes briefMicAnim{0%{width:12%}30%{width:52%}60%{width:28%}100%{width:68%}}
+#screen-brief .brief-bar.active{animation:briefMicAnim 1.3s ease-in-out infinite alternate}
+#screen-brief .brief-mic-btn{width:100%;padding:9px;border-radius:8px;border:1.5px solid var(--gray-200);background:var(--gray-50);font-family:inherit;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+#screen-brief .brief-section{background:#fff;border:1px solid var(--gray-200);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+#screen-brief .brief-section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px}
+#screen-brief .brief-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--gray-100)}
+#screen-brief .brief-item:last-child{border-bottom:none;padding-bottom:0}
+#screen-brief .brief-item-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:1px}
+#screen-brief .bi-blue{background:var(--blue-light)}
+#screen-brief .bi-green{background:var(--green-l)}
+#screen-brief .bi-amber{background:#fffbeb}
+#screen-brief .brief-item-text{font-size:13px;color:var(--gray-600);line-height:1.5}
+#screen-brief .brief-item-text strong{color:var(--navy);font-weight:600}
+#screen-brief .brief-alert{background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:11px 13px;margin-bottom:14px;display:flex;gap:9px;align-items:flex-start}
+#screen-brief .brief-alert-text{font-size:12.5px;color:#92400e;line-height:1.5}
 </style>
 </head>
 <body>
@@ -413,7 +449,7 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
       <div class="mode-card-icon">🎯</div>
       <div class="mode-card-body">
         <div class="mode-card-title">Entretien Complet</div>
-        <div class="mode-card-desc">5 questions IA · Recruteur au choix · Analyse vocale complète + historique</div>
+        <div class="mode-card-desc">10 questions IA · Recruteur au choix · Analyse vocale complète + historique</div>
       </div>
       <span class="badge badge-pack" id="pack-badge">Pack requis</span>
     </div>
@@ -464,17 +500,17 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
 
     <!-- Pack info cards -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
-      <div style="background:var(--green-l);border-radius:10px;padding:12px;text-align:center">
+      <div onclick="window.open('https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247','_blank')" style="background:var(--green-l);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='transparent'">
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--green)">3</div>
         <div style="font-size:10.5px;color:var(--green);font-weight:600;margin-top:2px">Découverte</div>
         <div style="font-size:10px;color:var(--gray-500);margin-top:2px">9,90€</div>
       </div>
-      <div style="background:var(--blue-light);border-radius:10px;padding:12px;text-align:center">
+      <div onclick="window.open('https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472','_blank')" style="background:var(--blue-light);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='transparent'">
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--blue)">8</div>
         <div style="font-size:10.5px;color:var(--blue);font-weight:600;margin-top:2px">Essentiel</div>
         <div style="font-size:10px;color:var(--gray-500);margin-top:2px">19,90€</div>
       </div>
-      <div style="background:var(--purple-l);border-radius:10px;padding:12px;text-align:center">
+      <div onclick="window.open('https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5','_blank')" style="background:var(--purple-l);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--purple)'" onmouseout="this.style.borderColor='transparent'">
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--purple)">20</div>
         <div style="font-size:10.5px;color:var(--purple);font-weight:600;margin-top:2px">Intensif</div>
         <div style="font-size:10px;color:var(--gray-500);margin-top:2px">34,90€</div>
@@ -482,9 +518,9 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
     </div>
 
     <div class="form-group">
-      <label class="form-label">🎟️ Ta clé de licence</label>
+      <label class="form-label">🎟️ Code d'accès</label>
       <input type="text" class="code-input-big" id="code-input" placeholder="XXXXXXXX-XXXX-XXXX" style="font-size:14px;letter-spacing:1.5px" oninput="this.value=this.value.toUpperCase()">
-      <div style="font-size:11px;color:var(--gray-400);margin-top:7px;text-align:center">Fournie par Lemon Squeezy dans ton email de confirmation</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:7px;text-align:center">Reçu par email après ton achat · Vérifie aussi tes spams</div>
     </div>
 
     <div id="code-error" class="alert alert-error" style="display:none">❌ <span id="code-error-msg">Clé invalide ou expirée.</span></div>
@@ -527,6 +563,11 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
       <input type="text" class="form-input" id="cfg-entreprise" placeholder="Ex : LVMH, BNP, startup SaaS...">
     </div>
     <div class="form-group">
+      <label class="form-label">Ton parcours <span style="font-weight:400;color:var(--gray-400)">(recommandé)</span></label>
+      <textarea class="form-input" id="cfg-cv" rows="4" placeholder="Colle un résumé de ton CV ou tes expériences clés...&#10;Ex : 3 ans commercial B2B chez une startup SaaS, 2 ans manager junior chez BNP, diplômé école de commerce..." style="resize:vertical;line-height:1.5;font-family:inherit;font-size:13.5px;"></textarea>
+      <div style="font-size:12px;color:var(--gray-400);margin-top:5px">📎 Les questions seront personnalisées selon ton parcours réel</div>
+    </div>
+    <div class="form-group">
       <label class="form-label">Niveau d'expérience</label>
       <div class="pill-group" id="niveau-group">
         <div class="pill active" onclick="selectPill('niveau',this,'debutant')">Débutant</div>
@@ -547,6 +588,14 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
         <option value="juridique">Juridique / Droit</option>
         <option value="autre">Autre</option>
       </select>
+    </div>
+    <div class="divider"></div>
+    <div class="slabel">Type d'entreprise</div>
+    <div class="pill-group" id="type-entreprise-group">
+      <div class="pill active" onclick="selectPill('type_entreprise',this,'grand_groupe')">🏢 Grand groupe</div>
+      <div class="pill" onclick="selectPill('type_entreprise',this,'pme')">🏭 PME / ETI</div>
+      <div class="pill" onclick="selectPill('type_entreprise',this,'startup')">🚀 Startup</div>
+      <div class="pill" onclick="selectPill('type_entreprise',this,'administration')">🏛️ Administration</div>
     </div>
     <div class="divider"></div>
     <div class="slabel">Personnalité du recruteur</div>
@@ -575,6 +624,121 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
     <div style="height:16px"></div>
     <button class="btn btn-primary" onclick="launchInterview()" style="font-size:16px;padding:17px;">Lancer l'entretien →</button>
     <div style="height:32px"></div>
+  </div>
+</div>
+
+<!-- =========== BRIEF =========== -->
+<div id="screen-brief" class="screen">
+  <nav class="nav">
+    <button class="nav-back" onclick="goTo(S.mode==='express'?'home':'config','back')">← Retour</button>
+    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);">Job<span>win</span></div>
+    <div style="width:72px"></div>
+  </nav>
+  <div class="content">
+    <!-- Hero recruteur -->
+    <div class="brief-hero">
+      <div class="brief-avatar" id="brief-avatar">🎙️</div>
+      <div>
+        <div class="brief-name" id="brief-recruiter-name">Antoine — Recruteur IA</div>
+        <div class="brief-sub" id="brief-recruiter-sub">Mode Express · 8 questions</div>
+        <div class="brief-badges">
+          <span class="brief-badge" id="brief-badge-mode">⚡ Express</span>
+          <span class="brief-badge" id="brief-badge-level">💼 Exigeant</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pills durée/questions/score -->
+    <div class="brief-pills">
+      <div class="brief-pill">
+        <div class="brief-pill-icon">⏱️</div>
+        <div class="brief-pill-label">Durée max</div>
+        <div class="brief-pill-val" id="brief-duree">25 min</div>
+      </div>
+      <div class="brief-pill">
+        <div class="brief-pill-icon">❓</div>
+        <div class="brief-pill-label">Questions</div>
+        <div class="brief-pill-val" id="brief-questions">8</div>
+      </div>
+      <div class="brief-pill">
+        <div class="brief-pill-icon">🎯</div>
+        <div class="brief-pill-label">Score</div>
+        <div class="brief-pill-val">0-100%</div>
+      </div>
+    </div>
+
+    <!-- Test micro -->
+    <div class="brief-mic">
+      <div class="brief-mic-top">
+        <div class="brief-mic-title">🎤 Test microphone</div>
+        <div class="brief-mic-status mic-testing" id="brief-mic-status">🔄 Test...</div>
+      </div>
+      <div class="brief-bar-wrap">
+        <div class="brief-bar" id="brief-mic-bar"></div>
+      </div>
+      <button class="brief-mic-btn" onclick="briefTestMic()">🔄 Tester à nouveau</button>
+    </div>
+
+    <!-- Comportement -->
+    <div class="brief-section">
+      <div class="brief-section-title">🧍 Comportement attendu</div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-blue">🗣️</div>
+        <div class="brief-item-text"><strong>Parlez clairement</strong>, comme en vrai entretien — phrases complètes, ton professionnel</div>
+      </div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-blue">🤐</div>
+        <div class="brief-item-text"><strong>Évitez les mots isolés</strong> — "oui", "non", "OK" seul ne seront pas évalués correctement</div>
+      </div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-blue">📵</div>
+        <div class="brief-item-text"><strong>Environnement calme</strong> — coupez les notifications, éloignez-vous du bruit</div>
+      </div>
+    </div>
+
+    <!-- Technique -->
+    <div class="brief-section">
+      <div class="brief-section-title">⚙️ Technique</div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-green">🎙️</div>
+        <div class="brief-item-text"><strong>Maintenez le bouton micro</strong> pendant toute votre réponse — relâchez quand vous avez terminé</div>
+      </div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-green">🔊</div>
+        <div class="brief-item-text"><strong>Activez le son</strong> — le recruteur vous parlera, montez le volume</div>
+      </div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-green">📶</div>
+        <div class="brief-item-text"><strong>Connexion stable</strong> — la voix du recruteur nécessite du réseau</div>
+      </div>
+    </div>
+
+    <!-- Conseils -->
+    <div class="brief-section">
+      <div class="brief-section-title">💡 Conseils pour performer</div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-amber">⏸️</div>
+        <div class="brief-item-text"><strong>2-3 secondes de réflexion</strong> avant de répondre — c'est naturel et professionnel</div>
+      </div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-amber">📐</div>
+        <div class="brief-item-text"><strong>Structure STAR</strong> — Situation → Tâche → Action → Résultat pour les questions comportementales</div>
+      </div>
+      <div class="brief-item">
+        <div class="brief-item-icon bi-amber">⏱️</div>
+        <div class="brief-item-text"><strong>1 à 2 minutes par réponse</strong> — ni trop court, ni trop long</div>
+      </div>
+    </div>
+
+    <!-- Alerte -->
+    <div class="brief-alert">
+      <span style="font-size:15px;flex-shrink:0">⚠️</span>
+      <div class="brief-alert-text"><strong>Chaque silence prolongé est comptabilisé.</strong> Le recruteur évalue votre aisance, votre réactivité et la qualité de vos formulations tout au long de l'entretien.</div>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn btn-primary" onclick="startFromBrief()" style="font-size:16px;padding:17px;margin-bottom:10px">Lancer l'entretien →</button>
+    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:32px">Bonne chance — donnez le meilleur de vous-même 💼</div>
   </div>
 </div>
 
@@ -691,15 +855,14 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
             <div class="express-lock-icon">🔐</div>
             <div class="express-lock-title">Analyse complète disponible dans les packs</div>
             <div class="express-lock-desc">Score multi-critères · Points forts & axes · Réponses idéales · Historique de progression</div>
-            <a href="https://jobwin.fr#pricing" target="_blank" class="express-lock-btn">Choisir mon pack — dès 9,90€ →</a>
+            <button onclick="goTo('packs')" class="express-lock-btn">Choisir mon pack — dès 9,90€ →</button>
             <div class="express-lock-sub">🔒 Accès immédiat après paiement · Sans abonnement</div>
           </div>
         </div>
       </div>
 
       <div style="margin-top:32px">
-        <button class="btn btn-primary" onclick="goTo('home','back')" style="margin-bottom:10px">⚡ Refaire un Express gratuit</button>
-        <a href="https://jobwin.fr#pricing" target="_blank" class="btn btn-secondary" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px">🎯 Voir les packs</a>
+        <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser →</button>
       </div>
       <div style="height:32px"></div>
     </div>
@@ -874,7 +1037,9 @@ function selectMode(mode) {
   if (mode === 'express') {
     S.config.personnalite = 'exigeant';
     S.config.poste = 'poste généraliste';
-    goTo('interview'); initInterview();
+    S.config.cv = '';
+    S.config.voix = 'on';
+    goTo('brief'); initBrief();
   } else {
     // Vérifier si pack actif avec entretiens restants
     const pack = getSavedPack();
@@ -1048,11 +1213,91 @@ function launchInterview() {
   S.config.poste=S.config.aleatoire?rndJob():poste;
   S.config.entreprise=document.getElementById('cfg-entreprise').value.trim();
   S.config.secteur=document.getElementById('cfg-secteur').value;
+  S.config.cv=document.getElementById('cfg-cv').value.trim();
+  S.config.type_entreprise = S.config.type_entreprise || 'grand_groupe';
   if(S.config.aleatoire) S.config.secteur=rndSector();
-  goTo('interview'); initInterview();
+  goTo('brief'); initBrief();
 }
 function rndJob(){return ['Développeur Frontend','Commercial B2B','Chef de Projet','Responsable Marketing','Data Analyst','Product Manager','Consultant RH','UX Designer'][Math.floor(Math.random()*8)]}
 function rndSector(){return ['tech','commerce','finance','marketing','rh'][Math.floor(Math.random()*5)]}
+
+/* ===== BRIEF ===== */
+function initBrief() {
+  const rec = S.recruiter || S.express_recruiter || {name:'Antoine', emoji:'🎙️'};
+  const isExpress = S.mode === 'express';
+  const level = S.config.personnalite || 'exigeant';
+  const levelLabels = {standard:'😊 Standard', exigeant:'💼 Exigeant', hardcore:'🔥 Hardcore'};
+  const modeLabel = isExpress ? '⚡ Express' : '🎯 Complet';
+  const nbQ = isExpress ? 8 : 10;
+  const duree = isExpress ? '25 min' : '40 min';
+
+  document.getElementById('brief-recruiter-name').textContent = (rec.name || 'Antoine') + ' — Recruteur IA';
+  document.getElementById('brief-recruiter-sub').textContent = (isExpress ? 'Mode Express' : 'Entretien Complet') + ' · ' + nbQ + ' questions';
+  document.getElementById('brief-badge-mode').textContent = modeLabel;
+  document.getElementById('brief-badge-level').textContent = levelLabels[level] || '💼 Exigeant';
+  document.getElementById('brief-duree').textContent = duree;
+  document.getElementById('brief-questions').textContent = nbQ;
+
+  // Auto-test mic
+  setTimeout(() => briefTestMic(), 600);
+}
+
+let briefMicStream = null;
+function briefTestMic() {
+  const status = document.getElementById('brief-mic-status');
+  const bar = document.getElementById('brief-mic-bar');
+  status.className = 'brief-mic-status mic-testing';
+  status.textContent = '🔄 Test...';
+  bar.className = 'brief-bar';
+  bar.style.width = '0%';
+  bar.style.background = '';
+
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      briefMicStream = stream;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = ctx.createAnalyser();
+      const src = ctx.createMediaStreamSource(stream);
+      src.connect(analyser);
+      analyser.fftSize = 256;
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      let peak = 0, frames = 0;
+      const measure = () => {
+        analyser.getByteFrequencyData(data);
+        const avg = data.reduce((a,b)=>a+b,0)/data.length;
+        if(avg > peak) peak = avg;
+        bar.style.width = Math.min(100, avg*2.5) + '%';
+        frames++;
+        if(frames < 45) requestAnimationFrame(measure);
+        else {
+          stream.getTracks().forEach(t=>t.stop());
+          ctx.close();
+          if(peak > 0.5) {
+            status.className = 'brief-mic-status mic-ok';
+            status.textContent = '✓ Fonctionnel';
+            bar.className = 'brief-bar active';
+          } else {
+            status.className = 'brief-mic-status mic-error';
+            status.textContent = '✗ Pas de son';
+            bar.style.width = '5%';
+            bar.style.background = 'var(--red)';
+          }
+        }
+      };
+      measure();
+    })
+    .catch(() => {
+      status.className = 'brief-mic-status mic-error';
+      status.textContent = '✗ Accès refusé';
+    });
+}
+
+function startFromBrief() {
+  goTo('interview');
+  initInterview();
+}
+
+
 
 /* ========== INTERVIEW ========== */
 let isRecording=false, currentTranscript='', recStart=0;
@@ -1062,7 +1307,7 @@ let dgSocket=null, dgRestarting=false, dgInterimText='';
 const DEEPGRAM_KEY = 'd73e5788df13e122555825bda62ed6b7f67b0d02';
 const ELEVENLABS_KEY = 'sk_8119cbdee672270d5f6d1179671d49d3d936bc8492d5f290';
 
-/* ===== RECRUTEURS ===== */
+
 const RECRUITERS = {
   antoine:   { name:'Antoine',  genre:'homme', voiceId:'101A8UFM73tcrunWGirw', avatar:'🧑‍💼' },
   laurent:   { name:'Laurent',  genre:'homme', voiceId:'bjgrAyksP9wfGoNKamR1', avatar:'👨‍💼' },
@@ -1162,9 +1407,22 @@ async function initInterview() {
     document.getElementById('r-meta-role').textContent='Recruteur IA · Entretien en cours';
     document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
     try {
-      S.itv.qs=await genQuestions(5);
-      document.getElementById('q-counter').textContent='1 / '+S.itv.qs.length;
-      document.getElementById('prog-fill').style.width=(1/S.itv.qs.length*100)+'%';
+      S.itv.qs=await genQuestions(10);
+      // Intro personnalisée selon type d'entreprise et CV
+      const typeIntros={
+        grand_groupe: `Bonjour, je suis ${rec.name}, ${rec.genre==='femme'?'Responsable RH':'Responsable RH'} au sein de notre direction. J'ai pris connaissance de votre dossier de candidature pour le poste de ${S.config.poste}. Nous allons passer environ 45 minutes ensemble. Commençons.`,
+        pme: `Bonjour, je suis ${rec.name}. Je m'occupe du recrutement ici. J'ai regardé votre profil pour le poste de ${S.config.poste} — ça m'a semblé intéressant. On va discuter tranquillement.`,
+        startup: `Bonjour, ${rec.name} ! Je gère le recrutement chez nous. On cherche quelqu'un pour le poste de ${S.config.poste} — un rôle clé pour nous. On va avoir une conversation ouverte, sans formalisme.`,
+        administration: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${S.config.poste}. Cet entretien a pour but d'évaluer vos compétences et votre adéquation avec les missions du poste.`
+      };
+      const introText = typeIntros[S.config.type_entreprise||'grand_groupe'];
+      document.getElementById('q-text').textContent=introText;
+      if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='none';
+      if(S.config.voix) await speakTextAsync(introText);
+      else await new Promise(r=>setTimeout(r,1200));
+      if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='flex';
+      document.getElementById('q-counter').style.display='none';
+      document.getElementById('prog-fill').style.width='5%';
       displayQ(0);
     } catch(e) {
       document.getElementById('q-text').textContent='⚠️ Erreur API. Vérifie ta clé Anthropic.';
@@ -1196,16 +1454,26 @@ async function genQuestions(n) {
   const q2='Quels sont vos principaux points forts ? Et quel est votre point faible principal ?';
   if(n<=2) return [q1,q2].slice(0,n);
   const tone=S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
-  const prompt=`Tu es recruteur ${tone}. Poste : ${S.config.poste}${S.config.entreprise?' chez '+S.config.entreprise:''}, niveau ${S.config.niveau}, secteur ${S.config.secteur}.\nGénère exactement ${n-2} questions spécifiques après présentation et points forts/faibles.\nRetourne UNIQUEMENT un tableau JSON. Aucun texte autour.`;
-  const res=await apiCall(prompt,600);
+  const typeLabels={grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
+  const typeEntreprise=typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const cvContext = S.config.cv ? `\nParcours du candidat : ${S.config.cv}\nATTENTION : si tu détectes des trous dans le parcours, des changements de secteur fréquents, des postes très courts ou des périodes sans emploi, génère une question spécifique pour explorer cette zone — comme le ferait un vrai recruteur.` : '';
+  const prompt=`Tu es recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}${S.config.entreprise?' chez '+S.config.entreprise:''}, niveau ${S.config.niveau||'junior'}, secteur ${S.config.secteur}.${cvContext}
+Génère exactement ${n-2} questions d'entretien UNIQUES et VARIÉES. Inclus obligatoirement : "Pourquoi vous et pas un autre candidat ?" et une question sur les prétentions salariales. Mix varié : motivations, situations vécues, comportemental STAR, projection, culture fit adapté au type d'entreprise. Questions naturelles, pas une liste froide.
+Retourne UNIQUEMENT un tableau JSON de strings. Aucun texte autour.`;
+  const res=await apiCall(prompt,900);
   try{return [q1,q2,...JSON.parse(res.replace(/```json?|```/g,'').trim())].slice(0,n)}
-  catch(e){return [q1,q2,'Pourquoi ce poste ?','Votre plus grande réussite ?','Où dans 3 ans ?'].slice(0,n)}
+  catch(e){return [q1,q2,'Pourquoi ce poste ?','Pourquoi vous et pas un autre candidat ?','Votre plus grande réussite ?','Comment gérez-vous le stress ?','Décrivez une situation difficile et comment vous l\'avez résolue.','Où vous voyez-vous dans 3 ans ?','Quelles sont vos prétentions salariales ?','Avez-vous des questions à me poser ?'].slice(0,n)}
 }
 
 function displayQ(i) {
   const n=S.itv.qs.length;
-  document.getElementById('q-counter').textContent=(i+1)+' / '+n;
-  document.getElementById('prog-fill').style.width=((i+1)/n*100)+'%';
+  if(S.mode==='express') {
+    document.getElementById('q-counter').textContent=(i+1)+' / '+n;
+    document.getElementById('prog-fill').style.width=((i+1)/n*100)+'%';
+  } else {
+    document.getElementById('q-counter').style.display='none';
+    document.getElementById('prog-fill').style.width=((i+1)/n*100)+'%';
+  }
   document.getElementById('q-text').textContent=S.itv.qs[i];
   currentTranscript='';
   document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
@@ -1613,6 +1881,64 @@ function fmtDate(iso){
 /* Init */
 if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices());}
 </script>
+
+<!-- =========== PACKS =========== -->
+<div id="screen-packs" class="screen">
+  <nav class="nav">
+    <button class="nav-back" onclick="goTo('home','back')">← Retour</button>
+    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);">Job<span>win</span></div>
+    <div style="width:72px"></div>
+  </nav>
+  <div class="content">
+    <div class="eyebrow"><div class="eyebrow-dot"></div><div class="eyebrow-text">Choisis ton pack</div></div>
+    <h2 style="font-size:24px;line-height:1.2;margin-bottom:6px;">Entraîne-toi jusqu'à décrocher ton poste</h2>
+    <p style="font-size:13.5px;color:var(--gray-500);margin-bottom:24px;">Accès immédiat après paiement · Sans abonnement · Clé par email</p>
+
+    <!-- Pack Découverte -->
+    <div style="background:var(--white);border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Découverte</div>
+          <div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">3 entretiens complets</div>
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--green)">9,90€</div>
+      </div>
+      <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Recruteur au choix · Analyse complète · Score multi-critères · Idéal pour tester</div>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Découverte →</a>
+    </div>
+
+    <!-- Pack Essentiel - Recommandé -->
+    <div style="background:var(--white);border:2.5px solid var(--blue);border-radius:var(--r-sm);padding:18px;margin-bottom:12px;box-shadow:0 4px 20px rgba(37,99,235,.15);position:relative">
+      <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-size:11px;font-weight:700;padding:3px 14px;border-radius:20px;white-space:nowrap">⭐ LE PLUS POPULAIRE</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:6px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Essentiel</div>
+          <div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">8 entretiens complets</div>
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--blue)">19,90€</div>
+      </div>
+      <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Découverte · Historique de progression · 8 sessions pour vraiment progresser</div>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="btn btn-primary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Essentiel →</a>
+    </div>
+
+    <!-- Pack Intensif -->
+    <div style="background:var(--white);border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:18px;margin-bottom:24px;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Intensif</div>
+          <div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">20 entretiens complets</div>
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--purple)">34,90€</div>
+      </div>
+      <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Essentiel · 20 sessions · Pour les candidats déterminés à décrocher leur poste</div>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Intensif →</a>
+    </div>
+
+    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:8px">🔒 Paiement sécurisé via Lemon Squeezy · Tu reçois ta clé par email</div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
 </div><!-- /#app -->
 </body>
 </html>
