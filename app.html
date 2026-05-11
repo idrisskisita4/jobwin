@@ -474,11 +474,6 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
     </div>
 
     <div style="height:8px"></div>
-    <div class="api-box">
-      <div class="api-box-title">🔑 Clé API Anthropic</div>
-      <input type="password" class="api-input" id="api-key-input" placeholder="sk-ant-api03-..." oninput="saveApiKey(this.value)" autocomplete="off" spellcheck="false">
-      <div class="api-note">Ta clé reste sur ton appareil uniquement · anthropic.com</div>
-    </div>
     <div class="faq-item">
       <div class="faq-q">💡 Pourquoi l'Express est difficile ?</div>
       <div class="faq-a">Le mode gratuit utilise un recruteur exigeant et un chrono de 25 minutes pour simuler la vraie pression. La plupart des candidats obtiennent moins de 60% sans préparation.</div>
@@ -1029,7 +1024,7 @@ function goTo(id, dir='forward') {
   next.scrollTo(0, 0);
 }
 
-function saveApiKey(v){ S.apiKey=v; localStorage.setItem('jw_ak',v); }
+function saveApiKey(v){ /* handled server-side */ }
 
 /* ========== HOME ========== */
 function selectMode(mode) {
@@ -1645,13 +1640,13 @@ function abandon() {
 
 /* ========== API CALLS ========== */
 async function apiCall(prompt, maxTokens=600) {
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
+  const res=await fetch('/.netlify/functions/chat',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTokens,messages:[{role:'user',content:prompt}]})
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prompt,maxTokens})
   });
   if(!res.ok) throw new Error('API '+res.status);
-  const d=await res.json(); return d.content[0].text;
+  const d=await res.json(); return d.text;
 }
 
 async function evalAnswer(q, answer) {
@@ -1880,6 +1875,7 @@ function fmtDate(iso){
 
 /* Init */
 if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices());}
+if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
 </script>
 
 <!-- =========== PACKS =========== -->
