@@ -1362,7 +1362,7 @@ async function initInterview() {
   S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now()};
   S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0;
 
-  const rec = RECRUTEURS.Antoine;
+  const rec = S.RECRUTEUR || { Nom: "Antoine", Genre: "homme", VoiceId: "101A8UFM73tcrunWGirw", Avatar: "🎤" };
   S.recruiter = rec;
   S.config.genre = rec.genre;
 
