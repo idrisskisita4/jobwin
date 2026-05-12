@@ -136,6 +136,15 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
 .toggle-group{display:flex;gap:8px}
 .toggle-btn{flex:1;padding:11px 12px;border-radius:var(--r-sm);font-size:13.5px;font-weight:500;background:var(--gray-100);color:var(--gray-500);border:2px solid transparent;cursor:pointer;text-align:center;transition:all var(--t);user-select:none}
 .toggle-btn.active{background:var(--blue-light);color:var(--blue);border-color:var(--blue-mid);font-weight:600}
+/* RECRUITER CARDS */
+.rec-card{border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:14px 12px;cursor:pointer;text-align:center;transition:all var(--t);background:var(--white);user-select:none}
+.rec-card:active{transform:scale(.98)}
+.rec-card.active{border-color:var(--blue);background:var(--blue-light)}
+.rec-avatar{font-size:26px;margin-bottom:5px}
+.rec-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--navy)}
+.rec-genre{font-size:11px;color:var(--gray-400);margin-top:2px}
+.rec-card.active .rec-name{color:var(--blue)}
+
 
 /* BUTTONS */
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 22px;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:15.5px;font-weight:500;border:none;cursor:pointer;transition:all var(--t);text-decoration:none}
@@ -431,7 +440,7 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
   </nav>
   <div class="content">
     <div class="eyebrow"><div class="eyebrow-dot"></div><div class="eyebrow-text">Simulateur d'entretien IA</div></div>
-    <h1 style="font-size:27px;line-height:1.22;margin-bottom:8px;">Décroche ton poste grâce à ce coach privé en ligne</h1>
+    <h1 style="font-size:21px;line-height:1.28;margin-bottom:8px;">Décroche ton poste grâce à ce coach privé en ligne</h1>
     <p style="font-size:14px;color:var(--gray-500);line-height:1.55;margin-bottom:26px;">Entretien vocal IA · Analyse vocale avancée · Score multi-critères</p>
 
     <div class="slabel">Choisir un mode</div>
@@ -559,8 +568,22 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
     </div>
     <div class="form-group">
       <label class="form-label">Ton parcours <span style="font-weight:400;color:var(--gray-400)">(recommandé)</span></label>
-      <textarea class="form-input" id="cfg-cv" rows="4" placeholder="Colle un résumé de ton CV ou tes expériences clés...&#10;Ex : 3 ans commercial B2B chez une startup SaaS, 2 ans manager junior chez BNP, diplômé école de commerce..." style="resize:vertical;line-height:1.5;font-family:inherit;font-size:13.5px;"></textarea>
-      <div style="font-size:12px;color:var(--gray-400);margin-top:5px">📎 Les questions seront personnalisées selon ton parcours réel</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button id="cv-tab-text" onclick="switchCvTab('text')" style="flex:1;padding:9px;border-radius:var(--r-xs);font-size:12.5px;font-weight:600;border:2px solid var(--blue);background:var(--blue-light);color:var(--blue);cursor:pointer;transition:all var(--t)">Saisir mon parcours</button>
+        <button id="cv-tab-file" onclick="switchCvTab('file')" style="flex:1;padding:9px;border-radius:var(--r-xs);font-size:12.5px;font-weight:600;border:2px solid var(--gray-200);background:var(--gray-100);color:var(--gray-500);cursor:pointer;transition:all var(--t)">Importer mon CV (PDF)</button>
+      </div>
+      <div id="cv-panel-text">
+        <textarea class="form-input" id="cfg-cv" rows="4" placeholder="Colle un résumé de ton CV ou tes expériences clés...&#10;Ex : 3 ans commercial B2B chez une startup SaaS, 2 ans manager junior chez BNP, diplômé école de commerce..." style="resize:vertical;line-height:1.5;font-family:inherit;font-size:13.5px;"></textarea>
+      </div>
+      <div id="cv-panel-file" style="display:none">
+        <label for="cv-file-input" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 16px;border:2px dashed var(--gray-300);border-radius:var(--r-sm);cursor:pointer;background:var(--gray-50)" id="cv-drop-label">
+          <span style="font-size:26px">📄</span>
+          <span style="font-size:13.5px;font-weight:600;color:var(--navy)" id="cv-file-name">Glisse ton CV ici ou clique pour sélectionner</span>
+          <span style="font-size:12px;color:var(--gray-400)">Format PDF uniquement · Max 5 Mo</span>
+        </label>
+        <input type="file" id="cv-file-input" accept=".pdf" style="display:none" onchange="handleCvUpload(this)">
+      </div>
+      <div style="font-size:12px;color:var(--gray-400);margin-top:6px">Les questions seront personnalisées selon ton parcours réel</div>
     </div>
     <div class="form-group">
       <label class="form-label">Niveau d'expérience</label>
@@ -598,15 +621,40 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
     <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Exigeant — Professionnel</div><div class="p-card-desc">Neutre, précis, challengeant. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
     <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Hardcore — Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Style CAC40.</div></div><div class="p-check"></div></div>
     <div class="divider"></div>
-    <div class="slabel">Recruteur IA</div>
-    <div class="form-group">
-      <label class="form-label">Genre du recruteur</label>
-      <div class="toggle-group" id="genre-group">
-        <div class="toggle-btn active" onclick="selectToggle('genre',this,'homme')">👨 Thomas</div>
-        <div class="toggle-btn" onclick="selectToggle('genre',this,'femme')">👩 Sophie</div>
+    <div class="slabel">Choisir votre recruteur</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px" id="recruiter-grid">
+      <div class="rec-card active" id="rc-antoine" onclick="selectRecruiter('antoine')">
+        <div class="rec-avatar">🧑‍💼</div>
+        <div class="rec-name">Antoine</div>
+        <div class="rec-genre">Homme</div>
+      </div>
+      <div class="rec-card" id="rc-laurent" onclick="selectRecruiter('laurent')">
+        <div class="rec-avatar">👨‍💼</div>
+        <div class="rec-name">Laurent</div>
+        <div class="rec-genre">Homme</div>
+      </div>
+      <div class="rec-card" id="rc-guillaume" onclick="selectRecruiter('guillaume')">
+        <div class="rec-avatar">🧑‍💻</div>
+        <div class="rec-name">Guillaume</div>
+        <div class="rec-genre">Homme</div>
+      </div>
+      <div class="rec-card" id="rc-manon" onclick="selectRecruiter('manon')">
+        <div class="rec-avatar">👩‍💼</div>
+        <div class="rec-name">Manon</div>
+        <div class="rec-genre">Femme</div>
+      </div>
+      <div class="rec-card" id="rc-jeanne" onclick="selectRecruiter('jeanne')">
+        <div class="rec-avatar">👩‍💻</div>
+        <div class="rec-name">Jeanne</div>
+        <div class="rec-genre">Femme</div>
+      </div>
+      <div class="rec-card" id="rc-victoria" onclick="selectRecruiter('victoria')">
+        <div class="rec-avatar">👩‍🎓</div>
+        <div class="rec-name">Victoria</div>
+        <div class="rec-genre">Femme</div>
       </div>
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-top:14px">
       <label class="form-label">Voix du recruteur</label>
       <div class="toggle-group" id="voix-group">
         <div class="toggle-btn active" onclick="selectToggle('voix',this,'on')">🔊 Activée</div>
@@ -1230,6 +1278,7 @@ function launchInterview() {
   S.config.entreprise=document.getElementById('cfg-entreprise').value.trim();
   S.config.secteur=document.getElementById('cfg-secteur').value;
   S.config.cv=document.getElementById('cfg-cv').value.trim();
+  if(!S.recruiter) S.recruiter = RECRUITERS['antoine'];
   S.config.type_entreprise = S.config.type_entreprise || 'grand_groupe';
   if(S.config.aleatoire) S.config.secteur=rndSector();
   goTo('brief'); initBrief();
@@ -1892,6 +1941,76 @@ function openHistory(){
 function fmtDate(iso){
   try{const d=new Date(iso);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
   catch(e){return '—';}
+}
+
+
+function selectRecruiter(key) {
+  Object.keys(RECRUITERS).forEach(k => {
+    const el = document.getElementById('rc-' + k);
+    if(el) el.classList.remove('active');
+  });
+  const el = document.getElementById('rc-' + key);
+  if(el) el.classList.add('active');
+  S.recruiter = RECRUITERS[key];
+}
+
+function switchCvTab(tab) {
+  const isText = tab === 'text';
+  document.getElementById('cv-panel-text').style.display = isText ? 'block' : 'none';
+  document.getElementById('cv-panel-file').style.display = isText ? 'none' : 'block';
+  const btnText = document.getElementById('cv-tab-text');
+  const btnFile = document.getElementById('cv-tab-file');
+  if(isText) {
+    btnText.style.border = '2px solid var(--blue)';
+    btnText.style.background = 'var(--blue-light)';
+    btnText.style.color = 'var(--blue)';
+    btnFile.style.border = '2px solid var(--gray-200)';
+    btnFile.style.background = 'var(--gray-100)';
+    btnFile.style.color = 'var(--gray-500)';
+  } else {
+    btnFile.style.border = '2px solid var(--blue)';
+    btnFile.style.background = 'var(--blue-light)';
+    btnFile.style.color = 'var(--blue)';
+    btnText.style.border = '2px solid var(--gray-200)';
+    btnText.style.background = 'var(--gray-100)';
+    btnText.style.color = 'var(--gray-500)';
+  }
+}
+
+function handleCvUpload(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5 * 1024 * 1024) {
+    alert('Le fichier est trop volumineux (max 5 Mo).');
+    return;
+  }
+  document.getElementById('cv-file-name').textContent = '✓ ' + file.name;
+  document.getElementById('cv-drop-label').style.borderColor = 'var(--blue)';
+  document.getElementById('cv-drop-label').style.background = 'var(--blue-light)';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    // Store PDF text extraction — basic fallback: store filename + signal
+    S.config.cv_filename = file.name;
+    S.config.cv_pdf = true;
+    // Try to extract text via ArrayBuffer for basic PDF parsing
+    const arr = new Uint8Array(e.target.result);
+    let raw = '';
+    for(let i=0;i<arr.length;i++) raw += String.fromCharCode(arr[i]);
+    const textMatches = raw.match(/BT[\s\S]*?ET/g);
+    if(textMatches) {
+      const extracted = textMatches
+        .join(' ')
+        .replace(/Tf|Tm|Td|TD|T\*|Tj|TJ/g, ' ')
+        .replace(/[^\x20-\x7E\xC0-\xFF]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .substring(0, 1500);
+      document.getElementById('cfg-cv').value = extracted || 'CV importé : ' + file.name;
+    } else {
+      document.getElementById('cfg-cv').value = 'CV importé : ' + file.name;
+    }
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 /* Init */
