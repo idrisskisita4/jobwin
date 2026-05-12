@@ -6,7 +6,7 @@
 <title>JOBWIN — Simulateur d'Entretien IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -49,8 +49,8 @@ body{min-height:100%;font-family:'DM Sans',sans-serif;color:var(--gray-800);-web
   position:relative;
   z-index:1;
 }
-.side-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:#fff;letter-spacing:-.5px;margin-bottom:4px}
-.side-logo span{color:#60a5fa}
+.side-logo{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:#fff;letter-spacing:-.5px;margin-bottom:4px}
+.side-logo b{color:#60a5fa}
 .side-sub{font-size:15px;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:8px}
 .side-stat{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;backdrop-filter:blur(10px)}
 .side-stat-icon{font-size:22px;flex-shrink:0}
@@ -66,16 +66,16 @@ body{min-height:100%;font-family:'DM Sans',sans-serif;color:var(--gray-800);-web
 
 /* NAV */
 .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;padding-top:calc(14px + env(safe-area-inset-top));background:var(--white);border-bottom:1px solid var(--gray-100);position:sticky;top:0;z-index:50;flex-shrink:0}
-.logo{display:flex;align-items:center;gap:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:19px;color:var(--navy);text-decoration:none}
-.logo-icon{width:34px;height:34px;background:var(--navy);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
-.logo span{color:var(--blue)}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Bricolage Grotesque','Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy);text-decoration:none;letter-spacing:-.03em}
+.logo-icon{width:30px;height:30px;background:var(--navy);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo b{color:var(--blue)}
 .nav-back{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--gray-500);background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:var(--r-xs);transition:color var(--t),background var(--t)}
 .nav-back:hover{color:var(--navy);background:var(--gray-100)}
 .content{flex:1;padding:24px 20px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 
 /* TYPOGRAPHY */
 h1,h2,h3{font-family:'Syne',sans-serif;color:var(--navy)}
-h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
+h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 .eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:18px}
 .eyebrow-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-dot 2.4s ease infinite}
 .eyebrow-text{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--gray-400)}
@@ -394,7 +394,7 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
 <!-- DESKTOP SIDE PANEL (hidden on mobile) -->
 <div id="side-panel">
   <div>
-    <div class="side-logo">Job<span>win</span></div>
+    <div class="side-logo"><span>Job<b>win</b></span></div>
     <div class="side-sub">Le simulateur d'entretien IA<br>qui te prépare comme un vrai coach.</div>
   </div>
   <div style="display:flex;flex-direction:column;gap:10px">
@@ -436,11 +436,11 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
 <!-- =========== HOME =========== -->
 <div id="screen-home" class="screen active">
   <nav class="nav">
-    <div class="logo"><div class="logo-icon">💼</div>Job<span>win</span></div>
+    <div class="logo"><div class="logo-icon"><svg viewBox="0 0 16 16" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div><span>Job<b>win</b></span></div>
   </nav>
   <div class="content">
     <div class="eyebrow"><div class="eyebrow-dot"></div><div class="eyebrow-text">Simulateur d'entretien IA</div></div>
-    <h1 style="font-size:21px;line-height:1.28;margin-bottom:8px;">Décroche ton poste grâce à ce coach privé en ligne</h1>
+    <h1 style="font-size:20px;line-height:1.3;font-weight:600;margin-bottom:8px;">Décroche ton poste grâce à ce coach privé en ligne</h1>
     <p style="font-size:14px;color:var(--gray-500);line-height:1.55;margin-bottom:26px;">Entretien vocal IA · Analyse vocale avancée · Score multi-critères</p>
 
     <div class="slabel">Choisir un mode</div>
@@ -495,7 +495,7 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
 <div id="screen-code" class="screen">
   <nav class="nav">
     <button class="nav-back" onclick="goTo('home','back')">← Retour</button>
-    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);">Job<span>win</span></div>
+    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);"><div class="logo-icon"><svg viewBox="0 0 16 16" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div><span>Job<b>win</b></span></div>
     <div style="width:72px"></div>
   </nav>
   <div class="content">
@@ -674,7 +674,7 @@ h1{font-weight:800}h2{font-weight:700}h3{font-weight:600}
 <div id="screen-brief" class="screen">
   <nav class="nav">
     <button class="nav-back" onclick="goTo(S.mode==='express'?'home':'config','back')">← Retour</button>
-    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);">Job<span>win</span></div>
+    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);"><div class="logo-icon"><svg viewBox="0 0 16 16" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div><span>Job<b>win</b></span></div>
     <div style="width:72px"></div>
   </nav>
   <div class="content">
@@ -2022,7 +2022,7 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
 <div id="screen-packs" class="screen">
   <nav class="nav">
     <button class="nav-back" onclick="goTo('home','back')">← Retour</button>
-    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);">Job<span>win</span></div>
+    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);"><div class="logo-icon"><svg viewBox="0 0 16 16" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div><span>Job<b>win</b></span></div>
     <div style="width:72px"></div>
   </nav>
   <div class="content">
