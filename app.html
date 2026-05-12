@@ -1130,6 +1130,27 @@ async function verifyCode(){
     }catch(e){}
   }
 
+  // Codes test internes (bypass Lemon Squeezy)
+  const TEST_CODES = {
+    'TEST2026':    { name: 'Test',       interviews: 3  },
+    'DEMO2026':    { name: 'Démo',       interviews: 1  },
+    'DECOUVERTE':  { name: 'Découverte', interviews: 3  },
+    'ESSENTIEL':   { name: 'Essentiel',  interviews: 8  },
+    'INTENSIF':    { name: 'Intensif',   interviews: 20 }
+  };
+  if(TEST_CODES[raw]){
+    const info = TEST_CODES[raw];
+    const packData = { name: info.name, interviewsTotal: info.interviews, interviewsRemaining: info.interviews, licenseKey: raw, activatedAt: new Date().toISOString() };
+    localStorage.setItem(packKey(raw), JSON.stringify(packData));
+    localStorage.setItem('jw_active_key', raw);
+    S.accessCode = raw;
+    applyPackToUI(packData);
+    loadEl.style.display = 'none';
+    btn.disabled = false;
+    goTo('config');
+    return;
+  }
+
   // Valider via API Lemon Squeezy
   try{
     const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
