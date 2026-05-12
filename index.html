@@ -3,295 +3,335 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-<!-- SEO -->
 <title>JOBWIN — Simulateur d'Entretien IA Vocal | Prépare ton entretien</title>
 <meta name="description" content="Entraîne-toi à l'entretien d'embauche avec un recruteur IA qui parle. Questions personnalisées, score d'aptitude, feedback détaillé. Dès 9,90€ — sans abonnement.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://jobwin.fr">
-
-<!-- Open Graph (LinkedIn, WhatsApp, Facebook) -->
 <meta property="og:title" content="JOBWIN — Entraîne-toi avec un vrai recruteur IA">
-<meta property="og:description" content="Simulation d'entretien vocal avec IA. Le recruteur parle, tu réponds. Score instantané, feedback personnalisé. Dès 9,90€.">
+<meta property="og:description" content="Simulation d'entretien vocal avec IA. Le recruteur parle, tu réponds. Score instantané. Dès 9,90€.">
 <meta property="og:url" content="https://jobwin.fr">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://jobwin.fr/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta property="og:locale" content="fr_FR">
-<meta property="og:site_name" content="JOBWIN">
-
-<!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="JOBWIN — Simulateur d'Entretien IA Vocal">
-<meta name="twitter:description" content="Le recruteur IA parle. Tu réponds. Score instantané. Dès 9,90€.">
-<meta name="twitter:image" content="https://jobwin.fr/og-image.png">
-
-<!-- Favicon SVG -->
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231B2E4A'/><text y='.9em' font-size='72' x='12'>💼</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231B2E4A'/><text y='.9em' font-size='72' x='12'>💼</text></svg>">
-
-<!-- Schema.org JSON-LD -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "JOBWIN",
-  "description": "Simulateur d'entretien IA vocal. Entraîne-toi avec un recruteur IA qui parle, reçois ton score d'aptitude et un feedback personnalisé.",
-  "url": "https://jobwin.fr",
-  "applicationCategory": "EducationalApplication",
-  "operatingSystem": "Web",
-  "offers": {
-    "@type": "AggregateOffer",
-    "lowPrice": "9.90",
-    "highPrice": "34.90",
-    "priceCurrency": "EUR"
-  },
-  "inLanguage": "fr-FR",
-  "publisher": {
-    "@type": "Organization",
-    "name": "JOBWIN",
-    "url": "https://jobwin.fr"
-  }
-}
-</script>
-
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"JOBWIN","url":"https://jobwin.fr","applicationCategory":"EducationalApplication","operatingSystem":"Web","offers":{"@type":"AggregateOffer","lowPrice":"9.90","highPrice":"34.90","priceCurrency":"EUR"},"inLanguage":"fr-FR"}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
+:root{
+  --navy:#1B2E4A; --navy2:#243d60; --blue:#2563EB; --blue2:#1d4ed8;
+  --blue3:#3B82F6; --sky:#EFF6FF; --sky2:#DBEAFE; --sky3:#BFDBFE;
+  --white:#fff; --off:#F6F9FF; --text:#0F1C2E; --muted:#6B7FA0;
+  --border:#DDE8F7; --border2:#B8CEF0;
+  --green:#059669; --greenl:#D1FAE5; --green2:#34D399;
+  --amber:#D97706; --ambl:#FEF3C7;
+  --red:#DC2626; --redl:#FEE2E2;
+  --max:1160px; --r:14px;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:#fff;color:#0f172a;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-:root{
-  --blue:#2563eb;--blue2:#1d4ed8;--blue3:#3b82f6;--bl:#eff6ff;--bm:#bfdbfe;
-  --navy:#0f172a;--gray:#64748b;--gl:#f8fafc;--gm:#f1f5f9;--gb:#e2e8f0;
-  --green:#059669;--greenl:#d1fae5;--amber:#d97706;--ambl:#fef3c7;
-  --red:#dc2626;--redl:#fee2e2;--max:1140px;
-}
-h1,h2,h3{font-family:'Syne',sans-serif;letter-spacing:-.025em;color:var(--navy)}
-.container{max-width:var(--max);margin:0 auto;padding:0 24px}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.025em;color:var(--navy)}
+.container{max-width:var(--max);margin:0 auto;padding:0 28px}
 
-/* NAV */
-nav{position:sticky;top:0;z-index:900;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--gb)}
-.navi{display:flex;align-items:center;justify-content:space-between;max-width:var(--max);margin:0 auto;padding:0 24px;height:62px}
-.logo{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--navy);text-decoration:none;letter-spacing:-.4px}
-.logo-box{width:30px;height:30px;background:var(--navy);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo b{color:var(--blue3)}
-.nl{display:flex;align-items:center;gap:24px}
-.nl a{font-size:14px;color:var(--gray);text-decoration:none;font-weight:500;transition:color .15s}
-.nl a:hover{color:var(--navy)}
-.nr{display:flex;align-items:center;gap:10px}
-.nb{font-size:14px;font-weight:500;color:var(--gray);text-decoration:none;padding:7px 13px;border-radius:8px;transition:all .15s}
-.nb:hover{background:var(--gm);color:var(--navy)}
-.nc{background:var(--navy);color:#fff;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;white-space:nowrap}
-.nc:hover{background:#1e293b;transform:translateY(-1px)}
+/* ─ ANIMATIONS ─ */
+@keyframes fadeup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+@keyframes ticker-run{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes bar-grow{from{width:0}to{width:var(--w,78%)}}
+@keyframes shine{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes count-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(37,99,235,.35)}70%{box-shadow:0 0 0 12px rgba(37,99,235,0)}100%{box-shadow:0 0 0 0 rgba(37,99,235,0)}}
+
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s cubic-bezier(.4,0,.2,1),transform .65s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.3s}
+.reveal-d4{transition-delay:.4s}
+
+/* ─ NAV ─ */
+nav{position:sticky;top:0;z-index:900;background:rgba(255,255,255,.93);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);transition:box-shadow .3s}
+nav.scrolled{box-shadow:0 4px 24px rgba(27,46,74,.08)}
+.navi{display:flex;align-items:center;justify-content:space-between;max-width:var(--max);margin:0 auto;padding:0 28px;height:64px}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:17px;color:var(--navy);text-decoration:none;letter-spacing:-.03em}
+.logo-box{width:30px;height:30px;background:var(--navy);border-radius:7px;display:grid;place-items:center;flex-shrink:0;transition:transform .2s}
+.logo:hover .logo-box{transform:rotate(-6deg)}
+.logo-box svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.logo-word{color:var(--navy)}.logo-word b{color:var(--blue3)}
+.nl{display:flex;align-items:center;gap:26px}
+.nl a{font-size:13.5px;color:var(--muted);text-decoration:none;font-weight:400;transition:color .15s;position:relative}
+.nl a::after{content:'';position:absolute;left:0;bottom:-2px;width:0;height:1.5px;background:var(--blue);transition:width .22s}
+.nl a:hover{color:var(--navy)}.nl a:hover::after{width:100%}
+.nr{display:flex;align-items:center;gap:8px}
+.nb{font-size:13.5px;font-weight:500;color:var(--muted);text-decoration:none;padding:7px 14px;border-radius:8px;transition:all .15s}
+.nb:hover{background:var(--off);color:var(--navy)}
+.nc{background:var(--navy);color:#fff;padding:10px 20px;border-radius:8px;font-size:13.5px;font-weight:600;text-decoration:none;transition:all .22s;letter-spacing:-.01em;position:relative;overflow:hidden}
+.nc::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);transform:translateX(-100%);transition:transform .5s}
+.nc:hover{background:var(--navy2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(27,46,74,.28)}
+.nc:hover::before{transform:translateX(100%)}
 @media(max-width:768px){.nl,.nb{display:none}}
 
-/* HERO */
-.hero{padding:76px 0 0;background:linear-gradient(180deg,#f8fafc 0%,#fff 60%);text-align:center;position:relative;overflow:hidden}
-@media(max-width:768px){.hero{padding:60px 0 48px}.hero-glow{display:none}.mock-wrap::after{display:none}.mock-wrap{margin-top:28px}}
-.hero-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(ellipse,rgba(37,99,235,.07) 0%,transparent 65%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;background:var(--greenl);border:1px solid #a7f3d0;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--green);margin-bottom:22px;animation:fu .5s ease both}
-.bd{width:6px;height:6px;border-radius:50%;background:var(--green);animation:bp 1.5s infinite}
-@keyframes bp{0%,100%{opacity:1}50%{opacity:.3}}
-.hero h1{font-size:clamp(38px,6vw,72px);font-weight:900;line-height:1.07;margin-bottom:20px;animation:fu .55s .08s ease both}
-.hero h1 em{font-style:normal;color:var(--blue);text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:4px}
-.hero-sub{font-size:clamp(15px,1.8vw,18px);color:var(--gray);max-width:560px;margin:0 auto 32px;line-height:1.65;animation:fu .55s .15s ease both}
-.ha{display:flex;align-items:center;justify-content:center;gap:11px;flex-wrap:wrap;animation:fu .55s .22s ease both;margin-bottom:16px}
-.bp1{display:inline-flex;align-items:center;gap:7px;background:var(--navy);color:#fff;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 18px rgba(15,23,42,.25);transition:all .2s;white-space:nowrap}
-.bp1:hover{background:#1e293b;transform:translateY(-2px);box-shadow:0 8px 28px rgba(15,23,42,.35)}
-.bs1{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--navy);padding:14px 20px;border-radius:10px;font-size:14.5px;font-weight:500;text-decoration:none;border:1.5px solid var(--gb);transition:all .2s}
-.bs1:hover{background:var(--gm);transform:translateY(-1px)}
-.trust-row{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;animation:fu .55s .28s ease both;padding-bottom:4px}
-.tr{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray);font-weight:500}
-.tdiv{width:1px;height:14px;background:var(--gb)}
-@media(max-width:500px){.tdiv{display:none}.trust-row{gap:12px}}
-@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+/* ─ HERO ─ */
+.hero{padding:88px 0 0;background:linear-gradient(160deg,var(--sky) 0%,var(--white) 60%);position:relative;overflow:hidden;min-height:90vh;display:flex;align-items:center}
+.hero-blob{position:absolute;border-radius:50%;pointer-events:none}
+.blob1{top:-15%;right:-8%;width:650px;height:650px;background:radial-gradient(circle,rgba(37,99,235,.08) 0%,transparent 65%);animation:floaty 8s ease-in-out infinite}
+.blob2{bottom:-10%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,.06) 0%,transparent 65%);animation:floaty 10s ease-in-out infinite reverse}
+.hero-grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:56px 56px;opacity:.4;mask-image:radial-gradient(ellipse 70% 50% at 70% 40%,black,transparent)}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;width:100%;position:relative;z-index:1;padding-bottom:88px}
+.hero-left{animation:fadeup .6s ease both}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:var(--greenl);border:1px solid #A7F3D0;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--green);margin-bottom:22px}
+.hero-pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-dot 1.8s infinite}
+.hero h1{font-size:clamp(38px,5.2vw,64px);font-weight:800;line-height:1.05;margin-bottom:20px}
+.hero h1 .accent{color:var(--blue);position:relative;display:inline-block}
+.hero h1 .accent::after{content:'';position:absolute;left:0;bottom:2px;width:100%;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue3));border-radius:2px;animation:fadeup .5s .5s both}
+.hero-sub{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:34px;font-weight:300;max-width:430px}
+.hero-btns{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn-cta{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:15px 28px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;transition:all .22s;position:relative;overflow:hidden}
+.btn-cta::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);transform:translateX(-100%);transition:transform .6s}
+.btn-cta:hover{background:var(--navy2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(27,46,74,.25)}
+.btn-cta:hover::before{transform:translateX(100%)}
+.btn-sec{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--navy);padding:15px 20px;border-radius:10px;font-size:14.5px;font-weight:500;text-decoration:none;border:1.5px solid var(--border2);transition:all .22s}
+.btn-sec:hover{background:var(--sky);border-color:var(--sky3);transform:translateY(-1px)}
+.hero-trust{display:flex;align-items:center;gap:14px;margin-top:20px;flex-wrap:wrap}
+.hero-trust span{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted)}
+.tdiv{width:1px;height:12px;background:var(--border)}
+@media(max-width:900px){.hero-inner{grid-template-columns:1fr;gap:44px;padding-bottom:56px}.hero-left{text-align:center}.hero-badge{margin-left:auto;margin-right:auto;display:inline-flex}.hero-sub{margin-left:auto;margin-right:auto}.hero-btns{justify-content:center}.hero-trust{justify-content:center}.blob1,.blob2,.hero-grid-bg{display:none}}
 
 /* MOCKUP */
-.mock-wrap{margin-top:48px;animation:fu .7s .35s ease both;position:relative}
-.mock-wrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(to top,#fff,transparent);pointer-events:none}
-.mframe{background:#fff;border:1px solid var(--gb);border-radius:16px;box-shadow:0 20px 60px rgba(15,23,42,.1),0 4px 12px rgba(15,23,42,.06);overflow:hidden;max-width:420px;margin:0 auto}
-.mtb{background:var(--gm);border-bottom:1px solid var(--gb);padding:10px 14px;display:flex;align-items:center;gap:6px}
-.mdot{width:11px;height:11px;border-radius:50%}
-.mdot:nth-child(1){background:#ff5f57}.mdot:nth-child(2){background:#febc2e}.mdot:nth-child(3){background:#28c840}
-.mu{flex:1;margin:0 10px;background:#fff;border:1px solid var(--gb);border-radius:5px;padding:3px 10px;font-size:11.5px;color:var(--gray);text-align:center}
-.mbody{background:#f9fafb;padding:0}
-.mhdr{background:var(--navy);padding:13px 15px;display:flex;align-items:center;justify-content:space-between}
+.mock-wrap{animation:fadeup .7s .2s ease both;position:relative}
+.mock-float{animation:floaty 6s ease-in-out infinite}
+.mock-glow{position:absolute;inset:-50px;background:radial-gradient(circle at 50% 50%,rgba(37,99,235,.1),transparent 65%);pointer-events:none}
+.mframe{background:var(--white);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 28px 70px rgba(15,30,70,.12),0 4px 16px rgba(15,30,70,.06);position:relative;z-index:1;max-width:420px;margin:0 auto}
+.mtopbar{background:var(--off);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:6px}
+.mdot{width:10px;height:10px;border-radius:50%}
+.mdot:nth-child(1){background:#FF5F57}.mdot:nth-child(2){background:#FEBC2E}.mdot:nth-child(3){background:#28C840}
+.murl{flex:1;margin:0 10px;background:var(--white);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:11px;color:var(--muted);text-align:center}
+.mhdr{background:var(--navy);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
 .mrec{display:flex;align-items:center;gap:9px}
-.mav{width:30px;height:30px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
+.mav{width:32px;height:32px;background:var(--blue);border-radius:50%;display:grid;place-items:center;font-size:14px;border:2px solid rgba(255,255,255,.2)}
 .mrname{font-size:12.5px;font-weight:600;color:#fff}
-.mrrole{font-size:10px;color:#93c5fd}
-.mapt{background:rgba(37,99,235,.2);border:1px solid rgba(96,165,250,.4);color:#93c5fd;border-radius:20px;padding:4px 11px;font-size:11.5px;font-weight:700}
-.mchat{padding:13px;display:flex;flex-direction:column;gap:9px}
+.mrrole{font-size:10.5px;color:rgba(255,255,255,.45)}
+.mapt{background:rgba(255,255,255,.12);color:#fff;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.2)}
+.mchat{padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--off)}
 .mba{display:flex;gap:7px;max-width:90%}
 .mbu{display:flex;gap:7px;max-width:90%;align-self:flex-end;flex-direction:row-reverse}
-.micon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
-.mba .micon{background:var(--bl)}
-.mbu .micon{background:var(--gm)}
-.mbub{padding:9px 11px;border-radius:11px;font-size:12px;line-height:1.5}
-.mba .mbub{background:#fff;border:1px solid var(--gb);border-top-left-radius:3px;color:var(--navy)}
+.mic{width:24px;height:24px;border-radius:7px;background:var(--sky2);display:grid;place-items:center;font-size:11px;flex-shrink:0}
+.mbu .mic{background:var(--border)}
+.mbub{padding:10px 13px;border-radius:11px;font-size:12.5px;line-height:1.55}
+.mba .mbub{background:var(--white);border:1px solid var(--border);border-top-left-radius:3px;color:var(--text)}
 .mbu .mbub{background:var(--blue);color:#fff;border-top-right-radius:3px}
-.mresult{background:#fff;border:1px solid var(--gb);border-radius:10px;padding:11px 13px;margin:0 13px 13px}
+.mresult{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:0 14px 14px}
 .mrt{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
-.mrlbl{font-size:11px;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.mrpct{font-family:'Syne',sans-serif;font-weight:900;font-size:1.3rem;color:var(--green)}
-.mrbar{height:6px;background:var(--gm);border-radius:6px;overflow:hidden}
-.mrfill{height:100%;width:78%;background:linear-gradient(90deg,var(--blue),#60a5fa);border-radius:6px}
+.mrlbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.mrpct{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.3rem;color:var(--green)}
+.mrbar{height:5px;background:var(--border);border-radius:5px;overflow:hidden}
+.mrfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue3));border-radius:5px;animation:bar-grow .8s .8s ease both;--w:78%}
 
-/* STATS */
-.statsbar{padding:28px 0;border-top:1px solid var(--gb);border-bottom:1px solid var(--gb);background:var(--gl)}
-.si{display:flex;align-items:stretch;justify-content:center;flex-wrap:wrap;max-width:860px;margin:0 auto;padding:0 24px}
-.ss{flex:1;min-width:140px;text-align:center;padding:16px 20px;border-right:1px solid var(--gb)}
-.ss:last-child{border-right:none}
-.ssn{font-family:'Syne',sans-serif;font-weight:900;font-size:26px;color:var(--blue);letter-spacing:-1px;line-height:1;display:block}
-.ssl{font-size:12px;color:var(--gray);margin-top:3px;font-weight:500}
-@media(max-width:600px){.ss{border-right:none;border-bottom:1px solid var(--gb)}.ss:last-child{border-bottom:none}}
+/* floating badges */
+.mock-badge1,.mock-badge2{position:absolute;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:9px 14px;box-shadow:0 8px 24px rgba(27,46,74,.12);font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap;z-index:2}
+.mock-badge1{top:18%;right:-18%;animation:floaty 5s 1s ease-in-out infinite;display:flex;align-items:center;gap:6px}
+.mock-badge2{bottom:22%;left:-16%;animation:floaty 6s 2s ease-in-out infinite reverse;display:flex;align-items:center;gap:6px}
+.badge-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.badge-dot.blue{background:var(--blue)}
+@media(max-width:900px){.mock-badge1,.mock-badge2{display:none}}
 
-/* SECTIONS */
+/* ─ TICKER ─ */
+.ticker-wrap{overflow:hidden;background:var(--navy);padding:13px 0;white-space:nowrap;cursor:default}
+.ticker-track{display:inline-flex;align-items:center;animation:ticker-run 34s linear infinite}
+.ticker-wrap:hover .ticker-track{animation-play-state:paused}
+.tick-item{font-size:13px;font-weight:400;color:rgba(255,255,255,.68);padding:0 10px;white-space:nowrap}
+.tick-val{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:#fff}
+.tick-sep{color:rgba(255,255,255,.22);padding:0 6px}
+
+/* ─ STATS ─ */
+.stats-section{padding:72px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:18px;overflow:hidden}
+.stat-cell{padding:36px 20px;text-align:center;border-right:1px solid var(--border);transition:background .25s}
+.stat-cell:last-child{border-right:none}
+.stat-cell:hover{background:var(--sky)}
+.stat-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:40px;color:var(--navy);line-height:1;letter-spacing:-.04em;display:block}
+.stat-num .hi{color:var(--blue)}
+.stat-lbl{font-size:13px;color:var(--muted);margin-top:6px;font-weight:300}
+@media(max-width:680px){.stats-grid{grid-template-columns:1fr 1fr}.stat-cell:nth-child(2){border-right:none}.stat-cell:not(:last-child){border-bottom:1px solid var(--border)}}
+
+/* ─ SECTION BASE ─ */
 section{padding:80px 0}
-.slbl{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);margin-bottom:12px;background:var(--bl);padding:4px 12px;border-radius:20px}
-.stitle{font-size:clamp(28px,4vw,44px);font-weight:900;color:var(--navy);margin-bottom:12px}
-.ssub{font-size:16px;color:var(--gray);max-width:500px;line-height:1.65}
-.sdivider{height:1px;background:var(--gb)}
+.sec-tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;background:var(--sky);padding:4px 13px;border-radius:20px}
+.sec-title{font-size:clamp(26px,3.8vw,44px);font-weight:800;color:var(--navy);line-height:1.1;margin-bottom:14px}
+.sec-sub{font-size:16px;color:var(--muted);max-width:480px;line-height:1.7;font-weight:300}
+.sdiv{height:1px;background:var(--border)}
 
-/* FEATURES */
-.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:48px}
-.fc{background:var(--gl);border:1px solid var(--gb);border-radius:14px;padding:24px;transition:all .25s}
-.fc:hover{background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.08);border-color:var(--bm);transform:translateY(-2px)}
-.fc-ic{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
-.ic-blue{background:var(--bl)}.ic-green{background:var(--greenl)}.ic-navy{background:var(--gm)}.ic-amber{background:var(--ambl)}
-.fc-t{font-family:'Syne',sans-serif;font-weight:700;font-size:15.5px;color:var(--navy);margin-bottom:5px}
-.fc-d{font-size:13.5px;color:var(--gray);line-height:1.6}
 
-/* STEPS */
-.steps4{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px;margin-top:48px}
-.step4{text-align:center;padding:20px 16px}
-.step4-n{width:50px;height:50px;border-radius:50%;background:var(--navy);color:#fff;font-family:'Syne',sans-serif;font-weight:900;font-size:1.1rem;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 14px rgba(15,23,42,.25)}
-.step4 h3{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px}
-.step4 p{font-size:13px;color:var(--gray);line-height:1.6}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:52px}
+@media(max-width:900px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.feat-grid{grid-template-columns:1fr}}
 
-/* RECRUITERS */
-.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px}
-@media(max-width:768px){.rgrid{grid-template-columns:1fr;gap:11px}}
-.rc{background:#fff;border-radius:14px;padding:24px;text-align:center;border:2px solid var(--gb);transition:all .25s}
-.rc:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(15,23,42,.1)}
-.rc.standard{border-color:#10b981}
-.rc.professionnel{border-color:#f59e0b}
-.rc.exigeant-max{border-color:var(--red)}
-.rc-ic{font-size:2.5rem;margin-bottom:12px}
-.rc-t{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--navy);margin-bottom:8px}
-.rc-badge{font-size:12px;font-weight:700;padding:4px 13px;border-radius:20px;display:inline-block;margin-bottom:10px}
-.rcb-g{background:var(--greenl);color:var(--green)}
-.rcb-a{background:var(--ambl);color:var(--amber)}
-.rcb-r{background:var(--redl);color:var(--red)}
-.rc-d{font-size:13px;color:var(--gray);line-height:1.6}
+/* ─ BENTO ─ */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:52px}
+.b{background:var(--off);border:1px solid var(--border);border-radius:var(--r);padding:28px;transition:border-color .25s,box-shadow .25s,transform .3s;overflow:hidden;position:relative}
+.b::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--sky) 0%,transparent 50%);opacity:0;transition:opacity .3s}
+.b:hover{border-color:var(--border2);box-shadow:0 10px 36px rgba(27,46,74,.08);transform:translateY(-3px)}
+.b:hover::before{opacity:1}
+.b1{grid-column:span 5}
+.b2{grid-column:span 7}
+.b3{grid-column:span 4}
+.b4{grid-column:span 4}
+.b5{grid-column:span 4}
+.b6{grid-column:span 6}
+.b7{grid-column:span 6}
+.b.hl{background:var(--navy);border-color:var(--navy)}
+.b.hl::before{background:linear-gradient(135deg,rgba(37,99,235,.2),transparent 50%)}
+.b.hl .b-t{color:#fff}
+.b.hl .b-d{color:rgba(255,255,255,.5)}
+.b.hl .b-big{color:#fff}
+.b.hl .b-icon{background:rgba(255,255,255,.08)}
+.b.hl .b-icon svg{stroke:rgba(255,255,255,.6)}
+.b.bl{background:var(--blue);border-color:transparent}
+.b.bl::before{background:linear-gradient(135deg,rgba(255,255,255,.15),transparent)}
+.b.bl .b-t{color:#fff}
+.b.bl .b-d{color:rgba(255,255,255,.7)}
+.b-icon{width:42px;height:42px;border-radius:10px;background:var(--sky2);display:grid;place-items:center;margin-bottom:16px}
+.b-icon svg{width:19px;height:19px;stroke:var(--blue);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.b-t{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15.5px;color:var(--navy);margin-bottom:7px}
+.b-d{font-size:13.5px;color:var(--muted);line-height:1.65;font-weight:300}
+.b-big{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:54px;color:var(--navy);line-height:1;letter-spacing:-.04em;margin-top:14px}
+.b-big em{font-style:normal;font-size:22px;font-weight:500;color:var(--blue)}
+.b-pill{display:inline-flex;align-items:center;gap:5px;background:var(--greenl);color:var(--green);border:1px solid #A7F3D0;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
+.b-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.b-li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.b-li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--blue3);flex-shrink:0}
+.b-hl .b-li::before{background:rgba(255,255,255,.4)}
+@media(max-width:900px){.bento{grid-template-columns:1fr 1fr}.b1,.b2,.b3,.b4,.b5,.b6,.b7{grid-column:span 1}}
+@media(max-width:520px){.bento{grid-template-columns:1fr}}
 
-/* TESTIMONIALS */
-.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:40px}
-.tcard{background:var(--gl);border:1px solid var(--gb);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:13px}
-.tstars{color:#f59e0b;font-size:13px;letter-spacing:2px}
-.tquote{font-size:13.5px;color:var(--gray);line-height:1.65;font-style:italic;flex:1}
-.tauthor{display:flex;align-items:center;gap:9px;border-top:1px solid var(--gb);padding-top:11px}
-.tav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.tname{font-weight:700;font-size:13px;display:block}
-.trole{font-size:11.5px;color:var(--gray)}
+/* ─ HOW ─ */
+.how-section{background:var(--off);padding:80px 0}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);position:relative;gap:0;margin-top:52px}
+.steps::after{content:'';position:absolute;top:27px;left:12.5%;right:12.5%;height:1px;background:var(--border2);z-index:0}
+.step{text-align:center;padding:0 16px;position:relative;z-index:1}
+.step-n{width:56px;height:56px;border-radius:50%;background:var(--white);border:2px solid var(--border2);color:var(--navy);font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px;display:grid;place-items:center;margin:0 auto 20px;transition:all .3s;position:relative}
+.step:hover .step-n{background:var(--blue);border-color:var(--blue);color:#fff;transform:scale(1.1);box-shadow:0 0 0 6px rgba(37,99,235,.12)}
+.step h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:7px}
+.step p{font-size:13px;color:var(--muted);line-height:1.65;font-weight:300}
+@media(max-width:680px){.steps{grid-template-columns:1fr 1fr;gap:32px}.steps::after{display:none}}
 
-/* AVANT/APRES */
-.avap{background:var(--navy);border-radius:16px;padding:28px 24px;color:#fff;margin-top:0}
-.avap-title{font-family:'Syne',sans-serif;font-weight:900;font-size:1.1rem;text-align:center;margin-bottom:6px}
-.avap-sub{font-size:12.5px;color:#93c5fd;text-align:center;margin-bottom:22px}
-.avap-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.avap-col{border-radius:12px;padding:16px}
-.avap-bad{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3)}
-.avap-good{background:rgba(5,122,85,.2);border:1px solid rgba(16,185,129,.3)}
-.avap-col-title{font-family:'Syne',sans-serif;font-weight:800;font-size:12.5px;text-align:center;margin-bottom:10px}
-.avap-bad .avap-col-title{color:#fca5a5}
-.avap-good .avap-col-title{color:#6ee7b7}
-.avap-li{font-size:12px;display:flex;gap:7px;margin-bottom:7px}
-.avap-bad .avap-li{color:#fca5a5}
-.avap-good .avap-li{color:#6ee7b7}
-.avap-cta{text-align:center;margin-top:20px}
-.avap-btn{display:inline-block;background:#fff;color:var(--navy);font-family:'Syne',sans-serif;font-weight:800;font-size:14px;padding:13px 32px;border-radius:11px;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .2s}
-.avap-btn:hover{transform:translateY(-2px)}
+/* ─ RECRUITERS ─ */
+.rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
+@media(max-width:768px){.rec-grid{grid-template-columns:1fr}}
+.rec-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:28px;transition:all .28s;position:relative;overflow:hidden}
+.rec-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0;transition:height .3s}
+.rec-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(27,46,74,.1)}
+.rec-card:hover::after{height:4px}
+.rc-s::after{background:var(--green)}
+.rc-p::after{background:var(--amber)}
+.rc-h::after{background:var(--red)}
+.rc-lvl{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px}
+.rc-s .rc-lvl{color:var(--green)}.rc-p .rc-lvl{color:var(--amber)}.rc-h .rc-lvl{color:var(--red)}
+.rec-card h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px;color:var(--navy);margin-bottom:8px}
+.rec-card p{font-size:13.5px;color:var(--muted);line-height:1.65;font-weight:300}
 
-/* PRICING */
-.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px;align-items:start}
-@media(max-width:900px){.pgrid{grid-template-columns:1fr;max-width:360px;margin-left:auto;margin-right:auto}}
-.pc{background:#fff;border:1.5px solid var(--gb);border-radius:16px;padding:26px;transition:all .25s;position:relative;display:flex;flex-direction:column;gap:13px}
-.pc:hover{box-shadow:0 10px 28px rgba(15,23,42,.1);transform:translateY(-2px)}
-.pc.best{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.09);transform:scale(1.03)}
-.pc.best:hover{transform:scale(1.05)}
-.pcpop{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;padding:3px 13px;border-radius:20px;white-space:nowrap}
-.pce{font-size:1.7rem}
-.pcn{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--navy)}
-.pcd{font-size:12.5px;color:var(--gray);line-height:1.4}
-.pcp{font-family:'Syne',sans-serif;font-weight:900;font-size:34px;color:var(--navy);letter-spacing:-1.5px;line-height:1}
-.pcp span{font-size:16px;font-weight:500;color:var(--gray)}
-.pcnote{font-size:11.5px;color:var(--gray)}
-.pcsep{height:1px;background:var(--gb)}
-.pcfeats{display:flex;flex-direction:column;gap:7px}
-.pff{display:flex;align-items:flex-start;gap:7px;font-size:13px;color:#334155;line-height:1.4}
-.pfi{color:var(--green);flex-shrink:0;margin-top:1px;font-weight:700}
-.pcbtn{display:block;text-align:center;padding:12px 16px;border-radius:9px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;margin-top:auto}
-.pcbp{background:var(--navy);color:#fff;box-shadow:0 4px 14px rgba(15,23,42,.2)}
-.pcbp:hover{background:#1e293b;transform:translateY(-1px)}
-.pcbs{background:var(--gl);color:var(--navy);border:1.5px solid var(--gb)}
-.pcbs:hover{background:var(--gb)}
+/* ─ TESTIMONIALS ─ */
+.test-section{background:var(--off);padding:80px 0}
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
+@media(max-width:900px){.test-grid{grid-template-columns:1fr}}
+.tcard{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:28px;display:flex;flex-direction:column;gap:16px;transition:all .25s}
+.tcard:hover{border-color:var(--border2);box-shadow:0 12px 32px rgba(27,46,74,.07);transform:translateY(-2px)}
+.tstars{display:flex;gap:3px;margin-bottom:2px}
+.tstar{width:13px;height:13px;background:var(--amber);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.tquote{font-size:14px;color:var(--muted);line-height:1.72;flex:1;font-style:italic;font-weight:300}
+.tauthor{display:flex;align-items:center;gap:10px;border-top:1px solid var(--border);padding-top:14px}
+.tav{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.tname{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:13.5px;color:var(--navy)}
+.trole{font-size:11.5px;color:var(--muted)}
 
-/* PRO BANNER */
-.pro-banner{background:linear-gradient(135deg,var(--navy),#1e3a6e);border-radius:16px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:14px}
-.pro-left h3{font-family:'Syne',sans-serif;font-weight:900;font-size:1.15rem;color:#fff;margin-bottom:6px}
-.pro-left p{font-size:13.5px;color:#93c5fd;line-height:1.5;max-width:480px}
-.pro-right{text-align:right;flex-shrink:0}
-.pro-price{font-family:'Syne',sans-serif;font-weight:900;font-size:1.9rem;color:#fff;line-height:1}
-.pro-period{font-size:12px;color:#93c5fd;display:block;margin-bottom:11px}
-.btn-pro{background:#fff;color:var(--navy);font-family:'Syne',sans-serif;font-weight:700;font-size:13.5px;padding:11px 24px;border-radius:9px;text-decoration:none;display:inline-block;transition:all .2s}
-.btn-pro:hover{transform:translateY(-1px)}
-@media(max-width:600px){.pro-banner{flex-direction:column}.pro-right{text-align:left}}
+/* ─ PRICING ─ */
+.pricing-section{padding:80px 0}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px;align-items:start}
+@media(max-width:900px){.pgrid{grid-template-columns:1fr;max-width:380px;margin-left:auto;margin-right:auto}}
+.pc{background:var(--white);border:1.5px solid var(--border);border-radius:18px;padding:30px;display:flex;flex-direction:column;gap:16px;transition:all .28s;position:relative}
+.pc:hover{border-color:var(--border2);box-shadow:0 16px 40px rgba(27,46,74,.1);transform:translateY(-3px)}
+.pc.best{background:var(--navy);border-color:var(--navy)}
+.pc.best h3{color:#fff}.pc.best .pc-desc{color:rgba(255,255,255,.5)}
+.pc.best .pc-price{color:#fff}.pc.best .pc-per{color:rgba(255,255,255,.5)}
+.pc.best .pc-sep{background:rgba(255,255,255,.1)}
+.pc.best .pc-feat{color:rgba(255,255,255,.8)}
+.pc.best .pc-check{background:rgba(255,255,255,.12)}
+.pc.best .pc-check::after{color:var(--green2)}
+.pc-pop{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:11px;padding:4px 14px;border-radius:20px;white-space:nowrap;letter-spacing:.03em}
+.pc h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px;color:var(--navy)}
+.pc-desc{font-size:12.5px;color:var(--muted);font-weight:300}
+.pc-price{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:48px;color:var(--navy);line-height:1;letter-spacing:-.04em}
+.pc-per{font-size:14px;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:2px}
+.pc-sep{height:1px;background:var(--border)}
+.pc-feats{display:flex;flex-direction:column;gap:9px}
+.pc-feat{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text);line-height:1.4}
+.pc-check{width:16px;height:16px;border-radius:50%;background:var(--greenl);display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+.pc-check::after{content:'✓';font-size:9px;color:var(--green);font-weight:700}
+.pc-btn{display:block;text-align:center;padding:14px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;transition:all .22s;margin-top:auto;letter-spacing:-.01em}
+.pc-btn-dark{background:var(--off);color:var(--navy);border:1.5px solid var(--border)}
+.pc-btn-dark:hover{background:var(--sky);border-color:var(--sky3)}
+.pc-btn-white{background:var(--white);color:var(--navy);box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.pc-btn-white:hover{background:var(--sky);transform:translateY(-1px)}
 
-/* FAQ */
-.flist{margin-top:44px;max-width:700px;margin-left:auto;margin-right:auto;display:flex;flex-direction:column;gap:8px}
-.fi{background:#fff;border:1px solid var(--gb);border-radius:11px;overflow:hidden;cursor:pointer;transition:border-color .2s}
-.fi:hover{border-color:var(--bm)}
-.fiq{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);user-select:none;gap:14px}
-.fia-ic{color:var(--gray);font-size:13px;transition:transform .25s;flex-shrink:0}
-.fi.open .fia-ic{transform:rotate(180deg)}
-.fia{max-height:0;overflow:hidden;transition:max-height .35s ease}
-.fi.open .fia{max-height:200px}
-.fiai{padding:0 18px 15px;font-size:13.5px;color:var(--gray);line-height:1.7;border-top:1px solid var(--gb)}
+/* ─ CTA ─ */
+.cta-section{padding:100px 0}
+.cta-inner{background:linear-gradient(135deg,var(--navy) 0%,#1e3a6e 100%);border-radius:24px;padding:72px 52px;text-align:center;position:relative;overflow:hidden}
+.cta-inner::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(37,99,235,.3),transparent 65%);pointer-events:none}
+.cta-inner::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:48px 48px}
+.cta-content{position:relative;z-index:1}
+.cta-inner h2{font-size:clamp(28px,4.5vw,52px);font-weight:800;color:#fff;margin-bottom:14px;line-height:1.08}
+.cta-inner p{font-size:17px;color:rgba(255,255,255,.55);margin-bottom:36px;font-weight:300}
+.cta-btns{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.btn-cta-white{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--navy);padding:15px 30px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;transition:all .22s;font-family:'Bricolage Grotesque',sans-serif}
+.btn-cta-white:hover{background:var(--sky);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.2)}
+.btn-cta-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;color:rgba(255,255,255,.7);padding:15px 22px;border-radius:10px;font-size:14.5px;font-weight:400;text-decoration:none;border:1px solid rgba(255,255,255,.2);transition:all .22s}
+.btn-cta-ghost:hover{color:#fff;border-color:rgba(255,255,255,.4)}
 
-/* CTA */
-.cta{background:linear-gradient(135deg,var(--navy) 0%,#1e3a6e 100%);padding:80px 0;text-align:center;position:relative;overflow:hidden}
-.cta::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 65%);pointer-events:none}
-.cta-in{position:relative;z-index:1}
-.cta-t{font-family:'Syne',sans-serif;font-weight:900;font-size:clamp(30px,4.5vw,52px);color:#fff;line-height:1.15;margin-bottom:14px}
-.cta-s{font-size:16px;color:#93c5fd;margin-bottom:30px;max-width:420px;margin-left:auto;margin-right:auto}
-.ctab{display:inline-block;background:#fff;color:var(--navy);font-family:'Syne',sans-serif;font-weight:800;font-size:15.5px;padding:17px 44px;border-radius:12px;text-decoration:none;transition:all .2s;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.ctab:hover{transform:translateY(-2px)}
+/* ─ FAQ ─ */
+.faq-section{padding:80px 0;background:var(--off)}
+.faq-list{margin-top:48px;display:flex;flex-direction:column;gap:3px;max-width:780px;margin-left:auto;margin-right:auto}
+.faq-item{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.faq-item:hover{border-color:var(--border2)}
+.faq-q{padding:20px 24px;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:15px;color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;gap:16px}
+.faq-icon{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);display:grid;place-items:center;flex-shrink:0;font-size:14px;color:var(--muted);transition:all .25s;font-weight:300}
+.faq-item.open .faq-icon{background:var(--blue);border-color:var(--blue);color:#fff;transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.faq-a-inner{padding:0 24px 20px;font-size:14px;color:var(--muted);line-height:1.72;font-weight:300}
+.faq-item.open .faq-a{max-height:200px}
 
-/* FOOTER */
-footer{padding:36px 0;border-top:1px solid var(--gb);background:var(--gl)}
-.fi2{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
-.flog{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--navy)}
-.flog b{color:var(--blue3)}
-footer p{font-size:12.5px;color:var(--gray)}
-.flinks{display:flex;gap:18px;flex-wrap:wrap}
-.flinks a{font-size:12.5px;color:var(--gray);text-decoration:none;transition:color .15s}
-.flinks a:hover{color:var(--blue)}
-
-/* REVEAL */
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
-.reveal.vis{opacity:1;transform:translateY(0)}
+/* ─ FOOTER ─ */
+footer{background:var(--navy);padding:52px 0 32px}
+.foot-inner{max-width:var(--max);margin:0 auto;padding:0 28px}
+.foot-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,.08)}
+@media(max-width:768px){.foot-top{grid-template-columns:1fr 1fr}}
+.foot-logo{display:flex;align-items:center;gap:9px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px;color:#fff;text-decoration:none;margin-bottom:12px;letter-spacing:-.02em}
+.foot-logo-box{width:28px;height:28px;background:rgba(255,255,255,.12);border-radius:7px;display:grid;place-items:center}
+.foot-logo-box svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.foot-desc{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-weight:300;max-width:240px}
+.foot-col-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:12px;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
+.foot-links{display:flex;flex-direction:column;gap:8px}
+.foot-links a{font-size:13.5px;color:rgba(255,255,255,.5);text-decoration:none;transition:color .15s;font-weight:300}
+.foot-links a:hover{color:#fff}
+.foot-bottom{padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.foot-copy{font-size:12.5px;color:rgba(255,255,255,.3)}
+.foot-legal{display:flex;gap:20px}
+.foot-legal a{font-size:12.5px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .15s}
+.foot-legal a:hover{color:rgba(255,255,255,.6)}
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
+<nav id="nav">
   <div class="navi">
-    <a href="#" class="logo"><div class="logo-box"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>Job<b>win</b></a>
+    <a href="/" class="logo">
+      <div class="logo-box"><svg viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div>
+      <span class="logo-word">Job<b>win</b></span>
+    </a>
     <div class="nl">
       <a href="#features">Fonctionnalités</a>
       <a href="#how">Comment ça marche</a>
@@ -299,357 +339,417 @@ footer p{font-size:12.5px;color:var(--gray)}
       <a href="#faq">FAQ</a>
     </div>
     <div class="nr">
-      <a href="#pricing" class="nb">Voir les packs</a>
-      <a href="https://jobwin.fr/app" class="nc">Commencer →</a>
+      <a href="/blog/" class="nb">Blog</a>
+      <a href="/app.html" class="nc">Commencer →</a>
     </div>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero">
-  <div class="hero-glow"></div>
+<div class="hero">
+  <div class="hero-blob blob1"></div>
+  <div class="hero-blob blob2"></div>
+  <div class="hero-grid-bg"></div>
   <div class="container">
-    <div class="hero-badge"><div class="bd"></div>Le simulateur d'entretien IA #1 en France</div>
-    <h1>Entraîne-toi, perfectionne-toi<br>et <em>décroche ton poste</em></h1>
-    <p class="hero-sub">Simule un vrai entretien à voix haute avec un recruteur IA. Reçois ton score d'aptitude, une analyse personnalisée et les réponses idéales. En français. Pour tous les métiers.</p>
-    <div class="ha">
-      <a href="https://jobwin.fr/app" class="bp1">Commencer maintenant — dès 9,90€</a>
-      <a href="#how" class="bs1">Voir comment ça marche</a>
-    </div>
-    <div class="trust-row">
-      <div class="tr">✅ Aucun abonnement</div>
-      <div class="tdiv"></div>
-      <div class="tr">🎙️ 100% vocal</div>
-      <div class="tdiv"></div>
-      <div class="tr">🇫🇷 En français</div>
-      <div class="tdiv"></div>
-      <div class="tr">⭐ +500 candidats préparés</div>
-    </div>
-
-    <!-- MOCKUP -->
-    <div class="mock-wrap">
-      <div class="mframe">
-        <div class="mtb"><div class="mdot"></div><div class="mdot"></div><div class="mdot"></div><div class="mu">jobwin.fr — Entretien en cours</div></div>
-        <div class="mbody">
-          <div class="mhdr">
-            <div class="mrec"><div class="mav">👨</div><div><div class="mrname">Thomas Dupont</div><div class="mrrole">Recruteur IA — Finance</div></div></div>
-            <div class="mapt">78% aptitude</div>
-          </div>
-          <div class="mchat">
-            <div class="mba"><div class="micon">🤖</div><div class="mbub">Bonjour ! Je suis Thomas. Pouvez-vous vous présenter et me parler de votre parcours ?</div></div>
-            <div class="mbu"><div class="micon">👤</div><div class="mbub">J'ai 3 ans d'expérience en commerce B2B dans la vente de solutions financières...</div></div>
-            <div class="mba"><div class="micon">🤖</div><div class="mbub">Bonne introduction. Quels sont vos points forts et vos points faibles ?</div></div>
-          </div>
-          <div class="mresult">
-            <div class="mrt"><span class="mrlbl">Aptitude au poste</span><span class="mrpct">78%</span></div>
-            <div class="mrbar"><div class="mrfill"></div></div>
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-badge"><div class="hero-pulse"></div> Disponible maintenant — sans inscription</div>
+        <h1>Décroche ton poste grâce à un <span class="accent">recruteur IA</span> qui parle</h1>
+        <p class="hero-sub">Simulation vocale réaliste, questions personnalisées selon ton CV, score d'aptitude instantané. Entraîne-toi autant que tu veux.</p>
+        <div class="hero-btns">
+          <a href="/app.html" class="btn-cta">Commencer gratuitement →</a>
+          <a href="#how" class="btn-sec">Voir comment ça marche</a>
+        </div>
+        <div class="hero-trust">
+          <span>✓ Sans inscription</span>
+          <div class="tdiv"></div>
+          <span>✓ 3 essais offerts</span>
+          <div class="tdiv"></div>
+          <span>✓ 100% en français</span>
+        </div>
+      </div>
+      <div class="mock-wrap">
+        <div class="mock-glow"></div>
+        <div class="mock-badge1"><div class="badge-dot"></div> Score calculé en temps réel</div>
+        <div class="mock-badge2"><div class="badge-dot blue"></div> Antoine — Recruteur IA actif</div>
+        <div class="mock-float">
+          <div class="mframe">
+            <div class="mtopbar">
+              <div class="mdot"></div><div class="mdot"></div><div class="mdot"></div>
+              <div class="murl">jobwin.fr/app</div>
+            </div>
+            <div class="mhdr">
+              <div class="mrec">
+                <div class="mav">🧑‍💼</div>
+                <div><div class="mrname">Antoine</div><div class="mrrole">Recruteur IA · Entretien en cours</div></div>
+              </div>
+              <div class="mapt">78% aptitude</div>
+            </div>
+            <div class="mchat">
+              <div class="mba"><div class="mic">🤖</div><div class="mbub">Bonjour ! Je suis Antoine. Pouvez-vous vous présenter et me parler de votre parcours ?</div></div>
+              <div class="mbu"><div class="mic">👤</div><div class="mbub">J'ai 3 ans d'expérience en commerce B2B dans la vente de solutions financières…</div></div>
+              <div class="mba"><div class="mic">🤖</div><div class="mbub">Bonne introduction. Quels sont vos points forts et votre principal point faible ?</div></div>
+            </div>
+            <div class="mresult">
+              <div class="mrt"><span class="mrlbl">Aptitude au poste</span><span class="mrpct">78%</span></div>
+              <div class="mrbar"><div class="mrfill"></div></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- STATS -->
-<div class="statsbar reveal">
-  <div class="si">
-    <div class="ss"><span class="ssn">+500</span><span class="ssl">Candidats préparés</span></div>
-    <div class="ss"><span class="ssn">5</span><span class="ssl">Questions par entretien</span></div>
-    <div class="ss"><span class="ssn">100%</span><span class="ssl">En français</span></div>
-    <div class="ss"><span class="ssn">9,90€</span><span class="ssl">Pour commencer</span></div>
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <span class="tick-item"><span class="tick-val">+500</span> candidats préparés</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">100%</span> en français</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">À partir de 8</span> questions par entretien</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">6</span> recruteurs IA au choix</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">À partir de 9,90€</span> pour commencer</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">Score</span> d'aptitude instantané</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">Vocal</span> — parle comme en vrai entretien</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">+500</span> candidats préparés</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">100%</span> en français</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">À partir de 8</span> questions par entretien</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">6</span> recruteurs IA au choix</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">À partir de 9,90€</span> pour commencer</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">Score</span> d'aptitude instantané</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">Vocal</span> — parle comme en vrai entretien</span><span class="tick-sep">·</span>
   </div>
 </div>
 
-<div class="sdivider"></div>
+
 
 <!-- FEATURES -->
 <section id="features">
   <div class="container">
     <div class="reveal">
-      <div class="slbl">Fonctionnalités</div>
-      <h2 class="stitle">Tout ce qu'il faut pour<br>décrocher le poste</h2>
-      <p class="ssub">Pas un simple quiz. Un vrai entraînement vocal avec un recruteur IA qui s'adapte à ton profil.</p>
+      <div class="sec-tag">Fonctionnalités</div>
+      <h2 class="sec-title">Tout ce qu'il faut pour<br>décrocher le poste</h2>
+      <p class="sec-sub">Pas un simple quiz. Un vrai entraînement vocal avec un recruteur IA qui s'adapte à ton profil et ton CV.</p>
     </div>
-    <div class="fgrid reveal">
-      <div class="fc"><div class="fc-ic ic-blue">🎙️</div><div class="fc-t">Entretien 100% vocal</div><div class="fc-d">Parle comme en vrai. Maintiens le micro et réponds à voix haute. Le recruteur t'écoute et te répond oralement.</div></div>
-      <div class="fc"><div class="fc-ic ic-green">🎲</div><div class="fc-t">Questions uniques à chaque session</div><div class="fc-d">Deux candidats pour le même poste n'auront jamais les mêmes questions. L'IA génère des questions inédites.</div></div>
-      <div class="fc"><div class="fc-ic ic-navy">🏢</div><div class="fc-t">Entreprise ciblée</div><div class="fc-d">Renseigne l'entreprise où tu postules — LVMH, BNP, Amazon — et l'IA adapte les questions à sa culture.</div></div>
-      <div class="fc"><div class="fc-ic ic-amber">⚠️</div><div class="fc-t">Détection des mots parasites</div><div class="fc-d">L'app compte tes "euh", "du coup", "en fait". Tu prends conscience de tes tics de langage pour les corriger.</div></div>
-      <div class="fc"><div class="fc-ic ic-blue">💡</div><div class="fc-t">Réponses idéales après l'entretien</div><div class="fc-d">À la fin tu vois pour chaque question comment tu aurais dû répondre. Analyse personnalisée et concrète.</div></div>
-      <div class="fc"><div class="fc-ic ic-green">📊</div><div class="fc-t">Score d'aptitude au poste</div><div class="fc-d">Pourcentage d'aptitude en grand, verdict clair — Profil retenu / À renforcer / Non retenu. Pour progresser vite.</div></div>
-      <div class="fc"><div class="fc-ic ic-navy">📱</div><div class="fc-t">iOS, Android & PC</div><div class="fc-d">Fonctionne sur tous tes appareils. Installe-le sur ton écran d'accueil comme une vraie application mobile.</div></div>
-      <div class="fc"><div class="fc-ic ic-amber">🔀</div><div class="fc-t">Entretien Aléatoire</div><div class="fc-d">Poste et secteur choisis au hasard. Entraîne ton adaptabilité et ta gestion du stress face à l'inattendu.</div></div>
+    <div class="feat-grid reveal">
+      <div class="b reveal-d1">
+        <div class="b-icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></div>
+        <div class="b-t">Entretien 100% vocal</div>
+        <div class="b-d">Parle comme en vrai. Maintiens le micro et réponds à voix haute. Le recruteur t'écoute et te répond oralement avec une vraie voix naturelle.</div>
+      </div>
+      <div class="b reveal-d2">
+        <div class="b-pill">Nouveau</div>
+        <div class="b-t">Questions selon ton CV</div>
+        <div class="b-d">Importe ton CV PDF ou colle ton parcours — le recruteur adapte chaque question à ton expérience réelle.</div>
+      </div>
+      <div class="b reveal-d3">
+        <div class="b-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <div class="b-t">Score d'aptitude instantané</div>
+        <div class="b-d">Structure, confiance, pertinence, vocabulaire. Un score global et des axes d'amélioration précis après chaque session.</div>
+      </div>
+      <div class="b reveal-d1">
+        <div class="b-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div class="b-t">6 recruteurs IA au choix</div>
+        <div class="b-d">Antoine, Laurent, Guillaume, Jeanne, Victoria, Manon. Chaque voix est naturelle et crédible.</div>
+      </div>
+      <div class="b reveal-d2">
+        <div class="b-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="b-t">Progression trackée</div>
+        <div class="b-d">Historique de tes sessions, courbe d'évolution, meilleur score. Suis ta progression semaine après semaine.</div>
+      </div>
+      <div class="b reveal-d3">
+        <div class="b-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <div class="b-t">3 niveaux de difficulté</div>
+        <div class="b-d">Standard, Exigeant, Intensif. Entraîne-toi au pire pour que le vrai entretien te semble facile.</div>
+      </div>
+      <div class="b reveal-d1">
+        <div class="b-icon"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg></div>
+        <div class="b-t">Analyse vocale avancée</div>
+        <div class="b-d">Mots parasites, débit, silences, fluidité. Un retour précis sur ta façon de parler, pas seulement sur ce que tu dis.</div>
+      </div>
+      <div class="b reveal-d2">
+        <div class="b-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div class="b-t">Fonctionne sur mobile</div>
+        <div class="b-d">PWA optimisée iPhone et Android. Pas d'installation, pas de compte. Ouvre le lien et commence.</div>
+      </div>
     </div>
   </div>
 </section>
 
-<div class="sdivider"></div>
-
-<!-- RECRUITERS -->
-<section style="background:var(--gl)">
-  <div class="container" style="text-align:center">
-    <div class="reveal">
-      <div class="slbl" style="display:inline-flex">Personnalités du recruteur</div>
-      <h2 class="stitle">Un recruteur qui s'adapte<br>à ton niveau</h2>
-      <p class="ssub" style="margin:0 auto">Plus tu t'entraînes en mode difficile, plus le vrai entretien te semblera facile.</p>
-    </div>
-    <div class="rgrid reveal">
-      <div class="rc standard">
-        <div class="rc-ic">😊</div>
-        <div class="rc-t">Standard</div>
-        <div class="rc-badge rcb-g">Bienveillant</div>
-        <div class="rc-d">Recruteur chaleureux et encourageant. Il te met à l'aise, félicite tes bonnes réponses. Idéal pour débuter en confiance.</div>
-      </div>
-      <div class="rc professionnel">
-        <div class="rc-ic">💼</div>
-        <div class="rc-t">Professionnel</div>
-        <div class="rc-badge rcb-a">Neutre & précis</div>
-        <div class="rc-d">Recruteur neutre et précis. Il ne félicite pas facilement, pose des questions pointues. Proche d'un vrai entretien.</div>
-      </div>
-      <div class="rc exigeant-max">
-        <div class="rc-ic">🔥</div>
-        <div class="rc-t">Exigeant</div>
-        <div class="rc-badge rcb-r">Intimidant</div>
-        <div class="rc-d">Recruteur froid et direct. Il coupe court aux réponses longues, pose des questions déstabilisantes. Style grands groupes.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="sdivider"></div>
+<div class="sdiv"></div>
 
 <!-- HOW IT WORKS -->
-<section id="how">
-  <div class="container" style="text-align:center">
-    <div class="reveal">
-      <div class="slbl" style="display:inline-flex">Comment ça marche</div>
-      <h2 class="stitle">Prêt en moins de 2 minutes</h2>
-      <p class="ssub" style="margin:0 auto">Pas d'inscription. Pas d'application à télécharger. Ouvre le lien et commence.</p>
-    </div>
-    <div class="steps4 reveal">
-      <div class="step4"><div class="step4-n">1</div><h3>Configure ton profil</h3><p>Poste, entreprise ciblée, niveau, difficulté. 30 secondes chrono.</p></div>
-      <div class="step4"><div class="step4-n">2</div><h3>Lance l'entretien</h3><p>Le recruteur IA se présente et pose sa première question à voix haute.</p></div>
-      <div class="step4"><div class="step4-n">3</div><h3>Réponds à 5 questions</h3><p>Maintiens le micro pour parler. Le recruteur réagit à chaque réponse.</p></div>
-      <div class="step4"><div class="step4-n">4</div><h3>Reçois ton bilan</h3><p>Score d'aptitude, analyse personnalisée et réponses idéales pour chaque question.</p></div>
-    </div>
-  </div>
-</section>
-
-<div class="sdivider"></div>
-
-<!-- RESULTS / TEMOIGNAGES -->
-<section style="background:var(--gl)">
+<div class="how-section" id="how">
   <div class="container">
-    <div class="reveal" style="text-align:center;margin-bottom:44px">
-      <div class="slbl" style="display:inline-flex">Résultats</div>
-      <h2 class="stitle">Ce que Jobwin change<br>vraiment pour toi</h2>
-      <p class="ssub" style="margin:0 auto">Des candidats comme toi, préparés sérieusement, qui ont décroché le poste.</p>
+    <div class="reveal" style="text-align:center">
+      <div class="sec-tag">Comment ça marche</div>
+      <h2 class="sec-title">Prêt en moins de 2 minutes</h2>
+      <p class="sec-sub" style="margin:0 auto">Pas d'inscription. Pas d'app à télécharger. Ouvre le lien et commence.</p>
     </div>
-
-    <div class="tgrid reveal">
-      <div class="tcard">
-        <div class="tstars">★★★★★</div>
-        <p class="tquote">"J'avais un entretien chez BNP dans 3 jours. J'ai fait 5 simulations en mode Exigeant. Le vrai entretien m'a semblé facile en comparaison. Poste obtenu."</p>
-        <div class="tauthor">
-          <div class="tav" style="background:linear-gradient(135deg,#0f172a,#2563eb)">👨</div>
-          <div><span class="tname">Karim B.</span><span class="trole">Chargé de clientèle — Paris</span></div>
-        </div>
-      </div>
-      <div class="tcard">
-        <div class="tstars">★★★★★</div>
-        <p class="tquote">"Les réponses idéales après chaque entretien m'ont tout appris. Je voyais exactement où je me ratais. En 1 semaine mon score est passé de 52% à 84%."</p>
-        <div class="tauthor">
-          <div class="tav" style="background:linear-gradient(135deg,#db2777,#f472b6)">👩</div>
-          <div><span class="tname">Amina L.</span><span class="trole">Infirmière — Lyon</span></div>
-        </div>
-      </div>
-      <div class="tcard">
-        <div class="tstars">★★★★★</div>
-        <p class="tquote">"J'avais plus de 20 mots parasites sans m'en rendre compte. Jobwin m'a ouvert les yeux. Indispensable avant tout entretien sérieux."</p>
-        <div class="tauthor">
-          <div class="tav" style="background:linear-gradient(135deg,#0f172a,#3b82f6)">🧑</div>
-          <div><span class="tname">Thomas R.</span><span class="trole">Commercial B2B — Bordeaux</span></div>
-        </div>
-      </div>
+    <div class="steps reveal">
+      <div class="step"><div class="step-n">1</div><h3>Configure ton profil</h3><p>Poste, entreprise ciblée, niveau, CV. 30 secondes chrono.</p></div>
+      <div class="step"><div class="step-n">2</div><h3>Choisis ton recruteur</h3><p>6 voix disponibles. Sélectionne le style qui correspond à ton entretien réel.</p></div>
+      <div class="step"><div class="step-n">3</div><h3>Lance l'entretien</h3><p>Le recruteur IA se présente et pose ses questions à voix haute. Tu réponds au micro.</p></div>
+      <div class="step"><div class="step-n">4</div><h3>Reçois ton bilan</h3><p>Score d'aptitude, analyse vocale, points forts, axes d'amélioration.</p></div>
     </div>
+  </div>
+</div>
 
-    <div class="avap reveal">
-      <div class="avap-title">Avant Jobwin vs Après Jobwin</div>
-      <div class="avap-sub">La différence que font quelques heures d'entraînement</div>
-      <div class="avap-grid">
-        <div class="avap-col avap-bad">
-          <div class="avap-col-title">❌ Sans préparation</div>
-          <div class="avap-li"><span>•</span><span>Stress et blancs gênants</span></div>
-          <div class="avap-li"><span>•</span><span>Réponses vagues et hésitantes</span></div>
-          <div class="avap-li"><span>•</span><span>Mots parasites incontrôlés</span></div>
-          <div class="avap-li"><span>•</span><span>Score moyen : 45%</span></div>
-          <div class="avap-li"><span>•</span><span>Poste non obtenu</span></div>
-        </div>
-        <div class="avap-col avap-good">
-          <div class="avap-col-title">✅ Avec Jobwin</div>
-          <div class="avap-li"><span>•</span><span>Confiance et aisance naturelle</span></div>
-          <div class="avap-li"><span>•</span><span>Réponses structurées et convaincantes</span></div>
-          <div class="avap-li"><span>•</span><span>Discours fluide et professionnel</span></div>
-          <div class="avap-li"><span>•</span><span>Score moyen : 78%</span></div>
-          <div class="avap-li"><span>•</span><span>Poste décroché</span></div>
-        </div>
+<div class="sdiv"></div>
+
+<!-- RECRUITERS -->
+<section>
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="sec-tag">Personnalités du recruteur</div>
+      <h2 class="sec-title">Un recruteur qui s'adapte à ton niveau</h2>
+      <p class="sec-sub" style="margin:0 auto">Plus tu t'entraînes en mode difficile, plus le vrai entretien te semblera facile.</p>
+    </div>
+    <div class="rec-grid reveal">
+      <div class="rec-card rc-s">
+        <div class="rc-lvl">Bienveillant</div>
+        <h3>Standard</h3>
+        <p>Recruteur chaleureux et encourageant. Il te met à l'aise, félicite tes bonnes réponses. Idéal pour débuter en confiance.</p>
       </div>
-      <div class="avap-cta">
-        <a href="https://jobwin.fr/app" class="avap-btn">Je veux décrocher mon poste →</a>
+      <div class="rec-card rc-p">
+        <div class="rc-lvl">Neutre &amp; précis</div>
+        <h3>Professionnel</h3>
+        <p>Recruteur neutre et précis. Il ne félicite pas facilement, pose des questions pointues. Proche d'un vrai entretien.</p>
+      </div>
+      <div class="rec-card rc-h">
+        <div class="rc-lvl">Intimidant</div>
+        <h3>Exigeant Max</h3>
+        <p>Recruteur froid et direct. Il coupe court aux réponses longues, pose des questions déstabilisantes. Style grands groupes.</p>
       </div>
     </div>
   </div>
 </section>
 
-<div class="sdivider"></div>
+<div class="sdiv"></div>
+
+<!-- TESTIMONIALS -->
+<div class="test-section">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="sec-tag">Résultats</div>
+      <h2 class="sec-title">Ce que JOBWIN change vraiment</h2>
+      <p class="sec-sub" style="margin:0 auto">Des candidats préparés sérieusement, qui ont décroché le poste.</p>
+    </div>
+    <div class="test-grid reveal">
+      <div class="tcard">
+        <div class="tstars"><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div></div>
+        <p class="tquote">"J'avais un entretien chez BNP dans 3 jours. J'ai fait 5 simulations en mode Exigeant. Le vrai entretien m'a semblé facile en comparaison. Poste obtenu."</p>
+        <div class="tauthor"><div class="tav">👨</div><div><div class="tname">Karim B.</div><div class="trole">Chargé de clientèle — Paris</div></div></div>
+      </div>
+      <div class="tcard">
+        <div class="tstars"><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div></div>
+        <p class="tquote">"Les réponses idéales après chaque entretien m'ont tout appris. Je voyais exactement où je me ratais. En 1 semaine mon score est passé de 52% à 84%."</p>
+        <div class="tauthor"><div class="tav">👩</div><div><div class="tname">Sarah M.</div><div class="trole">Responsable marketing — Lyon</div></div></div>
+      </div>
+      <div class="tcard">
+        <div class="tstars"><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div></div>
+        <p class="tquote">"En reconversion après 8 ans, j'avais peur des entretiens. JOBWIN m'a aidé à structurer mes réponses et à retrouver confiance. Maintenant j'attends les entretiens avec impatience."</p>
+        <div class="tauthor"><div class="tav">👨</div><div><div class="tname">Marc D.</div><div class="trole">Reconversion vers le digital — Bordeaux</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sdiv"></div>
 
 <!-- PRICING -->
 <section id="pricing">
-  <div class="container" style="text-align:center">
-    <div class="reveal">
-      <div class="slbl" style="display:inline-flex">Tarifs</div>
-      <h2 class="stitle">Choisis ton pack</h2>
-      <p class="ssub" style="margin:0 auto">Paiement unique. Pas d'abonnement. Tu achètes des entretiens, tu les utilises quand tu veux.</p>
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="sec-tag">Tarifs</div>
+      <h2 class="sec-title">Entraîne-toi jusqu'à décrocher ton poste</h2>
+      <p class="sec-sub" style="margin:0 auto">Accès immédiat après paiement · Sans abonnement · Clé par email</p>
     </div>
     <div class="pgrid reveal">
       <div class="pc">
-        <div class="pce">🚀</div>
-        <div class="pcn">Découverte</div>
-        <div class="pcd">Pour tester avant un premier entretien</div>
-        <div class="pcp">9<span>,90€</span></div>
-        <div class="pcnote">≈ 3,30€ par entretien</div>
-        <div class="pcsep"></div>
-        <div class="pcfeats">
-          <div class="pff"><div class="pfi">✓</div>3 entretiens complets</div>
-          <div class="pff"><div class="pfi">✓</div>Tous secteurs et métiers</div>
-          <div class="pff"><div class="pfi">✓</div>Bilan + réponses idéales</div>
-          <div class="pff"><div class="pfi">✓</div>Entretien gratuit inclus</div>
+        <h3>Pack Découverte</h3>
+        <div class="pc-desc">3 entretiens complets</div>
+        <div><span class="pc-price">9,90</span><span class="pc-per">€</span></div>
+        <div class="pc-sep"></div>
+        <div class="pc-feats">
+          <div class="pc-feat"><div class="pc-check"></div>Recruteur au choix</div>
+          <div class="pc-feat"><div class="pc-check"></div>Analyse complète</div>
+          <div class="pc-feat"><div class="pc-check"></div>Score multi-critères</div>
+          <div class="pc-feat"><div class="pc-check"></div>Idéal pour tester</div>
         </div>
-        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="pcbtn pcbs">Commencer →</a>
+        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="pc-btn pc-btn-dark">Choisir Découverte →</a>
       </div>
       <div class="pc best">
-        <div class="pcpop">⭐ Le plus populaire</div>
-        <div class="pce">💪</div>
-        <div class="pcn">Essentiel</div>
-        <div class="pcd">La vraie préparation sérieuse</div>
-        <div class="pcp">19<span>,90€</span></div>
-        <div class="pcnote">≈ 2,49€ par entretien</div>
-        <div class="pcsep"></div>
-        <div class="pcfeats">
-          <div class="pff"><div class="pfi">✓</div><strong>8 entretiens complets</strong></div>
-          <div class="pff"><div class="pfi">✓</div>Recruteur homme ou femme</div>
-          <div class="pff"><div class="pfi">✓</div>Mode entreprise ciblée</div>
-          <div class="pff"><div class="pfi">✓</div>Entretien Aléatoire inclus</div>
-          <div class="pff"><div class="pfi">✓</div>Détection mots parasites</div>
-          <div class="pff"><div class="pfi">✓</div>3 personnalités de recruteur</div>
+        <div class="pc-pop">⭐ Le plus populaire</div>
+        <h3>Pack Essentiel</h3>
+        <div class="pc-desc">8 entretiens complets</div>
+        <div><span class="pc-price">19,90</span><span class="pc-per">€</span></div>
+        <div class="pc-sep"></div>
+        <div class="pc-feats">
+          <div class="pc-feat"><div class="pc-check"></div>Tout du Découverte</div>
+          <div class="pc-feat"><div class="pc-check"></div>Historique de progression</div>
+          <div class="pc-feat"><div class="pc-check"></div>8 sessions pour vraiment progresser</div>
+          <div class="pc-feat"><div class="pc-check"></div>Analyse vocale avancée</div>
         </div>
-        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="pcbtn pcbp">Commencer →</a>
+        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="pc-btn pc-btn-white">Choisir Essentiel →</a>
       </div>
       <div class="pc">
-        <div class="pce">🔥</div>
-        <div class="pcn">Intensif</div>
-        <div class="pcd">Pour exceller et ne rien laisser au hasard</div>
-        <div class="pcp">34<span>,90€</span></div>
-        <div class="pcnote">≈ 1,75€ par entretien</div>
-        <div class="pcsep"></div>
-        <div class="pcfeats">
-          <div class="pff"><div class="pfi">✓</div><strong>20 entretiens complets</strong></div>
-          <div class="pff"><div class="pfi">✓</div>Recruteur homme ou femme</div>
-          <div class="pff"><div class="pfi">✓</div>3 personnalités de recruteur</div>
-          <div class="pff"><div class="pfi">✓</div>Entretien Aléatoire inclus</div>
-          <div class="pff"><div class="pfi">✓</div>Détection mots parasites</div>
-          <div class="pff"><div class="pfi">✓</div>Valable 1 an</div>
+        <h3>Pack Intensif</h3>
+        <div class="pc-desc">20 entretiens complets</div>
+        <div><span class="pc-price">34,90</span><span class="pc-per">€</span></div>
+        <div class="pc-sep"></div>
+        <div class="pc-feats">
+          <div class="pc-feat"><div class="pc-check"></div>Tout du Essentiel</div>
+          <div class="pc-feat"><div class="pc-check"></div>20 sessions intensives</div>
+          <div class="pc-feat"><div class="pc-check"></div>Pour les candidats déterminés</div>
+          <div class="pc-feat"><div class="pc-check"></div>Meilleur rapport qualité/prix</div>
         </div>
-        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="pcbtn pcbs">Commencer →</a>
+        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="pc-btn pc-btn-dark">Choisir Intensif →</a>
       </div>
-    </div>
-
-    <div class="pro-banner reveal">
-      <div class="pro-left">
-        <h3>🏆 Licence Pro — Coachs & Institutions</h3>
-        <p>Coachs emploi, France Travail, centres de formation — accès illimité pour accompagner vos candidats chaque semaine.</p>
-      </div>
-      <div class="pro-right">
-        <div class="pro-price">79€</div>
-        <span class="pro-period">/mois · sans engagement</span>
-        <a href="mailto:contact@jobwin.fr" class="btn-pro">Nous contacter →</a>
-      </div>
-    </div>
-
-    <div style="margin-top:20px" class="reveal">
-      <p style="font-size:13px;color:var(--gray)">🔒 Paiement sécurisé via Lemon Squeezy · Clé d'accès par email immédiatement après l'achat</p>
     </div>
   </div>
 </section>
 
-<div class="sdivider"></div>
-
-<!-- FAQ -->
-<section id="faq">
-  <div class="container" style="text-align:center">
-    <div class="reveal">
-      <div class="slbl" style="display:inline-flex">FAQ</div>
-      <h2 class="stitle">Questions fréquentes</h2>
-    </div>
-    <div class="flist reveal">
-      <div class="fi" onclick="tFaq(this)"><div class="fiq">Est-ce que ça fonctionne pour mon métier ?<span class="fia-ic">▼</span></div><div class="fia"><div class="fiai">Oui. Jobwin est conçu pour tous les métiers — commerce, finance, santé, tech, marketing, RH, juridique et bien d'autres. Tu renseignes ton poste et l'IA génère des questions adaptées à ton profil.</div></div></div>
-      <div class="fi" onclick="tFaq(this)"><div class="fiq">Dois-je télécharger une application ?<span class="fia-ic">▼</span></div><div class="fia"><div class="fiai">Non. Jobwin fonctionne directement dans ton navigateur sur mobile et PC. Sur iPhone et Android tu peux l'ajouter à ton écran d'accueil pour y accéder comme une vraie application.</div></div></div>
-      <div class="fi" onclick="tFaq(this)"><div class="fiq">Les questions sont-elles toujours les mêmes ?<span class="fia-ic">▼</span></div><div class="fia"><div class="fiai">Non. L'IA génère des questions uniques à chaque session. Deux personnes qui postulent pour le même poste n'auront jamais exactement les mêmes questions.</div></div></div>
-      <div class="fi" onclick="tFaq(this)"><div class="fiq">Comment fonctionne le système de crédits ?<span class="fia-ic">▼</span></div><div class="fia"><div class="fiai">Après l'achat, tu reçois un code d'accès par email. Tu l'entres dans l'application et chaque entretien terminé consomme 1 crédit. Quand ton pack est épuisé, tu peux racheter à tout moment.</div></div></div>
-      <div class="fi" onclick="tFaq(this)"><div class="fiq">Puis-je me faire rembourser ?<span class="fia-ic">▼</span></div><div class="fia"><div class="fiai">Si tu n'as pas encore utilisé tes crédits, oui. Contacte-nous dans les 7 jours suivant l'achat et nous procédons au remboursement intégral sans question.</div></div></div>
-    </div>
-  </div>
-</section>
+<div class="sdiv"></div>
 
 <!-- CTA -->
-<section class="cta">
-  <div class="container cta-in reveal">
-    <h2 class="cta-t">Ton prochain entretien<br>commence aujourd'hui</h2>
-    <p class="cta-s">Rejoins les candidats qui se préparent sérieusement. Dès 9,90€.</p>
-    <a href="https://jobwin.fr/app#packs" class="ctab">Choisir mon pack →</a>
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner reveal">
+      <div class="cta-content">
+        <h2>Prêt à te préparer<br>sérieusement ?</h2>
+        <p>3 simulations gratuites. Aucune carte requise. Résultats immédiats.</p>
+        <div class="cta-btns">
+          <a href="/app.html" class="btn-cta-white">Commencer gratuitement →</a>
+          <a href="#pricing" class="btn-cta-ghost">Voir les packs</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
+
+<!-- FAQ -->
+<div class="faq-section" id="faq">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="sec-tag">FAQ</div>
+      <h2 class="sec-title">Questions fréquentes</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <div class="faq-q">Ai-je besoin de créer un compte ?<div class="faq-icon">+</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Non. JOBWIN fonctionne sans inscription. Tu achètes un pack et tu reçois une clé d'accès par email. C'est tout.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Comment fonctionne la reconnaissance vocale ?<div class="faq-icon">+</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Tu maintiens le bouton micro pendant ta réponse. La transcription est en temps réel. Tes réponses ne sont pas stockées — tout est traité localement dans la session.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Fonctionne sur mobile ?<div class="faq-icon">+</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Oui. JOBWIN est une PWA optimisée pour iPhone et Android. L'expérience vocale fonctionne nativement dans le navigateur, sans téléchargement.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Que se passe-t-il après mon achat ?<div class="faq-icon">+</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Tu reçois ta clé d'accès par email immédiatement après le paiement. Tu la saisis dans l'app et ton pack est activé instantanément. Vérifie tes spams si besoin.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Puis-je utiliser JOBWIN pour n'importe quel secteur ?<div class="faq-icon">+</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Oui. Commerce, tech, finance, santé, marketing, RH, droit, administration — tu indiques ton secteur et ton poste, le recruteur IA génère des questions adaptées.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
-  <div class="container">
-    <div class="fi2">
+  <div class="foot-inner">
+    <div class="foot-top">
       <div>
-        <div class="flog">Job<b>win</b></div>
-        <p style="margin-top:3px">© 2026 Jobwin — Simulateur d'entretien IA</p>
+        <a href="/" class="foot-logo">
+          <div class="foot-logo-box"><svg viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div>
+          JOBWIN
+        </a>
+        <p class="foot-desc">Simulateur d'entretien IA vocal. Prépare-toi sérieusement pour décrocher le poste que tu mérites.</p>
       </div>
-      <div class="flinks">
+      <div>
+        <div class="foot-col-title">Produit</div>
+        <div class="foot-links">
+          <a href="/app.html">Simulateur</a>
+          <a href="#features">Fonctionnalités</a>
+          <a href="#pricing">Tarifs</a>
+        </div>
+      </div>
+      <div>
+        <div class="foot-col-title">Ressources</div>
+        <div class="foot-links">
+          <a href="/blog/">Blog</a>
+          <a href="#faq">FAQ</a>
+          <a href="#how">Comment ça marche</a>
+        </div>
+      </div>
+      <div>
+        <div class="foot-col-title">Légal</div>
+        <div class="foot-links">
+          <a href="/mentions-legales.html">Mentions légales</a>
+          <a href="/cgv.html">CGV</a>
+          <a href="mailto:support@jobwin.fr">Support</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span class="foot-copy">© 2026 JOBWIN — Tous droits réservés</span>
+      <div class="foot-legal">
         <a href="/mentions-legales.html">Mentions légales</a>
         <a href="/cgv.html">CGV</a>
-        <a href="https://jobwin.fr/app">Accéder à l'app</a>
-        <a href="mailto:contact@jobwin.fr">Contact</a>
       </div>
     </div>
   </div>
 </footer>
 
 <script>
-function tFaq(el){const o=el.classList.contains('open');document.querySelectorAll('.fi').forEach(f=>f.classList.remove('open'));if(!o)el.classList.add('open')}
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
+}, {threshold: 0.12});
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-const revealEls = document.querySelectorAll('.reveal');
+// Nav shadow on scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+}, {passive: true});
 
-// Fallback: force tout visible après 400ms (Safari iOS fichier local)
-const fallback = setTimeout(() => {
-  revealEls.forEach(el => el.classList.add('vis'));
-}, 400);
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.parentElement;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if(!wasOpen) item.classList.add('open');
+  });
+});
 
-const obs = new IntersectionObserver(e => {
-  e.forEach(x => {
-    if(x.isIntersecting) {
-      x.target.classList.add('vis');
-      obs.unobserve(x.target);
+// Animated counters
+function animateCounter(el, target, suffix='') {
+  let start = 0, duration = 1600;
+  const step = (timestamp) => {
+    if(!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(ease * target) + suffix;
+    if(progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const nums = e.target.querySelectorAll('[data-count]');
+      nums.forEach(n => animateCounter(n, +n.dataset.count, n.dataset.suffix||''));
+      counterObs.unobserve(e.target);
     }
   });
-  // Si tous visibles, annule le fallback
-  if([...revealEls].every(el => el.classList.contains('vis'))) clearTimeout(fallback);
-}, {threshold: 0.05, rootMargin: '0px 0px 0px 0px'});
-
-revealEls.forEach(el => obs.observe(el));
+}, {threshold:0.3});
+document.querySelectorAll('.stats-grid').forEach(g => counterObs.observe(g));
 </script>
 </body>
 </html>
