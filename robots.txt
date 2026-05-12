@@ -1,0 +1,13 @@
+# robots.txt — jobwin.fr
+# Mis à jour : Mai 2026
+
+User-agent: *
+Allow: /
+
+# Bloquer les pages non indexables
+Disallow: /netlify/
+Disallow: /.netlify/
+Disallow: /node_modules/
+
+# Sitemap
+Sitemap: https://jobwin.fr/sitemap.xml
