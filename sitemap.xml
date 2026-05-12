@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+
+  <!-- Pages principales -->
+  <url>
+    <loc>https://jobwin.fr/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://jobwin.fr/mentions-legales.html</loc>
+    <lastmod>2026-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+
+  <url>
+    <loc>https://jobwin.fr/cgv.html</loc>
+    <lastmod>2026-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+
+  <!-- Blog index -->
+  <url>
+    <loc>https://jobwin.fr/blog/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Articles de blog -->
+  <url>
+    <loc>https://jobwin.fr/blog/comment-repondre-pourquoi-vous-entretien.html</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://jobwin.fr/blog/entretien-startup-vs-grand-groupe.html</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://jobwin.fr/blog/simulateur-entretien-ia-vs-coach.html</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Futurs articles à décommenter au fur et à mesure -->
+  <!--
+  <url>
+    <loc>https://jobwin.fr/blog/questions-pieges-entretien-grand-groupe.html</loc>
+    <lastmod>2026-05-XX</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://jobwin.fr/blog/comment-negocier-salaire-entretien.html</loc>
+    <lastmod>2026-05-XX</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://jobwin.fr/blog/entretien-fonction-publique-specificites.html</loc>
+    <lastmod>2026-05-XX</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://jobwin.fr/blog/gerer-stress-entretien-embauche.html</loc>
+    <lastmod>2026-05-XX</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  -->
+
+</urlset>
