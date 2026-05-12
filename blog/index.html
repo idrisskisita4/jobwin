@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog JOBWIN — Conseils entretien d'embauche & IA</title>
+  <meta name="description" content="Analyses, stratégies et décryptages pour les candidats qui préparent leurs entretiens d'embauche avec méthode. Blog JOBWIN.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://jobwin.fr/blog/">
+  <meta property="og:title" content="Blog JOBWIN — Préparer ses entretiens autrement">
+  <meta property="og:description" content="Conseils de fond pour réussir vos entretiens d'embauche.">
+  <meta property="og:url" content="https://jobwin.fr/blog/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://jobwin.fr/og-image.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Blog","name":"Blog JOBWIN","url":"https://jobwin.fr/blog/","publisher":{"@type":"Organization","name":"JOBWIN","url":"https://jobwin.fr"}}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:   #1B2E4A;
+      --blue:   #2563EB;
+      --sky-bg: #EFF6FF;
+      --sky-2:  #DBEAFE;
+      --sky-3:  #BFDBFE;
+      --white:  #ffffff;
+      --surface:#F4F8FF;
+      --text:   #0F1C2E;
+      --muted:  #6B7FA0;
+      --border: #DDE8F7;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 62px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem;
+    }
+    .logo { display: flex; align-items: center; gap: 9px; text-decoration: none; color: var(--navy); }
+    .logo-mark { width: 30px; height: 30px; background: var(--navy); border-radius: 7px; display: grid; place-items: center; }
+    .logo-mark svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .logo-word { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; letter-spacing: 0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-link { color: var(--muted); text-decoration: none; font-size: 0.83rem; font-weight: 500; transition: color .2s; }
+    .nav-link:hover, .nav-link.active { color: var(--navy); }
+    .nav-cta { background: var(--blue); color: #fff; text-decoration: none; padding: 8px 20px; border-radius: 6px; font-size: 0.83rem; font-weight: 500; transition: background .2s; }
+    .nav-cta:hover { background: #1d4ed8; }
+
+    /* HERO */
+    .hero { background: var(--sky-bg); border-bottom: 1px solid var(--sky-2); padding: 5rem 3rem 4.5rem; }
+    .hero-inner { max-width: 1180px; margin: 0 auto; }
+    .eyebrow { font-family: 'Syne', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blue); margin-bottom: 1.25rem; }
+    .hero h1 { font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 400; line-height: 1.08; color: var(--navy); max-width: 680px; letter-spacing: -0.02em; }
+    .hero h1 em { font-style: italic; color: var(--blue); }
+    .hero-desc { margin-top: 1.25rem; color: var(--muted); font-size: 1rem; font-weight: 300; max-width: 460px; line-height: 1.7; }
+
+    /* MAIN */
+    .main { max-width: 1180px; margin: 0 auto; padding: 4rem 3rem 6rem; }
+
+    /* SECTION LABEL */
+    .sec-label { font-family: 'Syne', sans-serif; font-size: 0.63rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; }
+    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* FEATURED */
+    .featured { display: grid; grid-template-columns: 1.35fr 1fr; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 5rem; text-decoration: none; color: inherit; transition: box-shadow .3s, transform .3s; background: var(--white); }
+    .featured:hover { box-shadow: 0 16px 48px rgba(37,99,235,.1); transform: translateY(-2px); }
+
+    .feat-img { position: relative; overflow: hidden; min-height: 380px; }
+    .feat-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s ease; }
+    .featured:hover .feat-img img { transform: scale(1.04); }
+
+    .feat-body { padding: 3rem; background: var(--white); border-left: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+    .cat { font-family: 'Syne', sans-serif; font-size: 0.63rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue); margin-bottom: 1rem; }
+    .feat-body h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.75rem; font-weight: 400; line-height: 1.2; color: var(--navy); letter-spacing: -0.01em; margin-bottom: 1rem; }
+    .feat-body p { color: var(--muted); font-size: 0.92rem; line-height: 1.72; font-weight: 300; flex: 1; }
+    .feat-meta { display: flex; align-items: center; gap: .75rem; font-size: 0.76rem; color: var(--muted); margin-top: 1.75rem; }
+    .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--sky-3); flex-shrink: 0; }
+    .read-link { display: inline-flex; align-items: center; gap: 6px; color: var(--blue); font-size: 0.83rem; font-weight: 500; text-decoration: none; margin-top: 1.5rem; transition: gap .2s; }
+    .featured:hover .read-link { gap: 10px; }
+    .read-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* GRID */
+    .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-bottom: 5rem; }
+    .card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; background: var(--white); transition: box-shadow .25s, transform .25s; display: flex; flex-direction: column; }
+    .card:hover { box-shadow: 0 10px 36px rgba(37,99,235,.09); transform: translateY(-3px); }
+    .card-img { height: 204px; overflow: hidden; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
+    .card:hover .card-img img { transform: scale(1.05); }
+    .card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .card-body h3 { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.1rem; font-weight: 400; line-height: 1.3; color: var(--navy); letter-spacing: -0.01em; margin: .5rem 0 .65rem; }
+    .card-body p { color: var(--muted); font-size: 0.84rem; line-height: 1.65; font-weight: 300; flex: 1; }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .card-foot span { color: var(--muted); font-size: 0.75rem; }
+    .arrow-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); display: grid; place-items: center; transition: background .2s, border-color .2s; }
+    .card:hover .arrow-btn { background: var(--blue); border-color: var(--blue); }
+    .arrow-btn svg { width: 11px; height: 11px; stroke: var(--muted); transition: stroke .2s; }
+    .card:hover .arrow-btn svg { stroke: #fff; }
+
+    /* CTA */
+    .cta { background: var(--navy); border-radius: 14px; padding: 4rem 4rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+    .cta-text h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: 2.1rem; font-weight: 400; color: #fff; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: .5rem; }
+    .cta-text h2 em { font-style: italic; color: var(--sky-3); }
+    .cta-text p { color: rgba(255,255,255,.48); font-size: 0.88rem; font-weight: 300; }
+    .cta-btn { flex-shrink: 0; background: var(--blue); color: #fff; text-decoration: none; padding: 14px 30px; border-radius: 8px; font-size: 0.88rem; font-weight: 500; white-space: nowrap; transition: background .2s; }
+    .cta-btn:hover { background: #1d4ed8; }
+
+    /* FOOTER */
+    footer { background: var(--surface); border-top: 1px solid var(--border); padding: 1.75rem 3rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: var(--muted); }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--navy); }
+    .footer-links { display: flex; gap: 1.75rem; }
+
+    @media(max-width:960px) {
+      .featured { grid-template-columns: 1fr; }
+      .feat-img { min-height: 240px; }
+      .feat-body { border-left: none; border-top: 1px solid var(--border); }
+      .grid { grid-template-columns: 1fr 1fr; }
+      .cta { flex-direction: column; text-align: center; }
+    }
+    @media(max-width:640px) {
+      nav, .hero, .main, footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="https://jobwin.fr" class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg>
+    </div>
+    <span class="logo-word">JOBWIN</span>
+  </a>
+  <div class="nav-links">
+    <a href="/blog/" class="nav-link active">Blog</a>
+    <a href="https://jobwin.fr" class="nav-link">Simulateur</a>
+    <a href="https://jobwin.fr#packs" class="nav-link">Tarifs</a>
+    <a href="https://jobwin.fr" class="nav-cta">Commencer</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Ressources &amp; Conseils</div>
+    <h1>Décrochez votre prochain poste<br><em>avec méthode.</em></h1>
+    <p class="hero-desc">Analyses, stratégies et décryptages pour les candidats qui ne veulent pas laisser leurs entretiens au hasard.</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="sec-label">À la une</div>
+
+  <a href="simulateur-entretien-ia-vs-coach.html" class="featured">
+    <div class="feat-img">
+      <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=900&auto=format&fit=crop&q=80" alt="Coaching professionnel entretien" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#1B2E4A 0%,#2563EB 100%)'">
+    </div>
+    <div class="feat-body">
+      <div class="cat">Analyse</div>
+      <h2>Simulateur IA ou coach : lequel choisir avant votre prochain entretien ?</h2>
+      <p>Les coachs facturent entre 80 et 200 € la séance. Les simulateurs IA coûtent une fraction de ce prix. Ce n'est pas la même chose — et selon votre situation, l'un peut être nettement plus adapté que l'autre.</p>
+      <div class="feat-meta">
+        <span>Mai 2026</span><div class="dot"></div><span>6 min de lecture</span>
+      </div>
+      <span class="read-link">
+        Lire l'article
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7h12M7 1l6 6-6 6"/></svg>
+      </span>
+    </div>
+  </a>
+
+  <div class="sec-label">Tous les articles</div>
+
+  <div class="grid">
+
+    <a href="comment-repondre-pourquoi-vous-entretien.html" class="card">
+      <div class="card-img">
+        <img src="https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=700&auto=format&fit=crop&q=80" alt="Entretien professionnel bureau" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#1B2E4A 0%,#2563EB 100%)'">
+      </div>
+      <div class="card-body">
+        <div class="cat">Préparation</div>
+        <h3>Comment répondre à "Pourquoi vous ?" sans paraître arrogant</h3>
+        <p>La structure exacte qui fonctionne, avec des exemples par secteur. La question que tout le monde redoute — et que tout le monde rate.</p>
+        <div class="card-foot">
+          <span>5 min — Mai 2026</span>
+          <div class="arrow-btn"><svg viewBox="0 0 12 12" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M6 1l5 5-5 5"/></svg></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="entretien-startup-vs-grand-groupe.html" class="card">
+      <div class="card-img">
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=700&auto=format&fit=crop&q=80" alt="Open space bureau moderne" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#1B2E4A 0%,#2563EB 100%)'">
+      </div>
+      <div class="card-body">
+        <div class="cat">Stratégie</div>
+        <h3>Startup vs Grand groupe : les codes d'entretien sont totalement différents</h3>
+        <p>Ce qui impressionne un recruteur chez BNP Paribas peut vous éliminer chez une startup. Le guide complet des différences.</p>
+        <div class="card-foot">
+          <span>7 min — Mai 2026</span>
+          <div class="arrow-btn"><svg viewBox="0 0 12 12" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M6 1l5 5-5 5"/></svg></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="simulateur-entretien-ia-vs-coach.html" class="card">
+      <div class="card-img">
+        <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=700&auto=format&fit=crop&q=80" alt="Intelligence artificielle technologie" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#1B2E4A 0%,#2563EB 100%)'">
+      </div>
+      <div class="card-body">
+        <div class="cat">Outil IA</div>
+        <h3>Simulateur IA vs Coach : ce que les données disent vraiment</h3>
+        <p>Comparatif honnête entre les deux approches. La répétition reste le facteur n°1 d'amélioration — et elle change tout.</p>
+        <div class="card-foot">
+          <span>6 min — Mai 2026</span>
+          <div class="arrow-btn"><svg viewBox="0 0 12 12" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M6 1l5 5-5 5"/></svg></div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="cta">
+    <div class="cta-text">
+      <h2>Prêt à vous entraîner<br><em>vraiment ?</em></h2>
+      <p>Simulation vocale, recruteur IA adaptatif, score d'aptitude. 3 essais offerts, aucune carte requise.</p>
+    </div>
+    <a href="https://jobwin.fr" class="cta-btn">Lancer une simulation</a>
+  </div>
+
+</div>
+
+<footer>
+  <span>© 2026 JOBWIN</span>
+  <div class="footer-links">
+    <a href="/blog/">Blog</a>
+    <a href="/mentions-legales.html">Mentions légales</a>
+    <a href="/cgv.html">CGV</a>
+  </div>
+</footer>
+
+</body>
+</html>
