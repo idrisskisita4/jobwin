@@ -1429,7 +1429,7 @@ async function speakTextAsync(txt) {
 }
 
 async function initInterview() {
-  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now()};
+  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12};
   S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0;
 
   const rec = (S.recruiter && S.recruiter.name) ? S.recruiter : RECRUITERS.antoine;
@@ -1472,22 +1472,24 @@ async function initInterview() {
     document.getElementById('r-meta-role').textContent='Recruteur IA · Entretien en cours';
     document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
     try {
-      S.itv.qs=await genQuestions(10);
-      // Intro personnalisée selon type d'entreprise et CV
+      // Intro personnalisée selon type d'entreprise
+      const rec2=S.recruiter||{name:'Antoine',genre:'homme'};
       const typeIntros={
-        grand_groupe: `Bonjour, je suis ${rec.name}, ${rec.genre==='femme'?'Responsable RH':'Responsable RH'} au sein de notre direction. J'ai pris connaissance de votre dossier de candidature pour le poste de ${S.config.poste}. Nous allons passer environ 45 minutes ensemble. Commençons.`,
-        pme: `Bonjour, je suis ${rec.name}. Je m'occupe du recrutement ici. J'ai regardé votre profil pour le poste de ${S.config.poste} — ça m'a semblé intéressant. On va discuter tranquillement.`,
-        startup: `Bonjour, ${rec.name} ! Je gère le recrutement chez nous. On cherche quelqu'un pour le poste de ${S.config.poste} — un rôle clé pour nous. On va avoir une conversation ouverte, sans formalisme.`,
-        administration: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${S.config.poste}. Cet entretien a pour but d'évaluer vos compétences et votre adéquation avec les missions du poste.`
+        grand_groupe: `Bonjour, je suis ${rec2.name}, Responsable RH au sein de notre direction. J'ai pris connaissance de votre candidature pour le poste de ${S.config.poste}. Nous allons échanger pendant environ 30 à 45 minutes. Je vais vous poser plusieurs questions sur votre parcours et vos motivations. Commençons.`,
+        pme: `Bonjour, je suis ${rec2.name}, je m'occupe du recrutement ici. J'ai regardé votre profil pour le poste de ${S.config.poste}, ça m'a semblé intéressant. On va discuter tranquillement, n'hésitez pas à être spontané.`,
+        startup: `Bonjour, je suis ${rec2.name}, je gère le recrutement chez nous. On cherche quelqu'un pour le poste de ${S.config.poste}, un rôle vraiment clé pour nous en ce moment. On va avoir une conversation ouverte, sans formalisme excessif.`,
+        administration: `Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${S.config.poste}. Cet entretien a pour but d'évaluer vos compétences et votre adéquation avec les missions du poste. Nous allons procéder méthodiquement.`
       };
       const introText = typeIntros[S.config.type_entreprise||'grand_groupe'];
       document.getElementById('q-text').textContent=introText;
       if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='none';
       if(S.config.voix) await speakTextAsync(introText);
-      else await new Promise(r=>setTimeout(r,1200));
+      else await new Promise(r=>setTimeout(r,1400));
       if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='flex';
       document.getElementById('q-counter').style.display='none';
       document.getElementById('prog-fill').style.width='5%';
+      // First question is always the presentation
+      S.itv.qs=['Pouvez-vous vous présenter et me parler de votre parcours ?'];
       displayQ(0);
     } catch(e) {
       document.getElementById('q-text').textContent='⚠️ Erreur API. Vérifie ta clé Anthropic.';
@@ -1514,20 +1516,59 @@ function updateTimerDisplay() {
   display.classList.toggle('urgent', S.expressSecondsLeft<=120);
 }
 
+async function genNextQuestion() {
+  const tone = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
+  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const cvCtx = S.config.cv ? `CV du candidat : ${S.config.cv}` : 'Aucun CV fourni.';
+  const qCount = S.itv.qs.length;
+  const histStr = S.itv.history.map((h,i)=>`Q${i+1}: ${h.q}\nRéponse: ${h.a}`).join('\n\n');
+  const lastAnswer = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].a : '';
+  const lastQ = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].q : '';
+
+  const prompt = `Tu es un recruteur ${tone} qui conduit un entretien d'embauche pour un poste de ${S.config.poste}${S.config.entreprise?' chez '+S.config.entreprise:''} dans un ${typeEntreprise}. Niveau : ${S.config.niveau||'junior'}.
+
+${cvCtx}
+
+Historique de l'entretien jusqu'ici :
+${histStr || 'Début de l\'entretien.'}
+
+RÈGLES IMPORTANTES :
+1. Analyse la dernière réponse du candidat. Si elle est hors sujet, vague ou évasive, commence par un bref recadrage professionnel (1 phrase max) puis pose une question de relance ou de précision sur ce point. Exemple : "Je vous reposais la question sur X — pouvez-vous être plus précis ?"
+2. Si la réponse est bonne, enchaîne naturellement avec la prochaine question logique basée sur le CV et le parcours.
+3. Varie les types de questions : motivations, STAR (situation vécue), projection, adéquation culture, lacunes CV.
+4. Si tu n'as pas encore posé ces questions obligatoires, intègre-les progressivement : "Pourquoi vous et pas un autre candidat ?", "Quelles sont vos prétentions salariales ?".
+5. Adapte le nombre de questions : entre ${S.itv.minQ} et ${S.itv.maxQ} au total. Si les réponses sont riches, tu peux aller jusqu'à ${S.itv.maxQ}. Si elles sont pauvres, reste à ${S.itv.minQ}.
+6. Question numéro ${qCount+1} sur l'entretien.
+
+Retourne UNIQUEMENT la question suivante en texte brut. Pas de JSON, pas de guillemets, juste la question naturelle comme la dirait un vrai recruteur.`;
+
+  const res = await apiCall(prompt, 300);
+  return res.trim();
+}
+
+async function genCandidateQuestionAnswer(candidateQ) {
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
+  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const prompt = `Tu es un recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. Le candidat vient de te poser cette question : "${candidateQ}". Réponds de façon naturelle et réaliste, comme un vrai recruteur. 2-4 phrases maximum. Commence directement par la réponse.`;
+  return await apiCall(prompt, 250);
+}
+
+async function genOutro() {
+  const avg = S.itv.scores.length > 0 ? Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) : 0;
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
+  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const prompt = `Tu es un recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien pour le poste de ${S.config.poste}. Rédige un outro de clôture naturel et professionnel (3-4 phrases max). Remercie le candidat, indique les prochaines étapes de façon réaliste. N'évalue pas le candidat. Commence par "Merci".`;
+  return await apiCall(prompt, 200);
+}
+
 async function genQuestions(n) {
+  // Legacy — used by express mode only
   const q1='Pouvez-vous vous présenter en quelques mots et me parler de votre parcours ?';
   const q2='Quels sont vos principaux points forts ? Et quel est votre point faible principal ?';
-  if(n<=2) return [q1,q2].slice(0,n);
-  const tone=S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
-  const typeLabels={grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
-  const typeEntreprise=typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const cvContext = S.config.cv ? `\nParcours du candidat : ${S.config.cv}\nATTENTION : si tu détectes des trous dans le parcours, des changements de secteur fréquents, des postes très courts ou des périodes sans emploi, génère une question spécifique pour explorer cette zone — comme le ferait un vrai recruteur.` : '';
-  const prompt=`Tu es recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}${S.config.entreprise?' chez '+S.config.entreprise:''}, niveau ${S.config.niveau||'junior'}, secteur ${S.config.secteur}.${cvContext}
-Génère exactement ${n-2} questions d'entretien UNIQUES et VARIÉES. Inclus obligatoirement : "Pourquoi vous et pas un autre candidat ?" et une question sur les prétentions salariales. Mix varié : motivations, situations vécues, comportemental STAR, projection, culture fit adapté au type d'entreprise. Questions naturelles, pas une liste froide.
-Retourne UNIQUEMENT un tableau JSON de strings. Aucun texte autour.`;
-  const res=await apiCall(prompt,900);
-  try{return [q1,q2,...JSON.parse(res.replace(/```json?|```/g,'').trim())].slice(0,n)}
-  catch(e){return [q1,q2,'Pourquoi ce poste ?','Pourquoi vous et pas un autre candidat ?','Votre plus grande réussite ?','Comment gérez-vous le stress ?','Décrivez une situation difficile et comment vous l\'avez résolue.','Où vous voyez-vous dans 3 ans ?','Quelles sont vos prétentions salariales ?','Avez-vous des questions à me poser ?'].slice(0,n)}
+  return [q1,q2,'Pourquoi ce poste ?','Pourquoi vous et pas un autre candidat ?','Décrivez une réussite concrète.','Comment gérez-vous le stress ?'].slice(0,n);
 }
 
 function displayQ(i) {
@@ -1640,7 +1681,11 @@ async function stopRec(e) {
   document.getElementById('answer-box').className='answer-box has-answer';
   S.itv.answers.push(answer);
 
-  // AI Evaluation
+  // AI Evaluation — skip for candidate questions phase
+  if(S.mode==='complet' && S.itv.phase==='candidate_questions'){
+    S.itv.scores.push(0); S.itv.criteria.push({structure:0,confiance:0,pertinence:0,vocabulaire:0}); S.itv.feedbacks.push(''); S.itv.ideals.push('');
+    showNextBtn(); return;
+  }
   if(S.itv.currentQ === 0) {
     document.getElementById('feedback-wrap').style.display='block';
     document.getElementById('feedback-txt').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
@@ -1677,29 +1722,127 @@ function wpmClass(wpm){
 }
 
 function showNextBtn() {
-  const isLast=S.itv.currentQ>=S.itv.qs.length-1;
+  let nextLabel = 'Question suivante →';
+  if(S.mode==='express' && S.itv.currentQ>=S.itv.qs.length-1) nextLabel='Voir les résultats →';
+  if(S.mode==='complet' && S.itv.phase==='candidate_questions') nextLabel='Terminer l\'entretien →';
   document.getElementById('int-actions').style.display='flex';
-  document.getElementById('next-btn').textContent=isLast?'Voir les résultats →':'Question suivante →';
+  document.getElementById('next-btn').textContent=nextLabel;
   setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},200);
 }
 async function nextQ() {
-  if(S.itv.currentQ>=S.itv.qs.length-1){
-    // Express outro
-    if(S.mode==='express'){
-      const outro=`Merci beaucoup pour cet échange, nous reviendrons vers vous rapidement.`;
+  // ── EXPRESS mode ──
+  if(S.mode==='express'){
+    if(S.itv.currentQ>=S.itv.qs.length-1){
+      const outro='Merci beaucoup pour cet échange, nous reviendrons vers vous rapidement.';
       document.getElementById('q-text').textContent=outro;
       document.getElementById('int-actions').style.display='none';
       document.getElementById('mic-area').style.display='none';
-      if(S.config.voix){
-        await speakTextAsync(outro);
-        await new Promise(r=>setTimeout(r,800));
-      } else {
-        await new Promise(r=>setTimeout(r,1800));
-      }
+      if(S.config.voix){ await speakTextAsync(outro); await new Promise(r=>setTimeout(r,800)); }
+      else { await new Promise(r=>setTimeout(r,1800)); }
+      showResults();
+    } else {
+      S.itv.currentQ++; displayQ(S.itv.currentQ);
     }
-    showResults(); return;
+    return;
   }
-  S.itv.currentQ++; displayQ(S.itv.currentQ);
+
+  // ── PACK COMPLET mode — dynamic ──
+  const currentAnswer = S.itv.answers[S.itv.currentQ] || '';
+  const currentQuestion = S.itv.qs[S.itv.currentQ] || '';
+
+  // Push to history
+  if(currentQuestion && currentAnswer) {
+    S.itv.history.push({q: currentQuestion, a: currentAnswer});
+  }
+
+  const qAsked = S.itv.history.length;
+
+  // Phase: candidate questions
+  if(S.itv.phase === 'candidate_questions'){
+    // They just answered a candidate question — generate recruiter's response
+    const candidateQ = S.itv.qs[S.itv.currentQ];
+    document.getElementById('int-actions').style.display='none';
+    document.getElementById('mic-area').style.display='none';
+    document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+    try {
+      const recruiterAnswer = await genCandidateQuestionAnswer(currentAnswer);
+      document.getElementById('q-text').textContent = recruiterAnswer;
+      if(S.config.voix) await speakTextAsync(recruiterAnswer);
+      else await new Promise(r=>setTimeout(r,1200));
+    } catch(e) {}
+    // Outro
+    await doOutro();
+    return;
+  }
+
+  // Decide: enough questions asked? → candidate questions phase
+  const shouldEnd = qAsked >= S.itv.maxQ || 
+    (qAsked >= S.itv.minQ && S.itv.scores.length >= S.itv.minQ && 
+     Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) >= 60);
+
+  if(shouldEnd){
+    // Ask "Avez-vous des questions ?"
+    S.itv.phase = 'candidate_questions';
+    const transitionQ = "Nous avons presque terminé. Avez-vous des questions à me poser sur le poste, l'entreprise ou la suite du processus de recrutement ?";
+    S.itv.qs.push(transitionQ);
+    S.itv.currentQ++;
+    document.getElementById('q-text').textContent = transitionQ;
+    document.getElementById('prog-fill').style.width='95%';
+    document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
+    document.getElementById('answer-box').className='answer-box';
+    document.getElementById('feedback-wrap').style.display='none';
+    document.getElementById('int-actions').style.display='none';
+    document.getElementById('filler-wrap').style.display='none';
+    document.getElementById('wpm-display').style.display='none';
+    document.getElementById('mic-hint').textContent='Maintenir pour parler';
+    document.getElementById('mic-btn').className='mic-btn';
+    if(S.config.voix) setTimeout(()=>speakText(transitionQ),400);
+    return;
+  }
+
+  // Generate next question dynamically
+  document.getElementById('int-actions').style.display='none';
+  document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
+  document.getElementById('answer-box').className='answer-box';
+  document.getElementById('feedback-wrap').style.display='none';
+  document.getElementById('filler-wrap').style.display='none';
+  document.getElementById('wpm-display').style.display='none';
+  document.getElementById('mic-hint').textContent='Maintenir pour parler';
+  document.getElementById('mic-btn').className='mic-btn';
+  document.getElementById('mic-area').style.display='flex';
+  currentTranscript='';
+
+  try {
+    const nextQuestion = await genNextQuestion();
+    S.itv.qs.push(nextQuestion);
+    S.itv.currentQ++;
+    const pct = Math.min(90, Math.round((qAsked / S.itv.maxQ) * 90));
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('q-text').textContent = nextQuestion;
+    if(S.config.voix) setTimeout(()=>speakText(nextQuestion), 400);
+  } catch(e) {
+    document.getElementById('q-text').textContent = 'Question suivante impossible à charger. Réessaie.';
+  }
+}
+
+async function doOutro(){
+  document.getElementById('mic-area').style.display='none';
+  document.getElementById('int-actions').style.display='none';
+  document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  try {
+    const outro = await genOutro();
+    document.getElementById('q-text').textContent = outro;
+    document.getElementById('prog-fill').style.width='100%';
+    if(S.config.voix){ await speakTextAsync(outro); await new Promise(r=>setTimeout(r,600)); }
+    else { await new Promise(r=>setTimeout(r,2000)); }
+  } catch(e) {
+    const fallback = 'Merci pour cet entretien. Nous avons apprécié notre échange et reviendrons vers vous dans les prochains jours.';
+    document.getElementById('q-text').textContent = fallback;
+    if(S.config.voix) await speakTextAsync(fallback);
+    else await new Promise(r=>setTimeout(r,2000));
+  }
+  showResults();
 }
 function abandon() {
   if(!confirm('Abandonner l\'entretien ?')) return;
