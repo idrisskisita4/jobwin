@@ -1390,14 +1390,47 @@ function stopAudio() {
   if(currentAudio){ currentAudio.pause(); currentAudio=null; }
 }
 
+/* ── AUDIO PRE-BUFFER ── */
+let audioBuffer = {}; // key: text → blob URL
+
+async function prefetchAudio(txt) {
+  if(!txt || !S.config.voix) return;
+  if(audioBuffer[txt]) return; // already cached
+  const rec = S.recruiter || EXPRESS_RECRUITER;
+  try {
+    const r = await fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
+      method:'POST',
+      headers:{'content-Type':'application/json'},
+      body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+    });
+    if(!r.ok) return;
+    const blob = await r.blob();
+    audioBuffer[txt] = URL.createObjectURL(blob);
+  } catch(e) {}
+}
+
+function clearAudioBuffer() {
+  Object.values(audioBuffer).forEach(url => { try{URL.revokeObjectURL(url);}catch(_){} });
+  audioBuffer = {};
+}
+
 function speakText(txt) {
   if(!txt) return;
   stopAudio();
   const rec = S.recruiter || EXPRESS_RECRUITER;
+  // Use pre-buffered audio if available
+  if(audioBuffer[txt]) {
+    const url = audioBuffer[txt];
+    delete audioBuffer[txt];
+    currentAudio = new Audio(url);
+    currentAudio.play();
+    currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; };
+    return;
+  }
   fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST',
     headers:{'content-Type':'application/json'},
-    body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true},speed:1.25})
+    body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
   }).then(r=>r.ok?r.blob():null).then(blob=>{
     if(!blob) return;
     const url=URL.createObjectURL(blob);
@@ -1412,10 +1445,21 @@ async function speakTextAsync(txt) {
   stopAudio();
   const rec = S.recruiter || EXPRESS_RECRUITER;
   return new Promise(resolve=>{
+    // Use pre-buffered URL if available
+    if(audioBuffer[txt]) {
+      const url = audioBuffer[txt];
+      delete audioBuffer[txt];
+      currentAudio = new Audio(url);
+      const timeout = setTimeout(resolve, 20000);
+      currentAudio.onended = () => { clearTimeout(timeout); URL.revokeObjectURL(url); currentAudio=null; resolve(); };
+      currentAudio.onerror = () => { clearTimeout(timeout); resolve(); };
+      currentAudio.play();
+      return;
+    }
     fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
       method:'POST',
       headers:{'content-Type':'application/json'},
-      body:JSON.stringify({text:txt,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true},speed:1.25})
+      body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
     }).then(r=>r.ok?r.blob():null).then(blob=>{
       if(!blob){resolve();return;}
       const url=URL.createObjectURL(blob);
@@ -1430,7 +1474,7 @@ async function speakTextAsync(txt) {
 
 async function initInterview() {
   S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12};
-  S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0;
+  S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0; S.fillerLog={}; clearAudioBuffer();
 
   const rec = (S.recruiter && S.recruiter.name) ? S.recruiter : RECRUITERS.antoine;
   S.recruiter = rec;
@@ -1475,10 +1519,10 @@ async function initInterview() {
       // Intro personnalisée selon type d'entreprise
       const rec2=S.recruiter||{name:'Antoine',genre:'homme'};
       const typeIntros={
-        grand_groupe: `Bonjour, je suis ${rec2.name}, Responsable RH au sein de notre direction. J'ai pris connaissance de votre candidature pour le poste de ${S.config.poste}. Nous allons échanger pendant environ 30 à 45 minutes. Je vais vous poser plusieurs questions sur votre parcours et vos motivations. Commençons.`,
-        pme: `Bonjour, je suis ${rec2.name}, je m'occupe du recrutement ici. J'ai regardé votre profil pour le poste de ${S.config.poste}, ça m'a semblé intéressant. On va discuter tranquillement, n'hésitez pas à être spontané.`,
-        startup: `Bonjour, je suis ${rec2.name}, je gère le recrutement chez nous. On cherche quelqu'un pour le poste de ${S.config.poste}, un rôle vraiment clé pour nous en ce moment. On va avoir une conversation ouverte, sans formalisme excessif.`,
-        administration: `Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${S.config.poste}. Cet entretien a pour but d'évaluer vos compétences et votre adéquation avec les missions du poste. Nous allons procéder méthodiquement.`
+        grand_groupe: `Bonjour${S.config.poste?', je vois que vous candidatez pour le poste de '+S.config.poste:''}. Je suis ${rec2.name}, Responsable des Ressources Humaines. J'ai pris le soin de parcourir votre dossier avant notre entretien. Nous allons avoir un échange d'environ trente à quarante-cinq minutes — je souhaite mieux vous connaître, comprendre votre parcours, vos motivations, et évaluer votre adéquation avec ce que nous recherchons. Soyez à l'aise pour vous exprimer pleinement. Êtes-vous prêt à commencer ?`,
+        pme: `Bonjour, je suis ${rec2.name}. Je pilote les recrutements ici depuis quelques années, donc je connais bien nos besoins. J'ai jeté un œil à votre profil pour le poste de ${S.config.poste||'ce poste'}, et il y a des choses qui m'ont intéressé — j'aimerais qu'on creuse ça ensemble. On va avoir une discussion franche et directe, sans langue de bois. Je préfère qu'on se parle vraiment plutôt que de réciter des formules. Ça vous convient ?`,
+        startup: `Hey, bonjour ! Je suis ${rec2.name}, je gère le recrutement chez nous. Bon, je vais être honnête — on grandit vite et on a besoin de gens qui peuvent vraiment tenir la cadence. Le poste de ${S.config.poste||'ce poste'} est stratégique pour nous en ce moment. L'idée c'est qu'on ait une vraie conversation — pas un interrogatoire. Je veux comprendre qui vous êtes, ce qui vous drive, comment vous pensez. Donc n'hésitez pas à sortir des sentiers battus. On y va ?`,
+        administration: `Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement au sein de notre direction. Vous candidatez pour le poste de ${S.config.poste||'ce poste'}. Cet entretien se déroulera de façon structurée — je vous poserai plusieurs questions portant sur votre parcours, vos compétences, et votre motivation pour intégrer nos équipes. Prenez le temps de formuler des réponses précises et circonstanciées. Je suis attentif${rec2.genre==='femme'?'ve':''} à la cohérence de votre discours et à votre capacité d'adaptation au service public. Nous pouvons commencer.`
       };
       const introText = typeIntros[S.config.type_entreprise||'grand_groupe'];
       document.getElementById('q-text').textContent=introText;
@@ -1526,24 +1570,84 @@ async function genNextQuestion() {
   const lastAnswer = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].a : '';
   const lastQ = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].q : '';
 
-  const prompt = `Tu es un recruteur ${tone} qui conduit un entretien d'embauche pour un poste de ${S.config.poste}${S.config.entreprise?' chez '+S.config.entreprise:''} dans un ${typeEntreprise}. Niveau : ${S.config.niveau||'junior'}.
+  const prompt = `Tu incarnes ${rec.name}, recruteur ${tone} qui conduit un entretien d'embauche RÉEL pour le poste de ${S.config.poste}${S.config.entreprise?' chez '+S.config.entreprise:''} dans un ${typeEntreprise}. Niveau recherché : ${S.config.niveau||'junior'}.
 
 ${cvCtx}
 
-Historique de l'entretien jusqu'ici :
-${histStr || 'Début de l\'entretien.'}
+═══ HISTORIQUE DE L'ENTRETIEN ═══
+${histStr || 'C\'est la première question après la présentation.'}
 
-RÈGLES IMPORTANTES :
-1. Analyse la dernière réponse du candidat. Si elle est hors sujet, vague ou évasive, commence par un bref recadrage professionnel (1 phrase max) puis pose une question de relance ou de précision sur ce point. Exemple : "Je vous reposais la question sur X — pouvez-vous être plus précis ?"
-2. Si la réponse est bonne, enchaîne naturellement avec la prochaine question logique basée sur le CV et le parcours.
-3. Varie les types de questions : motivations, STAR (situation vécue), projection, adéquation culture, lacunes CV.
-4. Si tu n'as pas encore posé ces questions obligatoires, intègre-les progressivement : "Pourquoi vous et pas un autre candidat ?", "Quelles sont vos prétentions salariales ?".
-5. Adapte le nombre de questions : entre ${S.itv.minQ} et ${S.itv.maxQ} au total. Si les réponses sont riches, tu peux aller jusqu'à ${S.itv.maxQ}. Si elles sont pauvres, reste à ${S.itv.minQ}.
-6. Question numéro ${qCount+1} sur l'entretien.
+═══ TON IDENTITÉ DE RECRUTEUR ═══
+Tu es un être humain avec une vraie personnalité. Tu as de l'expérience, tu sais lire entre les lignes, tu captes les incohérences, tu rebondis sur ce que dit le candidat. Tu ne lis pas une liste de questions — tu CONVERSES. Tu mémorises ce qui a été dit et tu t'y réfères. Tu peux dire "Vous m'avez mentionné tout à l'heure que...", "En vous écoutant, je remarque que...", "Ce que vous décrivez me fait penser à...", "Je vous rejoins sur ce point, mais permettez-moi de creuser...".
 
-Retourne UNIQUEMENT la question suivante en texte brut. Pas de JSON, pas de guillemets, juste la question naturelle comme la dirait un vrai recruteur.`;
+Ton vocabulaire est riche et professionnel : "votre parcours témoigne de", "j'apprécie la précision de votre démarche", "c'est tout à fait pertinent", "permettez-moi d'être direct", "votre expérience semble cohérente avec", "je souhaite comprendre", "vous évoquez un point crucial", "c'est une question que je pose à tous nos candidats".
 
-  const res = await apiCall(prompt, 300);
+═══ BANQUE DE QUESTIONS PAR CATÉGORIE ═══
+Pioche intelligemment selon le contexte et l'historique. Ne répète jamais une question déjà posée.
+
+PARCOURS & EXPÉRIENCE :
+- "Qu'est-ce qui vous a conduit à quitter votre dernier poste, et qu'aviez-vous espéré y trouver initialement ?"
+- "Si je contactais votre ancien manager, comment décrirait-il votre façon de travailler ?"
+- "Quelle est la décision professionnelle dont vous êtes le plus fier, et pourquoi ?"
+- "Parlez-moi d'un échec professionnel significatif — qu'en avez-vous tiré ?"
+- "Vous avez occupé ce poste pendant [durée] — qu'est-ce qui vous a retenu aussi longtemps ?"
+- "Je vois un écart dans votre parcours entre [date] et [date] — que s'est-il passé ?"
+- "Comment qualifieriez-vous votre évolution depuis vos débuts dans ce secteur ?"
+
+MOTIVATIONS & PROJET :
+- "Qu'est-ce qui vous a spécifiquement attiré dans notre offre, parmi toutes celles que vous avez certainement reçues ?"
+- "Où vous voyez-vous dans trois ans ? Et dans cinq ans ?"
+- "Qu'est-ce qui vous ferait refuser notre offre si nous vous la faisions ?"
+- "Si vous pouviez concevoir votre poste idéal, à quoi ressemblerait-il exactement ?"
+- "Pourquoi maintenant ? Pourquoi ce changement à ce moment précis de votre carrière ?"
+- "Qu'avez-vous appris sur notre organisation avant cet entretien ?"
+
+COMPORTEMENTAL & STAR :
+- "Décrivez-moi une situation où vous avez dû défendre une position impopulaire — comment vous y êtes-vous pris ?"
+- "Racontez-moi un moment où vous avez dû travailler avec quelqu'un avec qui vous étiez en désaccord profond."
+- "Quelle est la situation la plus stressante que vous ayez vécue professionnellement, et comment l'avez-vous gérée ?"
+- "Donnez-moi un exemple concret où vous avez pris une initiative sans y être invité."
+- "Comment avez-vous géré une situation où les ressources ou le temps étaient insuffisants pour atteindre l'objectif ?"
+- "Parlez-moi d'une fois où vous avez commis une erreur qui a eu des conséquences — qu'avez-vous fait ensuite ?"
+- "Décrivez un moment où vous avez dû convaincre quelqu'un de difficile à persuader."
+
+COMPÉTENCES & EXPERTISE MÉTIER :
+- "Quelles sont les compétences que vous estimez maîtriser à un niveau expert, et comment le démontrez-vous ?"
+- "Sur quels aspects de ce poste pensez-vous devoir vous améliorer ?"
+- "Comment restez-vous à jour dans votre domaine ? Quelles sont vos sources ?"
+- "Qu'est-ce qu'un excellent professionnel de votre domaine fait différemment d'un profil moyen ?"
+- "Quelle est la tendance majeure de votre secteur qui vous semble la plus déterminante pour les trois prochaines années ?"
+
+CULTURE & SOFT SKILLS :
+- "Comment décririez-vous l'environnement de travail dans lequel vous êtes le plus performant ?"
+- "Que signifie pour vous le travail en équipe ? Donnez-moi un exemple concret."
+- "Comment gérez-vous les critiques, qu'elles soient fondées ou non ?"
+- "Qu'est-ce que vos collègues diraient de vous si je les appelais maintenant ?"
+- "Êtes-vous quelqu'un qui préfère les instructions claires ou l'autonomie totale ?"
+- "Comment réagissez-vous quand les priorités changent du jour au lendemain ?"
+
+DIFFÉRENCIATION :
+- "Pourquoi vous, et pas les autres candidats que je vais rencontrer cette semaine ?"
+- "Qu'est-ce que vous apporteriez à cette équipe qu'un autre candidat n'apporterait pas ?"
+- "Quelle est la chose que vous feriez différemment si vous preniez ce poste demain matin ?"
+
+SALAIRE & CONDITIONS :
+- "Quelles sont vos prétentions salariales ? Et quelle est votre fourchette de négociation ?"
+- "Qu'est-ce qui prime pour vous entre rémunération, évolution de carrière, et qualité de vie au travail ?"
+- "Avez-vous d'autres entretiens en cours ? À quel stade en êtes-vous ?"
+
+═══ RÈGLES DE CONVERSATION ═══
+1. Réfère-toi TOUJOURS à l'historique. Cite ce que le candidat a dit. Rebondis dessus.
+2. Si la dernière réponse était vague ou trop courte : commence par "Permettez-moi d'insister sur ce point —" puis reformule ou précise.
+3. Si une incohérence apparaît dans le CV ou les réponses : pointe-la directement. "Je remarque que votre parcours indique X, mais vous dites Y — pouvez-vous m'expliquer ?"
+4. Adapte le registre au type d'entreprise : très formel pour l'administration, direct et humain pour la startup.
+5. Question ${qCount+1} sur l'entretien. Objectif entre ${S.itv.minQ} et ${S.itv.maxQ} questions au total.
+6. Si toutes les grandes catégories n'ont pas été couvertes, veille à équilibrer : parcours, motivations, comportemental, compétences, culture.
+7. Ne commence JAMAIS ta question par "Question :" ou un numéro.
+
+Génère UNIQUEMENT la prochaine question ou relance, en texte naturel, comme tu la dirais à voix haute. Entre 15 et 40 mots.`;
+
+  const res = await apiCall(prompt, 250);
   return res.trim();
 }
 
@@ -1551,7 +1655,22 @@ async function genCandidateQuestionAnswer(candidateQ) {
   const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
   const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const prompt = `Tu es un recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. Le candidat vient de te poser cette question : "${candidateQ}". Réponds de façon naturelle et réaliste, comme un vrai recruteur. 2-4 phrases maximum. Commence directement par la réponse.`;
+  const cvCtx2 = S.config.cv ? `CV/parcours du candidat : ${S.config.cv}` : '';
+  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. ${cvCtx2}
+
+Le candidat vient de te poser cette question en fin d'entretien : "${candidateQ}"
+
+Réponds de façon naturelle, humaine et réaliste — comme un vrai recruteur qui a passé 30 minutes avec ce candidat. 2 à 4 phrases. Ton vocabulaire est professionnel. Tu peux être chaleureux ou direct selon ton style.
+
+Si la question porte sur :
+- L'équipe / l'environnement → décris-le de façon vivante et concrète
+- Les perspectives d'évolution → sois honnête et précis
+- Le processus de recrutement → explique les prochaines étapes clairement
+- La culture de l'entreprise → donne des éléments concrets
+- Le poste lui-même → développe les enjeux réels
+- Une question personnelle sur toi → réponds de façon authentique
+
+Commence directement par ta réponse, sans préambule.`;
   return await apiCall(prompt, 250);
 }
 
@@ -1560,8 +1679,68 @@ async function genOutro() {
   const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
   const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const prompt = `Tu es un recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien pour le poste de ${S.config.poste}. Rédige un outro de clôture naturel et professionnel (3-4 phrases max). Remercie le candidat, indique les prochaines étapes de façon réaliste. N'évalue pas le candidat. Commence par "Merci".`;
+  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien de 30-45 minutes pour le poste de ${S.config.poste}.
+
+Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Tu viens de passer du temps avec ce candidat — tu as une impression, même si tu ne la révèles pas. Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
+
+Inclus impérativement :
+1. Un remerciement sincère pour le temps accordé
+2. Une indication concrète des prochaines étapes (délai de réponse, nombre de candidats rencontrés si pertinent, suite du process)
+3. Une invitation à poser une dernière question si besoin
+4. Une formule de congé naturelle
+
+Adapte le registre au contexte :
+- Grand groupe → formel, procédurier, délais précis
+- PME → chaleureux, direct, "on vous recontacte rapidement"
+- Startup → décontracté, transparent, "on prend une décision vite"
+- Administration → protocole, délais administratifs, commission
+
+Commence par "Très bien" ou "Bien" ou "Voilà" — jamais directement par "Merci". Sois naturel, pas robotique.`;
   return await apiCall(prompt, 200);
+}
+
+async function genRecruiterReaction(question, answer) {
+  const tone = S.config.personnalite==='hardcore'?'très exigeant et intimidant, autoritaire':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant et professionnel';
+  const histLen = S.itv.history.length;
+
+  const recName = S.recruiter?.name || 'Antoine';
+  const histContext = S.itv.history.length > 1 ? `Contexte de l'entretien : ${S.itv.history.slice(-3).map(h=>`[Q: ${h.q.substring(0,60)}... / R: ${h.a.substring(0,80)}...]`).join(' | ')}` : '';
+
+  const prompt = `Tu es ${recName}, recruteur ${tone}, en plein entretien pour le poste de ${S.config.poste}. Tu es un être humain, pas un robot.
+${histContext}
+
+Question que tu venais de poser : "${question}"
+Réponse du candidat : "${answer}"
+
+Génère une réaction verbale HUMAINE, NATURELLE et VARIÉE. 1 à 2 phrases maximum. Tu parles à voix haute, en français courant professionnel.
+
+ANALYSE et RÉAGIS selon ce qui s'est passé :
+
+① Le candidat POSE UNE QUESTION (sur le poste, l'équipe, l'entreprise, le salaire, le processus...) :
+→ Réponds directement et naturellement. Sois utile. "Tout à fait, je peux vous répondre là-dessus —", "Bonne question —", "Je suis content que vous abordiez ce point —"
+
+② COMPORTEMENT INAPPROPRIÉ, agressif, irrespectueux, résigné ("j'en ai marre", "peu importe", ironie négative...) :
+→ Recadre avec calme et fermeté professionnelle. Ton sang-froid est total. Exemples de registre : "Je vous invite à maintenir une posture professionnelle — dans un contexte réel, cette attitude serait rédhibitoire.", "Je comprends que l'exercice soit exigeant, mais je vous repose ma question car elle est déterminante pour votre candidature.", "Je me permets d'être direct : ce type de réponse sonnerait comme une disqualification immédiate en entretien réel."
+
+③ RÉPONSE VAGUE, ÉVASIVE, TROP COURTE (moins de 20 mots, pas de contenu concret) :
+→ Relance avec insistance professionnelle. "Je ne suis pas certain d'avoir une réponse à ma question — pouvez-vous illustrer par un exemple précis ?", "Vous effleurez le sujet. Ce qui m'intéresse c'est la situation concrète, le contexte, ce que vous avez fait.", "C'est un peu général. Pouvez-vous ancrer ça dans une expérience réelle ?"
+
+④ CONTRADICTION ou INCOHÉRENCE avec l'historique ou le CV :
+→ Pointe-la calmement. "Vous m'aviez indiqué tout à l'heure que... et là vous dites... — pouvez-vous m'aider à réconcilier ces deux éléments ?", "Ce que vous décrivez là me semble en décalage avec ce que j'ai lu dans votre parcours."
+
+⑤ RÉPONSE CORRECTE et bien construite :
+→ Transition d'écoute active courte et variée selon l'ambiance. Ne répète jamais la même formule. Exemples : "Je vois, c'est clair.", "D'accord, j'entends ça.", "C'est cohérent avec ce que vous m'avez décrit.", "Bien, merci pour cette précision.", "Tout à fait, c'est pertinent.", "Intéressant."
+→ Si la réponse est excellente, structurée, convaincante → renvoie exactement : SKIP
+
+⑥ PRÉSENTATION initiale (toute première réponse) :
+→ Réaction d'écoute active, chaleureuse selon le ton. "Bien, merci pour cette introduction — votre parcours est effectivement assez varié.", "D'accord, j'ai une meilleure vision de votre profil.", "Votre trajectoire est atypique, c'est ce qui m'a attiré dans votre candidature."
+
+Renvoie UNIQUEMENT la réaction en texte brut, naturelle, comme tu la dirais. Jamais de guillemets, jamais d'explication méta. Si aucune réaction n'est nécessaire : SKIP`;
+
+  const res = await apiCall(prompt, 150);
+  const txt = res.trim();
+  if(txt === 'SKIP' || txt.length < 3) return null;
+  return txt;
 }
 
 async function genQuestions(n) {
@@ -1588,9 +1767,10 @@ function displayQ(i) {
   document.getElementById('int-actions').style.display='none';
   document.getElementById('filler-wrap').style.display='none';
   document.getElementById('wpm-display').style.display='none';
+  const _re=document.getElementById('recruiter-reaction'); if(_re) _re.style.display='none';
   document.getElementById('mic-hint').textContent='Maintenir pour parler';
   document.getElementById('mic-btn').className='mic-btn';
-  if(S.config.voix) setTimeout(()=>speakText(S.itv.qs[i]),600);
+  if(S.config.voix) setTimeout(()=>speakText(S.itv.qs[i]),80);
 }
 
 /* Web Speech API replaced by ElevenLabs */
@@ -1663,8 +1843,13 @@ async function stopRec(e) {
   if(wpm>0){S.totalWPM+=wpm;S.wpmCount++;}
 
   // Fillers
-  const fillers=(answer.match(FILLERS_RE)||[]).length;
+  const fillerMatches=(answer.match(FILLERS_RE)||[]);
+  const fillers=fillerMatches.length;
   S.totalFillers+=fillers;
+  fillerMatches.forEach(w=>{
+    const k=w.toLowerCase().trim();
+    S.fillerLog[k]=(S.fillerLog[k]||0)+1;
+  });
   if(fillers>0){
     document.getElementById('filler-wrap').style.display='block';
     document.getElementById('filler-txt').textContent=`${fillers} mot${fillers>1?'s':''} parasite${fillers>1?'s':''} détecté${fillers>1?'s':''}`;
@@ -1693,6 +1878,27 @@ async function stopRec(e) {
   try {
     const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
     S.itv.scores.push(ev.score);
+    // Conversational reaction — recruiter responds naturally
+    if(S.mode==='complet'){
+      try{
+        const reaction = await genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer);
+        if(reaction){
+          // Show reaction text briefly above feedback
+          const fbWrap = document.getElementById('feedback-wrap');
+          const reactionEl = document.getElementById('recruiter-reaction') || (() => {
+            const el = document.createElement('div');
+            el.id = 'recruiter-reaction';
+            el.style.cssText = 'background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:10px;padding:10px 14px;margin:0 20px 8px;font-size:13.5px;color:var(--navy);font-style:italic;display:none';
+            fbWrap.parentNode.insertBefore(el, fbWrap);
+            return el;
+          })();
+          reactionEl.textContent = '"' + reaction + '"';
+          reactionEl.style.display = 'block';
+          // Speak the reaction immediately
+          if(S.config.voix) speakText(reaction);
+        }
+      }catch(_){}
+    }
     S.itv.criteria.push({structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire});
     S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
     const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
@@ -1796,7 +2002,7 @@ async function nextQ() {
     document.getElementById('wpm-display').style.display='none';
     document.getElementById('mic-hint').textContent='Maintenir pour parler';
     document.getElementById('mic-btn').className='mic-btn';
-    if(S.config.voix) setTimeout(()=>speakText(transitionQ),400);
+    if(S.config.voix) setTimeout(()=>speakText(transitionQ),80);
     return;
   }
 
@@ -1820,7 +2026,8 @@ async function nextQ() {
     const pct = Math.min(90, Math.round((qAsked / S.itv.maxQ) * 90));
     document.getElementById('prog-fill').style.width = pct + '%';
     document.getElementById('q-text').textContent = nextQuestion;
-    if(S.config.voix) setTimeout(()=>speakText(nextQuestion), 400);
+    // Start audio immediately — no delay
+    if(S.config.voix) speakText(nextQuestion);
   } catch(e) {
     document.getElementById('q-text').textContent = 'Question suivante impossible à charger. Réessaie.';
   }
@@ -1864,14 +2071,27 @@ async function apiCall(prompt, maxTokens=600) {
 
 async function evalAnswer(q, answer) {
   const tone=S.config.personnalite==='hardcore'?'très exigeant, froid':S.config.personnalite==='exigeant'?'professionnel, exigeant':'bienveillant';
-  const prompt=`Recruteur ${tone}, poste : ${S.config.poste}.
-QUESTION : "${q}"
-RÉPONSE : "${answer}"
+  const prompt=`Tu es un recruteur ${tone} expert qui évalue une réponse d'entretien d'embauche.
 
-Retourne UNIQUEMENT ce JSON (sans markdown, sans explication) :
-{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"[1-2 phrases ton ${tone}]","ideal":"[réponse idéale 2-4 phrases]"}
-Chaque note entre 0 et 100.`;
-  const txt=await apiCall(prompt,500);
+POSTE VISÉ : ${S.config.poste}
+TYPE ENTREPRISE : ${S.config.type_entreprise||'grand_groupe'}
+QUESTION POSÉE : "${q}"
+RÉPONSE DU CANDIDAT : "${answer}"
+
+Évalue cette réponse selon ces critères stricts :
+- score (0-100) : note globale pondérée
+- structure (0-100) : clarté de l'argumentation, fil conducteur, méthode STAR si applicable
+- confiance (0-100) : assurance dans la formulation, affirmations nettes vs hésitations
+- pertinence (0-100) : adéquation de la réponse avec ce qui était attendu, exemples concrets
+- vocabulaire (0-100) : richesse lexicale, registre professionnel, précision des termes
+
+Pour le feedback : adopte le ton d'un recruteur ${tone}. Sois direct et précis. Pointe UN point faible majeur et UN point fort. Maximum 2 phrases. Utilise un vocabulaire professionnel riche.
+
+Pour la réponse idéale : rédige ce qu'aurait dit un candidat excellent. 3-4 phrases, structure STAR si applicable, avec des tournures du type "J'ai été amené à...", "Dans ce contexte, j'ai choisi de...", "Le résultat a été...". Réponse en français, naturelle.
+
+Retourne UNIQUEMENT ce JSON valide (sans markdown, sans texte autour) :
+{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"feedback ici","ideal":"réponse idéale ici"}`;
+  const txt=await apiCall(prompt,700);
   try{return JSON.parse(txt.replace(/```json?|```/g,'').trim())}
   catch(e){return{score:60,structure:60,confiance:60,pertinence:60,vocabulaire:60,feedback:'Réponse enregistrée.',ideal:''}}
 }
@@ -1942,10 +2162,17 @@ async function showResults() {
     document.getElementById('s-para').textContent=S.totalFillers;
     document.getElementById('s-sil').textContent=S.totalSilences;
 
-    if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite. Très bonne fluidité.';}
-    else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent='Quelques hésitations — globalement satisfaisant.';}
-    else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent='Trop de mots parasites — travaille ta fluidité.';}
-    if(S.totalFillers>0){document.getElementById('filler-warn').style.display='flex';document.getElementById('filler-warn-txt').textContent=`${S.totalFillers} mot${S.totalFillers>1?'s':''} parasite${S.totalFillers>1?'s':''} détecté${S.totalFillers>1?'s':''}`;}
+    const topFillers=Object.entries(S.fillerLog).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([w,c])=>`"${w}" (${c}x)`).join(', ');
+    if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite détecté. Très bonne fluidité.';}
+    else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent=`Quelques hésitations. Mots les plus fréquents : ${topFillers}.`;}
+    else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent=`Trop de mots parasites. À éliminer en priorité : ${topFillers}.`;}
+    if(S.totalFillers>0){
+      document.getElementById('filler-warn').style.display='flex';
+      // Build filler word list with counts
+      const entries=Object.entries(S.fillerLog).sort((a,b)=>b[1]-a[1]);
+      const pills=entries.map(([w,c])=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--amber-l);color:var(--amber);border:1px solid rgba(217,119,6,.2);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;margin:3px 3px 0 0">"${w}" <span style="background:var(--amber);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px">${c}×</span></span>`).join('');
+      document.getElementById('filler-warn-txt').innerHTML=`<div style="margin-bottom:6px;font-weight:600">${S.totalFillers} mot${S.totalFillers>1?'s':''} parasite${S.totalFillers>1?'s':''} détecté${S.totalFillers>1?'s':''} :</div><div>${pills}</div>`;
+    }
 
     const idealsEl=document.getElementById('res-ideals');
     idealsEl.innerHTML=S.itv.qs.map((q,i)=>`<div class="ideal-item"><div class="ideal-q">Q${i+1}. ${q}</div><div class="ideal-a">${S.itv.ideals[i]||'<span style="color:var(--gray-400)">Non disponible</span>'}</div></div>`).join('');
@@ -1993,7 +2220,7 @@ async function genFinalAnalysis(avg) {
   const qas=S.itv.qs.map((q,i)=>`Q: ${q}\nR: ${S.itv.answers[i]||'(silence)'}`).join('\n\n');
   const prompt=`Coach carrière expert. Bilan entretien.\nPOSTE: ${S.config.poste} | SCORE: ${avg}%\n${qas}\n\nRetourne UNIQUEMENT ce JSON:\n{"forts":["Point 1","Point 2","Point 3"],"axes":["Axe 1","Axe 2","Axe 3"]}`;
   try{
-    const txt=await apiCall(prompt,500);
+    const txt=await apiCall(prompt,700);
     const d=JSON.parse(txt.replace(/```json?|```/g,'').trim());
     document.getElementById('res-forts').innerHTML=d.forts.map(f=>`<div class="result-item"><div class="result-item-icon">✅</div><div>${f}</div></div>`).join('');
     document.getElementById('res-axes').innerHTML=d.axes.map(a=>`<div class="result-item"><div class="result-item-icon">🎯</div><div>${a}</div></div>`).join('');
