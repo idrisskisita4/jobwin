@@ -1386,8 +1386,17 @@ const EXPRESS_RECRUITER = RECRUITERS.antoine;
 /* ===== ELEVENLABS ===== */
 let currentAudio = null;
 
+let isAudioPlaying = false;
+
 function stopAudio() {
   if(currentAudio){ currentAudio.pause(); currentAudio=null; }
+  isAudioPlaying = false;
+  // Re-enable mic button
+  const btn = document.getElementById('mic-btn');
+  if(btn && !isRecording) {
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }
 }
 
 /* ── AUDIO PRE-BUFFER ── */
@@ -1417,6 +1426,10 @@ function clearAudioBuffer() {
 function speakText(txt) {
   if(!txt) return;
   stopAudio();
+  isAudioPlaying = true;
+  // Disable mic button while recruiter speaks
+  const mbtn = document.getElementById('mic-btn');
+  if(mbtn) { mbtn.style.opacity = '0.4'; mbtn.style.pointerEvents = 'none'; }
   const rec = S.recruiter || EXPRESS_RECRUITER;
   // Use pre-buffered audio if available
   if(audioBuffer[txt]) {
@@ -1436,8 +1449,8 @@ function speakText(txt) {
     const url=URL.createObjectURL(blob);
     currentAudio=new Audio(url);
     currentAudio.play();
-    currentAudio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;};
-  }).catch(()=>{});
+    currentAudio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;stopAudio();};
+  }).catch(()=>{stopAudio();});
 }
 
 async function speakTextAsync(txt) {
@@ -1464,7 +1477,7 @@ async function speakTextAsync(txt) {
       if(!blob){resolve();return;}
       const url=URL.createObjectURL(blob);
       currentAudio=new Audio(url);
-      const timeout=setTimeout(resolve,20000);
+      const timeout=setTimeout(resolve,35000);
       currentAudio.onended=()=>{clearTimeout(timeout);URL.revokeObjectURL(url);currentAudio=null;resolve();};
       currentAudio.onerror=()=>{clearTimeout(timeout);resolve();};
       currentAudio.play();
@@ -1582,68 +1595,22 @@ Tu es un être humain avec une vraie personnalité. Tu as de l'expérience, tu s
 
 Ton vocabulaire est riche et professionnel : "votre parcours témoigne de", "j'apprécie la précision de votre démarche", "c'est tout à fait pertinent", "permettez-moi d'être direct", "votre expérience semble cohérente avec", "je souhaite comprendre", "vous évoquez un point crucial", "c'est une question que je pose à tous nos candidats".
 
-═══ BANQUE DE QUESTIONS PAR CATÉGORIE ═══
-Pioche intelligemment selon le contexte et l'historique. Ne répète jamais une question déjà posée.
+═══ TYPES DE QUESTIONS À ALTERNER ═══
+Pioche selon contexte, ne répète jamais. Couvre toutes ces catégories :
+PARCOURS : départ poste précédent, échec professionnel, décision dont fier, évolution carrière, écarts CV
+MOTIVATIONS : pourquoi cette offre spécifiquement, projet à 3 ans, pourquoi maintenant
+COMPORTEMENTAL STAR : situation stressante, désaccord collègue, initiative prise seul, erreur commise, convaincre quelqu'un
+COMPÉTENCES : niveau expert, axes d'amélioration, veille sectorielle, ce qui distingue un excellent profil
+CULTURE : environnement idéal, gestion critique, travail équipe exemple concret, priorities changeantes
+DIFFÉRENCIATION : pourquoi vous pas un autre, valeur ajoutée unique, ce que vous feriez dès demain
+OBLIGATOIRES (à caser) : "Pourquoi vous et pas un autre candidat ?", prétentions salariales, autres entretiens en cours
 
-PARCOURS & EXPÉRIENCE :
-- "Qu'est-ce qui vous a conduit à quitter votre dernier poste, et qu'aviez-vous espéré y trouver initialement ?"
-- "Si je contactais votre ancien manager, comment décrirait-il votre façon de travailler ?"
-- "Quelle est la décision professionnelle dont vous êtes le plus fier, et pourquoi ?"
-- "Parlez-moi d'un échec professionnel significatif — qu'en avez-vous tiré ?"
-- "Vous avez occupé ce poste pendant [durée] — qu'est-ce qui vous a retenu aussi longtemps ?"
-- "Je vois un écart dans votre parcours entre [date] et [date] — que s'est-il passé ?"
-- "Comment qualifieriez-vous votre évolution depuis vos débuts dans ce secteur ?"
-
-MOTIVATIONS & PROJET :
-- "Qu'est-ce qui vous a spécifiquement attiré dans notre offre, parmi toutes celles que vous avez certainement reçues ?"
-- "Où vous voyez-vous dans trois ans ? Et dans cinq ans ?"
-- "Qu'est-ce qui vous ferait refuser notre offre si nous vous la faisions ?"
-- "Si vous pouviez concevoir votre poste idéal, à quoi ressemblerait-il exactement ?"
-- "Pourquoi maintenant ? Pourquoi ce changement à ce moment précis de votre carrière ?"
-- "Qu'avez-vous appris sur notre organisation avant cet entretien ?"
-
-COMPORTEMENTAL & STAR :
-- "Décrivez-moi une situation où vous avez dû défendre une position impopulaire — comment vous y êtes-vous pris ?"
-- "Racontez-moi un moment où vous avez dû travailler avec quelqu'un avec qui vous étiez en désaccord profond."
-- "Quelle est la situation la plus stressante que vous ayez vécue professionnellement, et comment l'avez-vous gérée ?"
-- "Donnez-moi un exemple concret où vous avez pris une initiative sans y être invité."
-- "Comment avez-vous géré une situation où les ressources ou le temps étaient insuffisants pour atteindre l'objectif ?"
-- "Parlez-moi d'une fois où vous avez commis une erreur qui a eu des conséquences — qu'avez-vous fait ensuite ?"
-- "Décrivez un moment où vous avez dû convaincre quelqu'un de difficile à persuader."
-
-COMPÉTENCES & EXPERTISE MÉTIER :
-- "Quelles sont les compétences que vous estimez maîtriser à un niveau expert, et comment le démontrez-vous ?"
-- "Sur quels aspects de ce poste pensez-vous devoir vous améliorer ?"
-- "Comment restez-vous à jour dans votre domaine ? Quelles sont vos sources ?"
-- "Qu'est-ce qu'un excellent professionnel de votre domaine fait différemment d'un profil moyen ?"
-- "Quelle est la tendance majeure de votre secteur qui vous semble la plus déterminante pour les trois prochaines années ?"
-
-CULTURE & SOFT SKILLS :
-- "Comment décririez-vous l'environnement de travail dans lequel vous êtes le plus performant ?"
-- "Que signifie pour vous le travail en équipe ? Donnez-moi un exemple concret."
-- "Comment gérez-vous les critiques, qu'elles soient fondées ou non ?"
-- "Qu'est-ce que vos collègues diraient de vous si je les appelais maintenant ?"
-- "Êtes-vous quelqu'un qui préfère les instructions claires ou l'autonomie totale ?"
-- "Comment réagissez-vous quand les priorités changent du jour au lendemain ?"
-
-DIFFÉRENCIATION :
-- "Pourquoi vous, et pas les autres candidats que je vais rencontrer cette semaine ?"
-- "Qu'est-ce que vous apporteriez à cette équipe qu'un autre candidat n'apporterait pas ?"
-- "Quelle est la chose que vous feriez différemment si vous preniez ce poste demain matin ?"
-
-SALAIRE & CONDITIONS :
-- "Quelles sont vos prétentions salariales ? Et quelle est votre fourchette de négociation ?"
-- "Qu'est-ce qui prime pour vous entre rémunération, évolution de carrière, et qualité de vie au travail ?"
-- "Avez-vous d'autres entretiens en cours ? À quel stade en êtes-vous ?"
-
-═══ RÈGLES DE CONVERSATION ═══
-1. Réfère-toi TOUJOURS à l'historique. Cite ce que le candidat a dit. Rebondis dessus.
-2. Si la dernière réponse était vague ou trop courte : commence par "Permettez-moi d'insister sur ce point —" puis reformule ou précise.
-3. Si une incohérence apparaît dans le CV ou les réponses : pointe-la directement. "Je remarque que votre parcours indique X, mais vous dites Y — pouvez-vous m'expliquer ?"
-4. Adapte le registre au type d'entreprise : très formel pour l'administration, direct et humain pour la startup.
-5. Question ${qCount+1} sur l'entretien. Objectif entre ${S.itv.minQ} et ${S.itv.maxQ} questions au total.
-6. Si toutes les grandes catégories n'ont pas été couvertes, veille à équilibrer : parcours, motivations, comportemental, compétences, culture.
-7. Ne commence JAMAIS ta question par "Question :" ou un numéro.
+═══ RÈGLES ═══
+1. Cite ce que le candidat vient de dire. Rebondis dessus. Mentionne son prénom ou son expérience.
+2. Réponse vague → insiste : "Permettez-moi d'insister — donnez-moi un exemple concret."
+3. Incohérence CV/réponse → pointe-la directement.
+4. Adapte le registre : formel (administration), direct (startup), professionnel (grand groupe/PME).
+5. Question ${qCount+1}. Objectif ${S.itv.minQ}-${S.itv.maxQ} questions total. Équilibre les catégories.
 
 Génère UNIQUEMENT la prochaine question ou relance, en texte naturel, comme tu la dirais à voix haute. Entre 15 et 40 mots.`;
 
@@ -1777,7 +1744,9 @@ function displayQ(i) {
 
 /* RECORDING — Deepgram */
 function startRec(e) {
-  e.preventDefault(); if(isRecording) return;
+  e.preventDefault();
+  if(isRecording) return;
+  if(isAudioPlaying) return; // Block mic while recruiter speaks
   stopAudio();
   isRecording=true; currentTranscript=''; dgInterimText=''; recStart=Date.now(); dgRestarting=false;
   document.getElementById('mic-btn').className='mic-btn recording';
@@ -1878,8 +1847,8 @@ async function stopRec(e) {
   try {
     const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
     S.itv.scores.push(ev.score);
-    // Conversational reaction — recruiter responds naturally
-    if(S.mode==='complet'){
+    // Conversational reaction — recruiter responds naturally (skip Q0)
+    if(S.mode==='complet' && S.itv.currentQ > 0){
       try{
         const reaction = await genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer);
         if(reaction){
