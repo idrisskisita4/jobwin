@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<title>JOBWIN - Simulateur d'Entretien IA</title>
+<title>JOBWIN — Simulateur d'Entretien IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
@@ -408,7 +408,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="side-stat">
       <div class="side-stat-icon">⚡</div>
       <div>
-        <div class="side-stat-val">Mode Express - 25 min</div>
+        <div class="side-stat-val">Mode Express — 25 min</div>
         <div class="side-stat-lbl">Gratuit · Questions classiques · Score immédiat</div>
       </div>
     </div>
@@ -448,7 +448,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="mode-card express" onclick="selectMode('express')">
       <div class="mode-card-icon">⚡</div>
       <div class="mode-card-body">
-        <div class="mode-card-title">Entretien Express - 25 min</div>
+        <div class="mode-card-title">Entretien Express — 25 min</div>
         <div class="mode-card-desc">Questions classiques · Chrono 25 min · Score vocal immédiat</div>
       </div>
       <span class="badge badge-free">Gratuit</span>
@@ -533,7 +533,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div style="font-size:13px;color:var(--gray-400);margin-top:8px">Vérification en cours...</div>
     </div>
 
-    <button class="btn btn-primary" id="verify-btn" onclick="verifyCode()">Vérifier ma clé -></button>
+    <button class="btn btn-primary" id="verify-btn" onclick="verifyCode()">Vérifier ma clé →</button>
     <div class="divider"></div>
     <div class="faq-item">
       <div class="faq-q">🛒 Pas encore de clé ?</div>
@@ -617,9 +617,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
     <div class="divider"></div>
     <div class="slabel">Personnalité du recruteur</div>
-    <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Standard - Bienveillant</div><div class="p-card-desc">Chaleureux, encourageant. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
-    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Exigeant - Professionnel</div><div class="p-card-desc">Neutre, précis, challengeant. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
-    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Hardcore - Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Style CAC40.</div></div><div class="p-check"></div></div>
+    <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Standard — Bienveillant</div><div class="p-card-desc">Chaleureux, encourageant. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
+    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Exigeant — Professionnel</div><div class="p-card-desc">Neutre, précis, challengeant. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
+    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Hardcore — Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Style CAC40.</div></div><div class="p-check"></div></div>
     <div class="divider"></div>
     <div class="slabel">Choisir votre recruteur</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px" id="recruiter-grid">
@@ -663,9 +663,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
     <div class="divider"></div>
     <div class="slabel">Mode spécial</div>
-    <div class="p-card" id="pc-aleatoire" onclick="toggleAleatoire()"><div class="p-card-icon">🎲</div><div class="p-card-body"><div class="p-card-title">Entretien Aléatoire</div><div class="p-card-desc">Poste et secteur choisis au hasard - entraîne ton adaptabilité</div></div><div class="p-check" id="alea-check"></div></div>
+    <div class="p-card" id="pc-aleatoire" onclick="toggleAleatoire()"><div class="p-card-icon">🎲</div><div class="p-card-body"><div class="p-card-title">Entretien Aléatoire</div><div class="p-card-desc">Poste et secteur choisis au hasard — entraîne ton adaptabilité</div></div><div class="p-check" id="alea-check"></div></div>
     <div style="height:16px"></div>
-    <button class="btn btn-primary" onclick="launchInterview()" style="font-size:16px;padding:17px;">Lancer l'entretien -></button>
+    <button class="btn btn-primary" onclick="launchInterview()" style="font-size:16px;padding:17px;">Lancer l'entretien →</button>
     <div style="height:32px"></div>
   </div>
 </div>
@@ -682,7 +682,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="brief-hero">
       <div class="brief-avatar" id="brief-avatar">🎙️</div>
       <div>
-        <div class="brief-name" id="brief-recruiter-name">Antoine - Recruteur IA</div>
+        <div class="brief-name" id="brief-recruiter-name">Antoine — Recruteur IA</div>
         <div class="brief-sub" id="brief-recruiter-sub">Mode Express · 8 questions</div>
         <div class="brief-badges">
           <span class="brief-badge" id="brief-badge-mode">⚡ Express</span>
@@ -727,15 +727,15 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="brief-section-title">🧍 Comportement attendu</div>
       <div class="brief-item">
         <div class="brief-item-icon bi-blue">🗣️</div>
-        <div class="brief-item-text"><strong>Parlez clairement</strong>, comme en vrai entretien - phrases complètes, ton professionnel</div>
+        <div class="brief-item-text"><strong>Parlez clairement</strong>, comme en vrai entretien — phrases complètes, ton professionnel</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-blue">🤐</div>
-        <div class="brief-item-text"><strong>Évitez les mots isolés</strong> - "oui", "non", "OK" seul ne seront pas évalués correctement</div>
+        <div class="brief-item-text"><strong>Évitez les mots isolés</strong> — "oui", "non", "OK" seul ne seront pas évalués correctement</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-blue">📵</div>
-        <div class="brief-item-text"><strong>Environnement calme</strong> - coupez les notifications, éloignez-vous du bruit</div>
+        <div class="brief-item-text"><strong>Environnement calme</strong> — coupez les notifications, éloignez-vous du bruit</div>
       </div>
     </div>
 
@@ -744,15 +744,15 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="brief-section-title">⚙️ Technique</div>
       <div class="brief-item">
         <div class="brief-item-icon bi-green">🎙️</div>
-        <div class="brief-item-text"><strong>Maintenez le bouton micro</strong> pendant toute votre réponse - relâchez quand vous avez terminé</div>
+        <div class="brief-item-text"><strong>Maintenez le bouton micro</strong> pendant toute votre réponse — relâchez quand vous avez terminé</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-green">🔊</div>
-        <div class="brief-item-text"><strong>Activez le son</strong> - le recruteur vous parlera, montez le volume</div>
+        <div class="brief-item-text"><strong>Activez le son</strong> — le recruteur vous parlera, montez le volume</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-green">📶</div>
-        <div class="brief-item-text"><strong>Connexion stable</strong> - la voix du recruteur nécessite du réseau</div>
+        <div class="brief-item-text"><strong>Connexion stable</strong> — la voix du recruteur nécessite du réseau</div>
       </div>
     </div>
 
@@ -761,15 +761,15 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="brief-section-title">💡 Conseils pour performer</div>
       <div class="brief-item">
         <div class="brief-item-icon bi-amber">⏸️</div>
-        <div class="brief-item-text"><strong>2-3 secondes de réflexion</strong> avant de répondre - c'est naturel et professionnel</div>
+        <div class="brief-item-text"><strong>2-3 secondes de réflexion</strong> avant de répondre — c'est naturel et professionnel</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-amber">📐</div>
-        <div class="brief-item-text"><strong>Structure STAR</strong> - Situation -> Tâche -> Action -> Résultat pour les questions comportementales</div>
+        <div class="brief-item-text"><strong>Structure STAR</strong> — Situation → Tâche → Action → Résultat pour les questions comportementales</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-amber">⏱️</div>
-        <div class="brief-item-text"><strong>1 à 2 minutes par réponse</strong> - ni trop court, ni trop long</div>
+        <div class="brief-item-text"><strong>1 à 2 minutes par réponse</strong> — ni trop court, ni trop long</div>
       </div>
     </div>
 
@@ -780,8 +780,8 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
 
     <!-- CTA -->
-    <button class="btn btn-primary" onclick="startFromBrief()" style="font-size:16px;padding:17px;margin-bottom:10px">Lancer l'entretien -></button>
-    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:32px">Bonne chance - donnez le meilleur de vous-même 💼</div>
+    <button class="btn btn-primary" onclick="startFromBrief()" style="font-size:16px;padding:17px;margin-bottom:10px">Lancer l'entretien →</button>
+    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:32px">Bonne chance — donnez le meilleur de vous-même 💼</div>
   </div>
 </div>
 
@@ -804,7 +804,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
           <div style="font-size:13px;font-weight:600;color:white" id="r-name-top">Thomas</div>
         </div>
       </div>
-      <div class="apt-chip" id="apt-chip"><div class="apt-dot"></div><span id="apt-text">-%</span></div>
+      <div class="apt-chip" id="apt-chip"><div class="apt-dot"></div><span id="apt-text">—%</span></div>
     </div>
     <div class="recruiter-row">
       <div class="recruiter-av" id="r-avatar">🧑‍💼</div>
@@ -847,7 +847,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
   </div>
   <div class="interview-actions" id="int-actions" style="display:none">
     <button class="btn btn-secondary" style="flex:0.45;font-size:13.5px" onclick="abandon()">Abandonner</button>
-    <button class="btn btn-primary" id="next-btn" onclick="nextQ()">Question suivante -></button>
+    <button class="btn btn-primary" id="next-btn" onclick="nextQ()">Question suivante →</button>
   </div>
 </div>
 
@@ -866,7 +866,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
     <!-- EXPRESS MODE : Q1 feedback + astuce + locked -->
     <div id="express-results" style="display:none">
-      <div class="slabel">💬 Réaction du recruteur - Présentation</div>
+      <div class="slabel">💬 Réaction du recruteur — Présentation</div>
       <div class="express-q1-feedback">
         <div class="express-q1-label">Feedback Q1</div>
         <div class="express-q1-text" id="express-q1-text"><div class="dot-loader"><span></span><span></span><span></span></div></div>
@@ -898,14 +898,14 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
             <div class="express-lock-icon">🔐</div>
             <div class="express-lock-title">Analyse complète disponible dans les packs</div>
             <div class="express-lock-desc">Score multi-critères · Points forts & axes · Réponses idéales · Historique de progression</div>
-            <button onclick="goTo('packs')" class="express-lock-btn">Choisir mon pack - dès 9,90€ -></button>
+            <button onclick="goTo('packs')" class="express-lock-btn">Choisir mon pack — dès 9,90€ →</button>
             <div class="express-lock-sub">🔒 Accès immédiat après paiement · Sans abonnement</div>
           </div>
         </div>
       </div>
 
       <div style="margin-top:32px">
-        <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser -></button>
+        <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser →</button>
       </div>
       <div style="height:32px"></div>
     </div>
@@ -916,19 +916,19 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="vocal-section">
         <div class="vocal-title">🎙️ Analyse vocale multi-critères</div>
         <div class="criteria-bar-row">
-          <div class="criteria-bar-header"><span class="criteria-bar-name">📐 Structure</span><span class="criteria-bar-score" id="bar-structure-val">-</span></div>
+          <div class="criteria-bar-header"><span class="criteria-bar-name">📐 Structure</span><span class="criteria-bar-score" id="bar-structure-val">—</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-blue" id="bar-structure" style="width:0%"></div></div>
         </div>
         <div class="criteria-bar-row">
-          <div class="criteria-bar-header"><span class="criteria-bar-name">💪 Confiance</span><span class="criteria-bar-score" id="bar-confiance-val">-</span></div>
+          <div class="criteria-bar-header"><span class="criteria-bar-name">💪 Confiance</span><span class="criteria-bar-score" id="bar-confiance-val">—</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-green" id="bar-confiance" style="width:0%"></div></div>
         </div>
         <div class="criteria-bar-row">
-          <div class="criteria-bar-header"><span class="criteria-bar-name">🎯 Pertinence</span><span class="criteria-bar-score" id="bar-pertinence-val">-</span></div>
+          <div class="criteria-bar-header"><span class="criteria-bar-name">🎯 Pertinence</span><span class="criteria-bar-score" id="bar-pertinence-val">—</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-purple" id="bar-pertinence" style="width:0%"></div></div>
         </div>
         <div class="criteria-bar-row">
-          <div class="criteria-bar-header"><span class="criteria-bar-name">📚 Vocabulaire</span><span class="criteria-bar-score" id="bar-vocabulaire-val">-</span></div>
+          <div class="criteria-bar-header"><span class="criteria-bar-name">📚 Vocabulaire</span><span class="criteria-bar-score" id="bar-vocabulaire-val">—</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-amber" id="bar-vocabulaire" style="width:0%"></div></div>
         </div>
       </div>
@@ -937,7 +937,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="wpm-block" id="wpm-block">
         <div class="wpm-block-icon" id="wpm-icon" style="background:var(--green-l)">🗣️</div>
         <div>
-          <div class="wpm-block-val" id="wpm-val">- mots/min</div>
+          <div class="wpm-block-val" id="wpm-val">— mots/min</div>
           <div class="wpm-block-lbl">Débit de parole moyen</div>
           <div class="wpm-block-tip" id="wpm-tip" style="color:var(--green)">Calcul en cours...</div>
         </div>
@@ -945,8 +945,8 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
       <div class="slabel">Statistiques</div>
       <div class="stats-grid">
-        <div class="stat-tile"><div class="stat-tile-val" id="s-duree">-</div><div class="stat-tile-lbl">Durée totale</div></div>
-        <div class="stat-tile"><div class="stat-tile-val" id="s-mots">-</div><div class="stat-tile-lbl">Mots / réponse</div></div>
+        <div class="stat-tile"><div class="stat-tile-val" id="s-duree">—</div><div class="stat-tile-lbl">Durée totale</div></div>
+        <div class="stat-tile"><div class="stat-tile-val" id="s-mots">—</div><div class="stat-tile-lbl">Mots / réponse</div></div>
         <div class="stat-tile"><div class="stat-tile-val" id="s-para">0</div><div class="stat-tile-lbl">Mots parasites</div></div>
         <div class="stat-tile"><div class="stat-tile-val" id="s-sil">0</div><div class="stat-tile-lbl">Silences</div></div>
       </div>
@@ -964,7 +964,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div id="res-axes" style="margin-bottom:16px"><div class="result-item"><div class="result-item-icon">⏳</div><div>Analyse IA en cours...</div></div></div>
 
       <div class="divider"></div>
-      <div class="slabel">💡 Réponses idéales - Question par question</div>
+      <div class="slabel">💡 Réponses idéales — Question par question</div>
       <div id="res-ideals" style="margin-bottom:20px"></div>
 
       <button class="btn btn-primary" onclick="newInterview()" style="margin-bottom:10px">🔄 Nouvel entretien</button>
@@ -983,8 +983,8 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <p>Évolution de tes performances</p>
     <div class="history-stats">
       <div class="h-stat"><div class="h-stat-val" id="h-total">0</div><div class="h-stat-lbl">Sessions</div></div>
-      <div class="h-stat"><div class="h-stat-val" id="h-best">-</div><div class="h-stat-lbl">Meilleur</div></div>
-      <div class="h-stat"><div class="h-stat-val trend-up" id="h-trend">-</div><div class="h-stat-lbl">Tendance</div></div>
+      <div class="h-stat"><div class="h-stat-val" id="h-best">—</div><div class="h-stat-lbl">Meilleur</div></div>
+      <div class="h-stat"><div class="h-stat-val trend-up" id="h-trend">—</div><div class="h-stat-lbl">Tendance</div></div>
     </div>
   </div>
 
@@ -1032,7 +1032,7 @@ const LS_PACKS = {
   essentiel:  { id:'34461eff-9f25-45d7-bb57-f4821e343472', name:'Essentiel',  interviews:8,  price:'19,90€' },
   intensif:   { id:'02f41cba-2e6e-42e3-8312-1c82017cfca5', name:'Intensif',   interviews:20, price:'34,90€' }
 };
-// Map variant ID -> pack info (pour identifier le pack après achat)
+// Map variant ID → pack info (pour identifier le pack après achat)
 const LS_VARIANT_MAP = {
   '0ed1af22-65f0-432d-af22-5d84376b9247': { name:'Découverte', interviews:3 },
   '34461eff-9f25-45d7-bb57-f4821e343472': { name:'Essentiel',  interviews:8 },
@@ -1124,7 +1124,7 @@ function applyPackToUI(pack){
   const rem = pack.interviewsRemaining;
   document.getElementById('pack-remaining-display').textContent =
     rem > 0 ? rem+' entretien'+(rem>1?'s':'')+' restant'+(rem>1?'s':'')
-            : '⚠️ Plus d\'entretiens - rachète un pack';
+            : '⚠️ Plus d\'entretiens — rachète un pack';
 }
 
 function resetPack(){
@@ -1296,7 +1296,7 @@ function initBrief() {
   const nbQ = isExpress ? 8 : 10;
   const duree = isExpress ? '25 min' : '40 min';
 
-  document.getElementById('brief-recruiter-name').textContent = (rec.name || 'Antoine') + ' - Recruteur IA';
+  document.getElementById('brief-recruiter-name').textContent = (rec.name || 'Antoine') + ' — Recruteur IA';
   document.getElementById('brief-recruiter-sub').textContent = (isExpress ? 'Mode Express' : 'Entretien Complet') + ' · ' + nbQ + ' questions';
   document.getElementById('brief-badge-mode').textContent = modeLabel;
   document.getElementById('brief-badge-level').textContent = levelLabels[level] || '💼 Exigeant';
@@ -1382,77 +1382,34 @@ const RECRUITERS = {
   victoria:  { name:'Victoria', genre:'femme', voiceId:'O31r762Gb3WFygrEOGh0', avatar:'👩‍🎓' },
 };
 const EXPRESS_RECRUITER = RECRUITERS.antoine;
-// Default recruiter = Antoine (in case user never clicks a card)
 if(!S.recruiter) S.recruiter = RECRUITERS.antoine;
 
 /* ===== ELEVENLABS ===== */
 let currentAudio = null;
 
-let isAudioPlaying = false;
-
 function stopAudio() {
   if(currentAudio){ currentAudio.pause(); currentAudio=null; }
-  isAudioPlaying = false;
-  // Re-enable mic button
-  const btn = document.getElementById('mic-btn');
-  if(btn && !isRecording) {
-    btn.style.opacity = '1';
-    btn.style.pointerEvents = 'auto';
-  }
-}
-
-/* ── AUDIO PRE-BUFFER ── */
-let audioBuffer = {}; // key: text -> blob URL
-
-async function prefetchAudio(txt) {
-  if(!txt || !S.config.voix) return;
-  if(audioBuffer[txt]) return; // already cached
-  const rec = S.recruiter || EXPRESS_RECRUITER;
-  try {
-    const r = await fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
-      method:'POST',
-      headers:{'content-Type':'application/json'},
-      body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
-    });
-    if(!r.ok) return;
-    const blob = await r.blob();
-    audioBuffer[txt] = URL.createObjectURL(blob);
-  } catch(e) {}
-}
-
-function clearAudioBuffer() {
-  Object.values(audioBuffer).forEach(url => { try{URL.revokeObjectURL(url);}catch(_){} });
-  audioBuffer = {};
+  const mbtn = document.getElementById('mic-btn');
+  if(mbtn && !isRecording){ mbtn.style.opacity='1'; mbtn.style.pointerEvents='auto'; }
 }
 
 function speakText(txt) {
   if(!txt) return;
   stopAudio();
-  isAudioPlaying = true;
-  // Disable mic button while recruiter speaks
   const mbtn = document.getElementById('mic-btn');
-  if(mbtn) { mbtn.style.opacity = '0.4'; mbtn.style.pointerEvents = 'none'; }
+  if(mbtn){ mbtn.style.opacity='0.35'; mbtn.style.pointerEvents='none'; }
   const rec = S.recruiter || EXPRESS_RECRUITER;
-  // Use pre-buffered audio if available
-  if(audioBuffer[txt]) {
-    const url = audioBuffer[txt];
-    delete audioBuffer[txt];
-    currentAudio = new Audio(url);
-    currentAudio.play();
-    currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; };
-    return;
-  }
   fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST',
     headers:{'content-Type':'application/json'},
-    body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+    body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true},speed:1.25})
   }).then(r=>r.ok?r.blob():null).then(blob=>{
     if(!blob) return;
     const url=URL.createObjectURL(blob);
     currentAudio=new Audio(url);
     currentAudio.play();
-    currentAudio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;stopAudio();};
-  }).catch(()=>{stopAudio();});
+    currentAudio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;};
+  }).catch(()=>{});
 }
 
 async function speakTextAsync(txt) {
@@ -1460,26 +1417,15 @@ async function speakTextAsync(txt) {
   stopAudio();
   const rec = S.recruiter || EXPRESS_RECRUITER;
   return new Promise(resolve=>{
-    // Use pre-buffered URL if available
-    if(audioBuffer[txt]) {
-      const url = audioBuffer[txt];
-      delete audioBuffer[txt];
-      currentAudio = new Audio(url);
-      const timeout = setTimeout(resolve, 20000);
-      currentAudio.onended = () => { clearTimeout(timeout); URL.revokeObjectURL(url); currentAudio=null; resolve(); };
-      currentAudio.onerror = () => { clearTimeout(timeout); resolve(); };
-      currentAudio.play();
-      return;
-    }
     fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
       method:'POST',
       headers:{'content-Type':'application/json'},
-      body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+      body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.3,use_speaker_boost:true},speed:1.25})
     }).then(r=>r.ok?r.blob():null).then(blob=>{
       if(!blob){resolve();return;}
       const url=URL.createObjectURL(blob);
       currentAudio=new Audio(url);
-      const timeout=setTimeout(resolve,35000);
+      const timeout=setTimeout(resolve,20000);
       currentAudio.onended=()=>{clearTimeout(timeout);URL.revokeObjectURL(url);currentAudio=null;resolve();};
       currentAudio.onerror=()=>{clearTimeout(timeout);resolve();};
       currentAudio.play();
@@ -1489,7 +1435,7 @@ async function speakTextAsync(txt) {
 
 async function initInterview() {
   S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],reactions:[],replyCount:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12};
-  S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0; S.fillerLog={}; clearAudioBuffer();
+  S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0;
 
   const rec = (S.recruiter && S.recruiter.name) ? S.recruiter : RECRUITERS.antoine;
   S.recruiter = rec;
@@ -1500,7 +1446,7 @@ async function initInterview() {
   safe('r-meta-name', el=>el.textContent=rec.name);
   safe('q-from', el=>el.textContent=rec.name+' dit');
   safe('r-avatar', el=>el.textContent=rec.avatar);
-  safe('apt-text', el=>el.textContent='-%');
+  safe('apt-text', el=>el.textContent='—%');
   safe('int-actions', el=>el.style.display='none');
   safe('feedback-wrap', el=>el.style.display='none');
   safe('filler-wrap', el=>el.style.display='none');
@@ -1510,12 +1456,10 @@ async function initInterview() {
   safe('mic-btn', el=>el.className='mic-btn');
   safe('mic-area', el=>el.style.display='flex');
 
-  // Safety: ensure mode is correct
-  if(!S.mode) S.mode = 'express';
   if (S.mode==='express') {
     document.getElementById('timer-wrap').style.display='flex';
     document.getElementById('recruiter-center').style.display='none';
-    document.getElementById('r-meta-role').textContent='Recruteur IA · Mode Express - 25 min';
+    document.getElementById('r-meta-role').textContent='Recruteur IA · Mode Express — 25 min';
     S.itv.qs=[...EXPRESS_QS];
     document.getElementById('q-counter').textContent='1 / '+S.itv.qs.length;
     document.getElementById('prog-fill').style.width=(1/S.itv.qs.length*100)+'%';
@@ -1533,23 +1477,21 @@ async function initInterview() {
     document.getElementById('r-meta-role').textContent='Recruteur IA · Entretien en cours';
     document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
     try {
-      // Intro personnalisée selon type d'entreprise
-      const rec2=S.recruiter||{name:'Antoine',genre:'homme'};
+      const rec2=S.recruiter||RECRUITERS.antoine;
       const typeIntros={
-        grand_groupe: `Bonjour${S.config.poste?', je vois que vous candidatez pour le poste de '+S.config.poste:''}. Je suis ${rec2.name}, Responsable des Ressources Humaines. J'ai pris le soin de parcourir votre dossier avant notre entretien. Nous allons avoir un échange d'environ trente à quarante-cinq minutes - je souhaite mieux vous connaître, comprendre votre parcours, vos motivations, et évaluer votre adéquation avec ce que nous recherchons. Soyez à l'aise pour vous exprimer pleinement. Êtes-vous prêt à commencer ?`,
-        pme: `Bonjour, je suis ${rec2.name}. Je pilote les recrutements ici depuis quelques années, donc je connais bien nos besoins. J'ai jeté un œil à votre profil pour le poste de ${S.config.poste||'ce poste'}, et il y a des choses qui m'ont intéressé - j'aimerais qu'on creuse ça ensemble. On va avoir une discussion franche et directe, sans langue de bois. Je préfère qu'on se parle vraiment plutôt que de réciter des formules. Ça vous convient ?`,
-        startup: `Hey, bonjour ! Je suis ${rec2.name}, je gère le recrutement chez nous. Bon, je vais être honnête - on grandit vite et on a besoin de gens qui peuvent vraiment tenir la cadence. Le poste de ${S.config.poste||'ce poste'} est stratégique pour nous en ce moment. L'idée c'est qu'on ait une vraie conversation - pas un interrogatoire. Je veux comprendre qui vous êtes, ce qui vous drive, comment vous pensez. Donc n'hésitez pas à sortir des sentiers battus. On y va ?`,
-        administration: `Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement au sein de notre direction. Vous candidatez pour le poste de ${S.config.poste||'ce poste'}. Cet entretien se déroulera de façon structurée - je vous poserai plusieurs questions portant sur votre parcours, vos compétences, et votre motivation pour intégrer nos équipes. Prenez le temps de formuler des réponses précises et circonstanciées. Je suis attentif${rec2.genre==='femme'?'ve':''} à la cohérence de votre discours et à votre capacité d'adaptation au service public. Nous pouvons commencer.`
+        grand_groupe:`Bonjour, je suis ${rec2.name}, Responsable RH. J'ai pris connaissance de votre candidature pour le poste de ${S.config.poste}. Nous allons échanger environ 30 à 45 minutes. Commençons.`,
+        pme:`Bonjour, je suis ${rec2.name}. J'ai regardé votre profil pour le poste de ${S.config.poste}, ça m'a semblé intéressant. On va discuter tranquillement.`,
+        startup:`Bonjour, je suis ${rec2.name}. On cherche quelqu'un pour le poste de ${S.config.poste}, un rôle clé pour nous. On va avoir une conversation ouverte, sans formalisme.`,
+        administration:`Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${S.config.poste}. Cet entretien évaluera vos compétences et votre adéquation au poste.`
       };
-      const introText = typeIntros[S.config.type_entreprise||'grand_groupe'];
+      const introText=typeIntros[S.config.type_entreprise||'grand_groupe'];
       document.getElementById('q-text').textContent=introText;
       if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='none';
       if(S.config.voix) await speakTextAsync(introText);
-      else await new Promise(r=>setTimeout(r,1400));
+      else await new Promise(r=>setTimeout(r,1200));
       if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='flex';
       document.getElementById('q-counter').style.display='none';
       document.getElementById('prog-fill').style.width='5%';
-      // First question is always the presentation
       S.itv.qs=['Pouvez-vous vous présenter et me parler de votre parcours ?'];
       displayQ(0);
     } catch(e) {
@@ -1579,197 +1521,619 @@ function updateTimerDisplay() {
 
 async function genNextQuestion() {
   const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et direct':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant et attentif';
-  // Recruiter-specific personality layer
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
-  const recStyle = {
-    antoine: 'rigoureux et structuré',
-    laurent: 'analytique et précis',
-    guillaume: 'direct et efficace',
-    manon: 'empathique mais exigeante',
-    jeanne: 'méthodique et attentive',
-    victoria: 'dynamique et incisive'
-  }[recKey] || 'professionnel';
-  const tone = baseStyle + ', ' + recStyle;
+  const recStyle = {antoine:'rigoureux et structuré',laurent:'analytique et précis',guillaume:'direct et efficace',manon:'empathique mais exigeante',jeanne:'méthodique et attentive',victoria:'dynamique et incisive'}[recKey]||'professionnel';
+  const tone = baseStyle+', '+recStyle;
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
   const rec = S.recruiter || RECRUITERS.antoine;
-
-  // Keep only last 4 exchanges to limit prompt size
   const hist = S.itv.history.slice(-4);
-  const histStr = hist.map((h,i)=>'Q: '+h.q.substring(0,80)+'\nR: '+h.a.substring(0,120)).join('\n');
-  const cvShort = S.config.cv ? S.config.cv.substring(0, 300) : '';
+  const histStr = hist.map(h=>'Q: '+h.q.substring(0,80)+'\nR: '+h.a.substring(0,120)).join('\n');
+  const cvShort = S.config.cv ? S.config.cv.substring(0,300) : '';
   const qCount = S.itv.qs.length;
 
-  // Track which categories already covered
+  // Force obligatory questions by order
   const allQs = S.itv.qs.join(' ').toLowerCase();
-  const coveredMotivation = allQs.includes('pourquoi') || allQs.includes('motiv');
-  const coveredSalaire = allQs.includes('salaire') || allQs.includes('prétention') || allQs.includes('rémunération');
-  const coveredDiff = allQs.includes('pas un autre') || allQs.includes('apportez');
-  const coveredStar = allQs.includes('situation') || allQs.includes('exemple') || allQs.includes('racontez');
-  const coveredProj = allQs.includes('ans') || allQs.includes('voyez-vous');
-
-  // Force uncovered obligatory questions
-  if(!coveredMotivation && qCount >= 2) {
-    const q = `Qu'est-ce qui vous a spécifiquement attiré par ce poste de ${S.config.poste} - et pourquoi maintenant ?`;
-    return q;
-  }
-  if(!coveredStar && qCount >= 3) {
-    const q = `Donnez-moi un exemple concret d'une situation professionnelle difficile que vous avez gérée - contexte, ce que vous avez fait, résultat.`;
-    return q;
-  }
-  if(!coveredDiff && qCount >= 5) {
+  const lastA = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].a : '';
+  if(!allQs.includes('pourquoi') && !allQs.includes('motiv') && qCount>=2)
+    return `Vous m'avez indiqué ${lastA.substring(0,60).trim()||'votre parcours'} — qu'est-ce qui vous attire spécifiquement dans ce poste de ${S.config.poste} ?`;
+  if(!allQs.includes('situation') && !allQs.includes('exemple') && qCount>=3)
+    return `Donnez-moi un exemple concret d'une situation professionnelle difficile que vous avez gérée — contexte, action, résultat.`;
+  if(!allQs.includes('pas un autre') && !allQs.includes('apportez') && qCount>=5)
     return `Pourquoi vous, et pas les autres candidats que je rencontre cette semaine ?`;
-  }
-  if(!coveredSalaire && qCount >= 6) {
-    return `Quelles sont vos prétentions salariales ? Et quelle est votre marge de négociation ?`;
-  }
-  if(!coveredProj && qCount >= 4) {
-    return `Où vous voyez-vous dans trois ans ? Et en quoi ce poste s'inscrit dans cette trajectoire ?`;
-  }
+  if(!allQs.includes('salaire') && !allQs.includes('prétention') && qCount>=6)
+    return `Quelles sont vos prétentions salariales ?`;
 
-  // Get last answer for natural reference
-  const lastEntry = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1] : null;
-  const lastAnswerRef = lastEntry ? lastEntry.a.substring(0, 150) : '';
-
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau : ${S.config.niveau||'junior'}.
-${cvShort ? 'CV resume: '+cvShort : ''}
-Historique recent: ${histStr || 'Debut.'}
-
-Question ${qCount+1}. RÈGLE PRINCIPALE : si la dernière réponse du candidat contient un élément concret (un employeur, un poste, une réussite, une durée, un projet, une compétence mentionnée), commence ta question en y faisant référence naturellement. Exemples : "Vous m'avez indiqué que...", "En vous entendant parler de...", "Vous évoquez [X] -", "Cette expérience chez [Y] -".
-
-Si aucune référence pertinente, pose une question nouvelle sur une catégorie non encore couverte.
-Varie : comportemental STAR, compétences, motivations, culture fit, projection.
-15 à 40 mots. Texte brut. Pas de "Question :" ou numéro.`;
+  const lastRef = lastA.length > 20 ? `En référence à ce que vous venez de dire, ` : '';
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}.${cvShort?'\nCV: '+cvShort:''}
+Historique: ${histStr||'Début.'}
+${lastRef}Question ${qCount+1}: pose une question d'entretien naturelle qui rebondit sur la dernière réponse si pertinent. Varie: STAR, compétences, culture, projection. 15-40 mots. Texte brut.`;
 
   const res = await apiCall(prompt, 150);
   return res.trim();
 }
 
-
-async function genCandidateQuestionAnswer(candidateQ) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const cvCtx2 = S.config.cv ? `CV/parcours du candidat : ${S.config.cv}` : '';
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. ${cvCtx2}
-
-Le candidat vient de te poser cette question en fin d'entretien : "${candidateQ}"
-
-Réponds de façon naturelle, humaine et réaliste - comme un vrai recruteur qui a passé 30 minutes avec ce candidat. 2 à 4 phrases. Ton vocabulaire est professionnel. Tu peux être chaleureux ou direct selon ton style.
-
-Si la question porte sur :
-- L'équipe / l'environnement -> décris-le de façon vivante et concrète
-- Les perspectives d'évolution -> sois honnête et précis
-- Le processus de recrutement -> explique les prochaines étapes clairement
-- La culture de l'entreprise -> donne des éléments concrets
-- Le poste lui-même -> développe les enjeux réels
-- Une question personnelle sur toi -> réponds de façon authentique
-
-Commence directement par ta réponse, sans préambule.`;
-  return await apiCall(prompt, 250);
-}
-
-async function genOutro() {
-  const avg = S.itv.scores.length > 0 ? Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) : 0;
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien de 30-45 minutes pour le poste de ${S.config.poste}.
-
-Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Tu viens de passer du temps avec ce candidat - tu as une impression, même si tu ne la révèles pas. Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
-
-Inclus impérativement :
-1. Un remerciement sincère pour le temps accordé
-2. Une indication concrète des prochaines étapes (délai de réponse, nombre de candidats rencontrés si pertinent, suite du process)
-3. Une invitation à poser une dernière question si besoin
-4. Une formule de congé naturelle
-
-Adapte le registre au contexte :
-- Grand groupe -> formel, procédurier, délais précis
-- PME -> chaleureux, direct, "on vous recontacte rapidement"
-- Startup -> décontracté, transparent, "on prend une décision vite"
-- Administration -> protocole, délais administratifs, commission
-
-Commence par "Très bien" ou "Bien" ou "Voilà" - jamais directement par "Merci". Sois naturel, pas robotique.`;
-  return await apiCall(prompt, 200);
-}
-
-
-async function genCandidateQuestionAnswer(candidateQ) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const cvCtx2 = S.config.cv ? `CV/parcours du candidat : ${S.config.cv}` : '';
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. ${cvCtx2}
-
-Le candidat vient de te poser cette question en fin d'entretien : "${candidateQ}"
-
-Réponds de façon naturelle, humaine et réaliste - comme un vrai recruteur qui a passé 30 minutes avec ce candidat. 2 à 4 phrases. Ton vocabulaire est professionnel. Tu peux être chaleureux ou direct selon ton style.
-
-Si la question porte sur :
-- L'équipe / l'environnement -> décris-le de façon vivante et concrète
-- Les perspectives d'évolution -> sois honnête et précis
-- Le processus de recrutement -> explique les prochaines étapes clairement
-- La culture de l'entreprise -> donne des éléments concrets
-- Le poste lui-même -> développe les enjeux réels
-- Une question personnelle sur toi -> réponds de façon authentique
-
-Commence directement par ta réponse, sans préambule.`;
-  return await apiCall(prompt, 250);
-}
-
-async function genOutro() {
-  const avg = S.itv.scores.length > 0 ? Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) : 0;
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien de 30-45 minutes pour le poste de ${S.config.poste}.
-
-Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Tu viens de passer du temps avec ce candidat - tu as une impression, même si tu ne la révèles pas. Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
-
-Inclus impérativement :
-1. Un remerciement sincère pour le temps accordé
-2. Une indication concrète des prochaines étapes (délai de réponse, nombre de candidats rencontrés si pertinent, suite du process)
-3. Une invitation à poser une dernière question si besoin
-4. Une formule de congé naturelle
-
-Adapte le registre au contexte :
-- Grand groupe -> formel, procédurier, délais précis
-- PME -> chaleureux, direct, "on vous recontacte rapidement"
-- Startup -> décontracté, transparent, "on prend une décision vite"
-- Administration -> protocole, délais administratifs, commission
-
-Commence par "Très bien" ou "Bien" ou "Voilà" - jamais directement par "Merci". Sois naturel, pas robotique.`;
-  return await apiCall(prompt, 200);
-}
-
 async function genRecruiterReaction(question, answer) {
   const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
-  const recName = S.recruiter?.name || 'Antoine';
-
-  const prompt = `Tu es ${recName}, recruteur ${tone} en entretien pour le poste de ${S.config.poste}.
-
-Question posée : "${question}"
-Réponse du candidat : "${answer}"
-
-DÉCIDE si une relance est nécessaire.
-
-RELANCE si la réponse est sur une question OUVERTE ET que :
-- Moins de 25 mots ou vague sans exemple concret
-- Répond à côté de la question
-- Trop générale, sans contexte ni résultat précis
-Dans ce cas : pose UNE relance courte et naturelle (10-20 mots). Texte brut uniquement.
-
-PAS DE RELANCE (réponds SKIP) si :
-- Réponse claire, développée, avec exemple ou chiffre
-- Question fermée (salaire, disponibilité, oui/non)
-- Réponse structurée même si courte
-Réponds uniquement SKIP ou la question de relance.`;
-
+  const recName = S.recruiter?.name||'Antoine';
+  const prompt = `Tu es ${recName}, recruteur ${tone}.
+Question posée: "${question}"
+Réponse: "${answer}"
+DÉCIDE: la réponse nécessite-t-elle une relance ?
+RELANCE si question ouverte ET réponse vague (<25 mots, sans exemple, hors sujet): pose 1 question précise (10-20 mots).
+SKIP si réponse claire, structurée, ou question fermée (salaire, dispo, oui/non).
+Renvoie uniquement la relance OU le mot SKIP.`;
   const res = await apiCall(prompt, 80);
   const txt = res.trim();
-  if(txt === 'SKIP' || txt.length < 4) return null;
+  if(txt==='SKIP'||txt.length<4) return null;
   return txt;
 }
 
+async function genCandidateQuestionAnswer(candidateQ) {
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
+  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const cvCtx = S.config.cv ? `CV: ${S.config.cv.substring(0,200)}` : '';
+  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. ${cvCtx}
+Le candidat te pose cette question: "${candidateQ}". Réponds naturellement, 2-4 phrases.`;
+  return await apiCall(prompt, 200);
+}
 
+async function genOutro() {
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
+  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Poste: ${S.config.poste}. Rédige une conclusion d'entretien naturelle (3-4 phrases): remerciement, prochaines étapes, formule de congé. Commence par "Très bien" ou "Bien".`;
+  return await apiCall(prompt, 180);
+}
+
+async function genQuestions(n) {
+  // Legacy express mode only
+  return ['Pouvez-vous vous présenter et me parler de votre parcours ?','Quels sont vos points forts et votre principal point faible ?','Pourquoi ce poste ?','Pourquoi vous et pas un autre candidat ?','Décrivez une réussite concrète.','Comment gérez-vous le stress ?'].slice(0,n);
+}
+
+function startRec(e) {
+  e.preventDefault(); if(isRecording) return;
+  stopAudio();
+  isRecording=true; currentTranscript=''; dgInterimText=''; recStart=Date.now(); dgRestarting=false;
+  document.getElementById('mic-btn').className='mic-btn recording';
+  document.getElementById('mic-hint').textContent='Enregistrement... relâche pour envoyer';
+  document.getElementById('answer-box').textContent='Écoute en cours...';
+  document.getElementById('answer-box').className='answer-box recording';
+  launchDeepgram();
+}
+
+async function launchDeepgram() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?language=fr&model=nova-2&punctuate=true&interim_results=true&smart_format=true',['token',DEEPGRAM_KEY]);
+    dgSocket = socket;
+    dgSocket._stream = stream;
+    socket.onopen = () => {
+      const mr = new MediaRecorder(stream,{mimeType:'audio/webm'});
+      dgSocket._mediaRecorder = mr;
+      mr.ondataavailable = ev => { if(socket.readyState===WebSocket.OPEN && ev.data.size>0) socket.send(ev.data); };
+      mr.start(250);
+    };
+    socket.onmessage = msg => {
+      const data = JSON.parse(msg.data);
+      const t = data?.channel?.alternatives?.[0]?.transcript||'';
+      if(data?.is_final && t){ currentTranscript+=(currentTranscript?' ':'')+t; dgInterimText=''; }
+      else if(!data?.is_final){ dgInterimText=t; }
+      const disp=(currentTranscript+(dgInterimText?' '+dgInterimText:'')).trim();
+      if(disp){ document.getElementById('answer-box').textContent=disp; document.getElementById('answer-box').classList.add('has-answer'); }
+    };
+    socket.onerror = () => { if(isRecording&&!dgRestarting){dgRestarting=true;setTimeout(()=>{dgRestarting=false;launchDeepgram();},500);} };
+    socket.onclose = () => { stream.getTracks().forEach(t=>t.stop()); if(isRecording&&!dgRestarting){dgRestarting=true;setTimeout(()=>{dgRestarting=false;launchDeepgram();},300);} };
+  } catch(e) {
+    document.getElementById('mic-hint').textContent='⚠️ Autorise le micro dans ton navigateur';
+    isRecording=false; document.getElementById('mic-btn').className='mic-btn';
+  }
+}
+
+async function stopRec(e) {
+  e.preventDefault(); if(!isRecording) return; isRecording=false; dgRestarting=true;
+  const recDuration=(Date.now()-recStart)/1000;
+  if(dgSocket){try{dgSocket._mediaRecorder?.stop();dgSocket._stream?.getTracks().forEach(t=>t.stop());dgSocket.close();}catch(_){}dgSocket=null;}
+  document.getElementById('mic-btn').className='mic-btn analyzing';
+  document.getElementById('mic-hint').textContent='Analyse en cours...';
+  await new Promise(r=>setTimeout(r,600));
+  const answer=currentTranscript.trim();
+
+  if(!answer||answer.length<8) {
+    S.totalSilences++;
+    document.getElementById('answer-box').textContent='(Silence comptabilisé)';
+    document.getElementById('answer-box').className='answer-box';
+    document.getElementById('mic-btn').className='mic-btn';
+    document.getElementById('mic-hint').textContent='Maintenir pour parler';
+    S.itv.answers.push(''); S.itv.scores.push(0);
+    S.itv.criteria.push({structure:0,confiance:0,pertinence:0,vocabulaire:0});
+    S.itv.feedbacks.push('Aucune réponse.'); S.itv.ideals.push('');
+    showNextBtn(); return;
+  }
+
+  // WPM calculation
+  const words=answer.trim().split(/\s+/);
+  S.totalWords+=words.length;
+  const wpm=recDuration>2?Math.round((words.length/recDuration)*60):0;
+  if(wpm>0){S.totalWPM+=wpm;S.wpmCount++;}
+
+  // Fillers
+  const fillers=(answer.match(FILLERS_RE)||[]).length;
+  S.totalFillers+=fillers;
+  if(fillers>0){
+    document.getElementById('filler-wrap').style.display='block';
+    document.getElementById('filler-txt').textContent=`${fillers} mot${fillers>1?'s':''} parasite${fillers>1?'s':''} détecté${fillers>1?'s':''}`;
+  }
+
+  // WPM chip
+  if(wpm>0){
+    const {cls,label}=wpmClass(wpm);
+    const wDiv=document.getElementById('wpm-display');
+    wDiv.style.display='block';
+    wDiv.innerHTML=`<div style="padding:0 20px 0"><div class="wpm-chip ${cls}">🗣️ ${wpm} mots/min · ${label}</div></div>`;
+  }
+
+  document.getElementById('answer-box').className='answer-box has-answer';
+  S.itv.answers.push(answer);
+
+  // AI Evaluation
+  if(S.itv.currentQ === 0) {
+    document.getElementById('feedback-wrap').style.display='block';
+    document.getElementById('feedback-txt').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  }
+  try {
+    const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
+    S.itv.scores.push(ev.score);
+    if(S.mode==='complet'&&S.itv.currentQ>0){
+      S.itv.replyCount[S.itv.currentQ]=(S.itv.replyCount[S.itv.currentQ]||0)+1;
+      const badge=document.getElementById('move-on-badge');
+      if(S.itv.replyCount[S.itv.currentQ]===1){
+        try{
+          const reaction=await genRecruiterReaction(S.itv.qs[S.itv.currentQ],answer);
+          if(reaction){S.itv.reactions=S.itv.reactions||[];S.itv.reactions[S.itv.currentQ]=reaction;document.getElementById('q-text').textContent=reaction;if(S.config.voix) speakText(reaction);}
+          else{if(badge) badge.style.display='block';}
+        }catch(_){if(badge) badge.style.display='block';}
+      } else {if(badge) badge.style.display='block';}
+    }
+    S.itv.criteria.push({structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire});
+    S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
+    const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
+    document.getElementById('apt-text').textContent=avg+'%';
+    if(S.itv.currentQ === 0) {
+      document.getElementById('feedback-txt').textContent=ev.feedback;
+      if(S.config.voix && S.mode!=='express') speakText(ev.feedback);
+    }
+    document.getElementById('mic-btn').className='mic-btn';
+    document.getElementById('mic-hint').textContent='✓ Réponse enregistrée';
+    showNextBtn();
+  } catch(err) {
+    S.itv.scores.push(55);
+    S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55});
+    S.itv.feedbacks.push('Réponse enregistrée.'); S.itv.ideals.push('');
+    document.getElementById('feedback-txt').textContent='⚠️ Analyse indisponible.';
+    document.getElementById('mic-btn').className='mic-btn';
+    document.getElementById('mic-hint').textContent='Maintenir pour parler';
+    showNextBtn();
+  }
+}
+
+function wpmClass(wpm){
+  if(wpm<90) return{cls:'wpm-slow',label:'Trop lent — parle avec plus d\'énergie'};
+  if(wpm<=160) return{cls:'wpm-ok',label:'Débit idéal ✓'};
+  return{cls:'wpm-fast',label:'Trop rapide — ralentis'};
+}
+
+function showNextBtn() {
+  let nextLabel='Question suivante ->';
+  if(S.mode==='express'&&S.itv.currentQ>=S.itv.qs.length-1) nextLabel='Voir les résultats ->';
+  if(S.mode==='complet'&&S.itv.phase==='candidate_questions') nextLabel="Terminer l'entretien ->";
+  document.getElementById('int-actions').style.display='flex';
+  document.getElementById('next-btn').textContent=nextLabel;
+  setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},200);
+}
+async function nextQ() {
+  if(S.mode==='express'){
+    if(S.itv.currentQ>=S.itv.qs.length-1){
+      const outro='Merci beaucoup pour cet échange, nous reviendrons vers vous rapidement.';
+      document.getElementById('q-text').textContent=outro;
+      document.getElementById('int-actions').style.display='none';
+      document.getElementById('mic-area').style.display='none';
+      if(S.config.voix){await speakTextAsync(outro);await new Promise(r=>setTimeout(r,800));}
+      else{await new Promise(r=>setTimeout(r,1800));}
+      showResults();
+    } else { S.itv.currentQ++; displayQ(S.itv.currentQ); }
+    return;
+  }
+  const currAnswer=S.itv.answers[S.itv.currentQ]||'';
+  const currQ=S.itv.qs[S.itv.currentQ]||'';
+  if(currQ&&currAnswer) S.itv.history.push({q:currQ,a:currAnswer});
+  const qAsked=S.itv.history.length;
+  if(S.itv.phase==='candidate_questions'){
+    document.getElementById('int-actions').style.display='none';
+    document.getElementById('mic-area').style.display='none';
+    document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+    try{const ans=await genCandidateQuestionAnswer(currAnswer);document.getElementById('q-text').textContent=ans;if(S.config.voix) await speakTextAsync(ans);else await new Promise(r=>setTimeout(r,1200));}catch(_){}
+    await doOutro(); return;
+  }
+  const shouldEnd=qAsked>=S.itv.maxQ||(qAsked>=S.itv.minQ&&S.itv.scores.length>=S.itv.minQ&&Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length)>=60);
+  if(shouldEnd){
+    S.itv.phase='candidate_questions';
+    const tq="Nous avons presque terminé. Avez-vous des questions sur le poste ou la suite du processus ?";
+    S.itv.qs.push(tq);S.itv.currentQ++;
+    document.getElementById('q-text').textContent=tq;
+    document.getElementById('prog-fill').style.width='95%';
+    document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
+    document.getElementById('answer-box').className='answer-box';
+    document.getElementById('feedback-wrap').style.display='none';
+    document.getElementById('int-actions').style.display='none';
+    document.getElementById('filler-wrap').style.display='none';
+    document.getElementById('wpm-display').style.display='none';
+    document.getElementById('mic-hint').textContent='Maintenir pour parler';
+    document.getElementById('mic-btn').className='mic-btn';
+    const _mb=document.getElementById('move-on-badge');if(_mb)_mb.style.display='none';
+    if(S.config.voix) setTimeout(()=>speakText(tq),80);
+    return;
+  }
+  document.getElementById('int-actions').style.display='none';
+  document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
+  document.getElementById('answer-box').className='answer-box';
+  document.getElementById('feedback-wrap').style.display='none';
+  document.getElementById('filler-wrap').style.display='none';
+  document.getElementById('wpm-display').style.display='none';
+  document.getElementById('mic-hint').textContent='Maintenir pour parler';
+  document.getElementById('mic-btn').className='mic-btn';
+  document.getElementById('mic-area').style.display='flex';
+  const _mb2=document.getElementById('move-on-badge');if(_mb2)_mb2.style.display='none';
+  currentTranscript='';
+  try{
+    const nq=await genNextQuestion();
+    S.itv.qs.push(nq);S.itv.currentQ++;
+    document.getElementById('prog-fill').style.width=Math.min(90,Math.round((qAsked/S.itv.maxQ)*90))+'%';
+    document.getElementById('q-text').textContent=nq;
+    if(S.config.voix) speakText(nq);
+  }catch(_){
+    const fb='Comment gérez-vous la pression et les délais serrés ?';
+    S.itv.qs.push(fb);S.itv.currentQ++;
+    document.getElementById('q-text').textContent=fb;
+    if(S.config.voix) speakText(fb);
+  }
+}
+
+async function doOutro(){
+  document.getElementById('mic-area').style.display='none';
+  document.getElementById('int-actions').style.display='none';
+  document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  try{
+    const outro=await genOutro();
+    document.getElementById('q-text').textContent=outro;
+    document.getElementById('prog-fill').style.width='100%';
+    if(S.config.voix){await speakTextAsync(outro);await new Promise(r=>setTimeout(r,600));}
+    else{await new Promise(r=>setTimeout(r,2000));}
+  }catch(_){
+    const fallback='Merci pour cet entretien. Nous reviendrons vers vous dans les prochains jours.';
+    document.getElementById('q-text').textContent=fallback;
+    if(S.config.voix) await speakTextAsync(fallback);
+    else await new Promise(r=>setTimeout(r,2000));
+  }
+  showResults();
+}
+function abandon() {
+  if(!confirm('Abandonner l\'entretien ?')) return;
+  stopAudio(); stopExpressTimer(); isRecording=false; dgRestarting=true;
+  if(dgSocket){try{dgSocket._mediaRecorder?.stop();dgSocket._stream?.getTracks().forEach(t=>t.stop());dgSocket.close();}catch(_){}dgSocket=null;}
+  goTo('home','back');
+}
+
+/* ========== API CALLS ========== */
+async function apiCall(prompt, maxTokens=600) {
+  const res=await fetch('/.netlify/functions/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prompt,maxTokens})
+  });
+  if(!res.ok) throw new Error('API '+res.status);
+  const d=await res.json(); return d.text;
+}
+
+async function evalAnswer(q, answer) {
+  const tone=S.config.personnalite==='hardcore'?'très exigeant, froid':S.config.personnalite==='exigeant'?'professionnel, exigeant':'bienveillant';
+  const prompt=`Recruteur ${tone}, poste : ${S.config.poste}.
+QUESTION : "${q}"
+RÉPONSE : "${answer}"
+
+Retourne UNIQUEMENT ce JSON (sans markdown, sans explication) :
+{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"[1-2 phrases ton ${tone}]","ideal":"[réponse idéale 2-4 phrases]"}
+Chaque note entre 0 et 100.`;
+  const txt=await apiCall(prompt,500);
+  try{return JSON.parse(txt.replace(/```json?|```/g,'').trim())}
+  catch(e){return{score:60,structure:60,confiance:60,pertinence:60,vocabulaire:60,feedback:'Réponse enregistrée.',ideal:''}}
+}
+
+/* ========== RESULTS ========== */
+async function showResults() {
+  stopAudio(); stopExpressTimer();
+  // Reset mic-area display for next session
+  document.getElementById('mic-area').style.display='flex';
+  goTo('results');
+  if(S.mode === 'complet') decrementInterview();
+
+  const scores=S.itv.scores;
+  const avg=scores.length>0?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
+
+  // Score ring
+  document.getElementById('score-val').innerHTML=avg+'<span class="score-unit">%</span>';
+  document.getElementById('score-ring').className='score-ring '+(avg>=75?'green':avg>=55?'amber':'red');
+
+  // Verdict
+  const vEl=document.getElementById('verdict');
+  if(avg>=75){vEl.className='verdict retenu';vEl.innerHTML='✅ Profil retenu';}
+  else if(avg>=55){vEl.className='verdict renforcer';vEl.innerHTML='⚠️ Profil à renforcer';}
+  else{vEl.className='verdict non';vEl.innerHTML='❌ Profil non retenu';}
+
+  if(S.mode==='express'){
+    // EXPRESS : show locked results
+    document.getElementById('results-sub').textContent='Aperçu de ton entretien';
+    document.getElementById('express-results').style.display='block';
+    document.getElementById('pack-results').style.display='none';
+    await genExpressResults();
+  } else {
+    // PACK : show full results
+    document.getElementById('results-sub').textContent='Bilan vocal complet';
+    document.getElementById('express-results').style.display='none';
+    document.getElementById('pack-results').style.display='block';
+
+    const crit=S.itv.criteria;
+    if(crit.length>0){
+      const avg4=(k)=>Math.round(crit.reduce((a,c)=>a+(c[k]||0),0)/crit.length);
+      const structure=avg4('structure'), confiance=avg4('confiance'),
+            pertinence=avg4('pertinence'), vocabulaire=avg4('vocabulaire');
+      animBar('bar-structure',structure,'bar-structure-val');
+      animBar('bar-confiance',confiance,'bar-confiance-val');
+      animBar('bar-pertinence',pertinence,'bar-pertinence-val');
+      animBar('bar-vocabulaire',vocabulaire,'bar-vocabulaire-val');
+    }
+
+    const avgWPM=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
+    if(avgWPM>0){
+      const {cls,label}=wpmClass(avgWPM);
+      document.getElementById('wpm-val').textContent=avgWPM+' mots/min';
+      document.getElementById('wpm-tip').textContent=label;
+      const colorMap={'wpm-ok':'var(--green)','wpm-slow':'var(--amber)','wpm-fast':'var(--red)'};
+      const bgMap={'wpm-ok':'var(--green-l)','wpm-slow':'var(--amber-l)','wpm-fast':'var(--red-l)'};
+      document.getElementById('wpm-tip').style.color=colorMap[cls]||'var(--green)';
+      document.getElementById('wpm-icon').style.background=bgMap[cls]||'var(--green-l)';
+    } else {
+      document.getElementById('wpm-val').textContent='Non calculé';
+      document.getElementById('wpm-tip').textContent='Active la reconnaissance vocale pour mesurer ton débit';
+    }
+
+    const dur=Math.round((Date.now()-S.itv.startTime)/1000);
+    const m=Math.floor(dur/60),s=dur%60;
+    document.getElementById('s-duree').textContent=m+'m'+(s<10?'0':'')+s+'s';
+    const answered=S.itv.answers.filter(a=>a.length>0).length;
+    document.getElementById('s-mots').textContent=answered>0?Math.round(S.totalWords/answered):'—';
+    document.getElementById('s-para').textContent=S.totalFillers;
+    document.getElementById('s-sil').textContent=S.totalSilences;
+
+    if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite. Très bonne fluidité.';}
+    else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent='Quelques hésitations — globalement satisfaisant.';}
+    else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent='Trop de mots parasites — travaille ta fluidité.';}
+    if(S.totalFillers>0){document.getElementById('filler-warn').style.display='flex';document.getElementById('filler-warn-txt').textContent=`${S.totalFillers} mot${S.totalFillers>1?'s':''} parasite${S.totalFillers>1?'s':''} détecté${S.totalFillers>1?'s':''}`;}
+
+    const idealsEl=document.getElementById('res-ideals');
+    idealsEl.innerHTML=S.itv.qs.map((q,i)=>`<div class="ideal-item"><div class="ideal-q">Q${i+1}. ${q}</div><div class="ideal-a">${S.itv.ideals[i]||'<span style="color:var(--gray-400)">Non disponible</span>'}</div></div>`).join('');
+
+    if(S.accessCode){
+      const avgWPM2=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
+      const crit2=S.itv.criteria;
+      const avg4=(k)=>crit2.length>0?Math.round(crit2.reduce((a,c)=>a+(c[k]||0),0)/crit2.length):0;
+      saveSession({date:new Date().toISOString(),score:avg,poste:S.config.poste,mode:S.mode,structure:avg4('structure'),confiance:avg4('confiance'),pertinence:avg4('pertinence'),vocabulaire:avg4('vocabulaire'),wpm:avgWPM2});
+      updateHistoryBtn();
+    }
+    await genFinalAnalysis(avg);
+  }
+}
+
+async function genExpressResults() {
+  // Q1 feedback (already generated during interview)
+  const q1feedback = S.itv.feedbacks[0] || null;
+  const q1answer = S.itv.answers[0] || '';
+
+  if(q1feedback){
+    document.getElementById('express-q1-text').textContent=q1feedback;
+  } else {
+    document.getElementById('express-q1-text').textContent='Réponse enregistrée.';
+  }
+
+  // Generate 1 tip via AI
+  try{
+    const prompt=`Coach carrière expert. En 1 phrase courte et concrète, donne UNE astuce clé pour réussir un entretien d'embauche basée sur cette réponse de présentation : "${q1answer||'présentation générale'}". Commence directement par l'astuce. 30 mots maximum.`;
+    const tip=await apiCall(prompt,120);
+    document.getElementById('express-tip-text').textContent=tip.trim();
+  }catch(e){
+    document.getElementById('express-tip-text').textContent='Structurez votre présentation en 3 parties : parcours, compétences clés, motivation pour le poste visé.';
+  }
+}
+
+function animBar(barId, val, labelId) {
+  setTimeout(()=>{
+    document.getElementById(barId).style.width=val+'%';
+    document.getElementById(labelId).textContent=val+'%';
+  },300);
+}
+
+async function genFinalAnalysis(avg) {
+  const qas=S.itv.qs.map((q,i)=>`Q: ${q}\nR: ${S.itv.answers[i]||'(silence)'}`).join('\n\n');
+  const prompt=`Coach carrière expert. Bilan entretien.\nPOSTE: ${S.config.poste} | SCORE: ${avg}%\n${qas}\n\nRetourne UNIQUEMENT ce JSON:\n{"forts":["Point 1","Point 2","Point 3"],"axes":["Axe 1","Axe 2","Axe 3"]}`;
+  try{
+    const txt=await apiCall(prompt,500);
+    const d=JSON.parse(txt.replace(/```json?|```/g,'').trim());
+    document.getElementById('res-forts').innerHTML=d.forts.map(f=>`<div class="result-item"><div class="result-item-icon">✅</div><div>${f}</div></div>`).join('');
+    document.getElementById('res-axes').innerHTML=d.axes.map(a=>`<div class="result-item"><div class="result-item-icon">🎯</div><div>${a}</div></div>`).join('');
+  }catch(e){
+    document.getElementById('res-forts').innerHTML='<div class="result-item"><div class="result-item-icon">⚠️</div><div>Analyse non disponible</div></div>';
+    document.getElementById('res-axes').innerHTML='<div class="result-item"><div class="result-item-icon">⚠️</div><div>Analyse non disponible</div></div>';
+  }
+}
+
+function newInterview(){if(S.mode==='express') goTo('home','back'); else goTo('config','back');}
+
+/* ========== HISTORY ========== */
+function historyKey(){ return 'jw_hist_'+(S.accessCode||'express'); }
+function getSessions(){ try{return JSON.parse(localStorage.getItem(historyKey())||'[]')}catch(e){return []} }
+function saveSession(data){ const h=getSessions(); h.unshift(data); localStorage.setItem(historyKey(),JSON.stringify(h.slice(0,50))); }
+
+function updateHistoryBtn(){
+  const sessions=getSessions();
+  if(sessions.length>0 || S.accessCode){
+    document.getElementById('history-btn').style.display='flex';
+    document.getElementById('history-count').textContent=sessions.length+' session'+(sessions.length>1?'s':'');
+  }
+}
+
+function openHistory(){
+  const sessions=getSessions();
+  goTo('history');
+
+  document.getElementById('h-total').textContent=sessions.length;
+  if(sessions.length===0){
+    document.getElementById('h-best').textContent='—';
+    document.getElementById('h-trend').textContent='—';
+    document.getElementById('chart-wrap').style.display='none';
+    document.getElementById('history-list').innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Aucune session enregistrée</div><div class="empty-desc">Fais un entretien complet pour voir ta progression ici.</div></div>`;
+    return;
+  }
+
+  const best=Math.max(...sessions.map(s=>s.score));
+  document.getElementById('h-best').textContent=best+'%';
+
+  // Trend
+  if(sessions.length>=2){
+    const diff=sessions[0].score-sessions[1].score;
+    const tEl=document.getElementById('h-trend');
+    if(diff>0){tEl.textContent='↑ +'+diff+'%';tEl.className='h-stat-val trend-up';}
+    else if(diff<0){tEl.textContent='↓ '+diff+'%';tEl.className='h-stat-val trend-down';}
+    else{tEl.textContent='→ Stable';tEl.className='h-stat-val trend-flat';}
+  } else { document.getElementById('h-trend').textContent='—'; }
+
+  // Mini chart
+  if(sessions.length>=2){
+    document.getElementById('chart-wrap').style.display='block';
+    const displayed=sessions.slice(0,10).reverse();
+    const maxScore=Math.max(...displayed.map(s=>s.score));
+    document.getElementById('mini-chart').innerHTML=displayed.map(s=>{
+      const h=Math.max(8,Math.round((s.score/100)*44));
+      const cls=s.score>=75?'green':s.score>=55?'amber':'red';
+      return `<div class="mini-bar ${cls}" style="height:${h}px" title="${s.score}%"></div>`;
+    }).join('');
+    document.getElementById('chart-oldest').textContent=fmtDate(displayed[0].date);
+    document.getElementById('chart-newest').textContent=fmtDate(displayed[displayed.length-1].date);
+  }
+
+  // Session list
+  document.getElementById('history-list').innerHTML=sessions.map((s,i)=>{
+    const cls=s.score>=75?'green':s.score>=55?'amber':'red';
+    const pills=[
+      {k:'structure',label:'Struct.'},
+      {k:'confiance',label:'Conf.'},
+      {k:'pertinence',label:'Pert.'},
+      {k:'vocabulaire',label:'Vocab.'}
+    ].map(p=>{
+      const v=s[p.k];if(!v)return'';
+      const pc=v>=75?'green':v>=55?'amber':'red';
+      return `<span class="mini-pill ${pc}">${p.label} ${v}%</span>`;
+    }).join('');
+    return `<div class="session-card">
+      <div class="session-score-badge ${cls}"><div class="session-score-num">${s.score}</div><div class="session-score-pct">%</div></div>
+      <div class="session-body">
+        <div class="session-poste">${s.poste||'Entretien général'}</div>
+        <div class="session-meta">${fmtDate(s.date)}${s.wpm?' · '+s.wpm+' mots/min':''}</div>
+        <div class="session-criteria">${pills}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function fmtDate(iso){
+  try{const d=new Date(iso);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
+  catch(e){return '—';}
+}
+
+
+function selectRecruiter(key) {
+  Object.keys(RECRUITERS).forEach(k => {
+    const el = document.getElementById('rc-' + k);
+    if(el) el.classList.remove('active');
+  });
+  const el = document.getElementById('rc-' + key);
+  if(el) el.classList.add('active');
+  S.recruiter = RECRUITERS[key];
+}
+
+function switchCvTab(tab) {
+  const isText = tab === 'text';
+  document.getElementById('cv-panel-text').style.display = isText ? 'block' : 'none';
+  document.getElementById('cv-panel-file').style.display = isText ? 'none' : 'block';
+  const btnText = document.getElementById('cv-tab-text');
+  const btnFile = document.getElementById('cv-tab-file');
+  if(isText) {
+    btnText.style.border = '2px solid var(--blue)';
+    btnText.style.background = 'var(--blue-light)';
+    btnText.style.color = 'var(--blue)';
+    btnFile.style.border = '2px solid var(--gray-200)';
+    btnFile.style.background = 'var(--gray-100)';
+    btnFile.style.color = 'var(--gray-500)';
+  } else {
+    btnFile.style.border = '2px solid var(--blue)';
+    btnFile.style.background = 'var(--blue-light)';
+    btnFile.style.color = 'var(--blue)';
+    btnText.style.border = '2px solid var(--gray-200)';
+    btnText.style.background = 'var(--gray-100)';
+    btnText.style.color = 'var(--gray-500)';
+  }
+}
+
+function handleCvUpload(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5 * 1024 * 1024) {
+    alert('Le fichier est trop volumineux (max 5 Mo).');
+    return;
+  }
+  document.getElementById('cv-file-name').textContent = '✓ ' + file.name;
+  document.getElementById('cv-drop-label').style.borderColor = 'var(--blue)';
+  document.getElementById('cv-drop-label').style.background = 'var(--blue-light)';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    // Store PDF text extraction — basic fallback: store filename + signal
+    S.config.cv_filename = file.name;
+    S.config.cv_pdf = true;
+    // Try to extract text via ArrayBuffer for basic PDF parsing
+    const arr = new Uint8Array(e.target.result);
+    let raw = '';
+    for(let i=0;i<arr.length;i++) raw += String.fromCharCode(arr[i]);
+    const textMatches = raw.match(/BT[\s\S]*?ET/g);
+    if(textMatches) {
+      const extracted = textMatches
+        .join(' ')
+        .replace(/Tf|Tm|Td|TD|T\*|Tj|TJ/g, ' ')
+        .replace(/[^\x20-\x7E\xC0-\xFF]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .substring(0, 1500);
+      document.getElementById('cfg-cv').value = extracted || 'CV importé : ' + file.name;
+    } else {
+      document.getElementById('cfg-cv').value = 'CV importé : ' + file.name;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* Init */
+if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices());}
+if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
+</script>
+</body>
+</html>
