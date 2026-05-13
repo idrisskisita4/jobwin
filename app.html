@@ -1382,6 +1382,8 @@ const RECRUITERS = {
   victoria:  { name:'Victoria', genre:'femme', voiceId:'O31r762Gb3WFygrEOGh0', avatar:'👩‍🎓' },
 };
 const EXPRESS_RECRUITER = RECRUITERS.antoine;
+// Default recruiter = Antoine (in case user never clicks a card)
+if(!S.recruiter) S.recruiter = RECRUITERS.antoine;
 
 /* ===== ELEVENLABS ===== */
 let currentAudio = null;
@@ -1508,6 +1510,8 @@ async function initInterview() {
   safe('mic-btn', el=>el.className='mic-btn');
   safe('mic-area', el=>el.style.display='flex');
 
+  // Safety: ensure mode is correct
+  if(!S.mode) S.mode = 'express';
   if (S.mode==='express') {
     document.getElementById('timer-wrap').style.display='flex';
     document.getElementById('recruiter-center').style.display='none';
@@ -1574,10 +1578,21 @@ function updateTimerDisplay() {
 }
 
 async function genNextQuestion() {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
+  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et direct':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant et attentif';
+  // Recruiter-specific personality layer
+  const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
+  const recStyle = {
+    antoine: 'rigoureux et structuré',
+    laurent: 'analytique et précis',
+    guillaume: 'direct et efficace',
+    manon: 'empathique mais exigeante',
+    jeanne: 'méthodique et attentive',
+    victoria: 'dynamique et incisive'
+  }[recKey] || 'professionnel';
+  const tone = baseStyle + ', ' + recStyle;
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const rec = S.recruiter || {name:'Antoine'};
+  const rec = S.recruiter || RECRUITERS.antoine;
 
   // Keep only last 4 exchanges to limit prompt size
   const hist = S.itv.history.slice(-4);
@@ -1612,12 +1627,96 @@ async function genNextQuestion() {
     return `Où vous voyez-vous dans trois ans ? Et en quoi ce poste s'inscrit dans cette trajectoire ?`;
   }
 
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau : ${S.config.niveau||'junior'}.
-${cvShort ? 'CV (résumé) : '+cvShort : ''}
-Historique récent :
-${histStr || 'Début.'}
-Question ${qCount+1}. Pose une question d'entretien naturelle et précise. Varie : comportemental STAR, compétences, culture fit, ambitions. Rebondis sur la dernière réponse si pertinent. 15-35 mots. Texte brut uniquement.`;
+  // Get last answer for natural reference
+  const lastEntry = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1] : null;
+  const lastAnswerRef = lastEntry ? lastEntry.a.substring(0, 150) : '';
 
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau : ${S.config.niveau||'junior'}.
+${cvShort ? 'CV resume: '+cvShort : ''}
+Historique recent: ${histStr || 'Debut.'}
+
+Question ${qCount+1}. RÈGLE PRINCIPALE : si la dernière réponse du candidat contient un élément concret (un employeur, un poste, une réussite, une durée, un projet, une compétence mentionnée), commence ta question en y faisant référence naturellement. Exemples : "Vous m'avez indiqué que...", "En vous entendant parler de...", "Vous évoquez [X] -", "Cette expérience chez [Y] -".
+
+Si aucune référence pertinente, pose une question nouvelle sur une catégorie non encore couverte.
+Varie : comportemental STAR, compétences, motivations, culture fit, projection.
+15 à 40 mots. Texte brut. Pas de "Question :" ou numéro.`;
+
+  const res = await apiCall(prompt, 150);
+  return res.trim();
+}
+
+
+async function genCandidateQuestionAnswer(candidateQ) {
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
+  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const cvCtx2 = S.config.cv ? `CV/parcours du candidat : ${S.config.cv}` : '';
+  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. ${cvCtx2}
+
+Le candidat vient de te poser cette question en fin d'entretien : "${candidateQ}"
+
+Réponds de façon naturelle, humaine et réaliste - comme un vrai recruteur qui a passé 30 minutes avec ce candidat. 2 à 4 phrases. Ton vocabulaire est professionnel. Tu peux être chaleureux ou direct selon ton style.
+
+Si la question porte sur :
+- L'équipe / l'environnement -> décris-le de façon vivante et concrète
+- Les perspectives d'évolution -> sois honnête et précis
+- Le processus de recrutement -> explique les prochaines étapes clairement
+- La culture de l'entreprise -> donne des éléments concrets
+- Le poste lui-même -> développe les enjeux réels
+- Une question personnelle sur toi -> réponds de façon authentique
+
+Commence directement par ta réponse, sans préambule.`;
+  return await apiCall(prompt, 250);
+}
+
+async function genOutro() {
+  const avg = S.itv.scores.length > 0 ? Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) : 0;
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
+  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien de 30-45 minutes pour le poste de ${S.config.poste}.
+
+Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Tu viens de passer du temps avec ce candidat - tu as une impression, même si tu ne la révèles pas. Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
+
+Inclus impérativement :
+1. Un remerciement sincère pour le temps accordé
+2. Une indication concrète des prochaines étapes (délai de réponse, nombre de candidats rencontrés si pertinent, suite du process)
+3. Une invitation à poser une dernière question si besoin
+4. Une formule de congé naturelle
+
+Adapte le registre au contexte :
+- Grand groupe -> formel, procédurier, délais précis
+- PME -> chaleureux, direct, "on vous recontacte rapidement"
+- Startup -> décontracté, transparent, "on prend une décision vite"
+- Administration -> protocole, délais administratifs, commission
+
+Commence par "Très bien" ou "Bien" ou "Voilà" - jamais directement par "Merci". Sois naturel, pas robotique.`;
+  return await apiCall(prompt, 200);
+}
+
+async function genRecruiterReaction(question, answer) {
+  const tone = S.config.personnalite==='hardcore'?'très exigeant et intimidant, autoritaire':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant et professionnel';
+  const histLen = S.itv.history.length;
+
+  const recName = S.recruiter?.name || 'Antoine';
+  const histContext = S.itv.history.length > 1 ? `Contexte de l'entretien : ${S.itv.history.slice(-3).map(h=>`[Q: ${h.q.substring(0,60)}... / R: ${h.a.substring(0,80)}...]`).join(' | ')}` : '';
+
+  const prompt = `Tu es ${recName}, recruteur ${tone} en entretien pour le poste de ${S.config.poste}.
+
+Le candidat vient de répondre à cette question : "${question}"
+Sa réponse : "${answer}"
+
+Génère UNE réaction verbale très courte (5 à 12 mots maximum). C'est un simple accusé de réception oral naturel avant de passer à la question suivante. 
+
+RÈGLE ABSOLUE : NE POSE JAMAIS UNE QUESTION. NE RELANCE JAMAIS SUR CETTE RÉPONSE. Tu passes à la suite.
+
+Selon la qualité de la réponse :
+- Réponse correcte ou bonne -> transition naturelle courte. Exemples : "Je vois, c'est clair.", "D'accord, bien.", "C'est noté.", "Tout à fait.", "Je comprends.", "Bien, merci."
+- Réponse très courte ou vague -> marque une légère surprise professionnelle. Exemples : "D'accord...", "Je prends note.", "Très bien."
+- Comportement inapproprié (irrespect, abandon, hors sujet total) -> recadre en 1 phrase ferme SANS poser de question. Exemple : "Je vous invite à rester professionnel dans vos réponses."
+- Réponse excellente et structurée -> renvoie exactement : SKIP
+
+Renvoie UNIQUEMENT la réaction en texte brut. Jamais de question. Jamais de guillemets.`
   const res = await apiCall(prompt, 150);
   return res.trim();
 }
