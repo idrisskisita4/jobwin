@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<title>JOBWIN — Simulateur d'Entretien IA</title>
+<title>JOBWIN - Simulateur d'Entretien IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
@@ -408,7 +408,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="side-stat">
       <div class="side-stat-icon">⚡</div>
       <div>
-        <div class="side-stat-val">Mode Express — 25 min</div>
+        <div class="side-stat-val">Mode Express - 25 min</div>
         <div class="side-stat-lbl">Gratuit · Questions classiques · Score immédiat</div>
       </div>
     </div>
@@ -448,7 +448,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="mode-card express" onclick="selectMode('express')">
       <div class="mode-card-icon">⚡</div>
       <div class="mode-card-body">
-        <div class="mode-card-title">Entretien Express — 25 min</div>
+        <div class="mode-card-title">Entretien Express - 25 min</div>
         <div class="mode-card-desc">Questions classiques · Chrono 25 min · Score vocal immédiat</div>
       </div>
       <span class="badge badge-free">Gratuit</span>
@@ -533,7 +533,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div style="font-size:13px;color:var(--gray-400);margin-top:8px">Vérification en cours...</div>
     </div>
 
-    <button class="btn btn-primary" id="verify-btn" onclick="verifyCode()">Vérifier ma clé →</button>
+    <button class="btn btn-primary" id="verify-btn" onclick="verifyCode()">Vérifier ma clé -></button>
     <div class="divider"></div>
     <div class="faq-item">
       <div class="faq-q">🛒 Pas encore de clé ?</div>
@@ -617,9 +617,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
     <div class="divider"></div>
     <div class="slabel">Personnalité du recruteur</div>
-    <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Standard — Bienveillant</div><div class="p-card-desc">Chaleureux, encourageant. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
-    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Exigeant — Professionnel</div><div class="p-card-desc">Neutre, précis, challengeant. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
-    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Hardcore — Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Style CAC40.</div></div><div class="p-check"></div></div>
+    <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Standard - Bienveillant</div><div class="p-card-desc">Chaleureux, encourageant. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
+    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Exigeant - Professionnel</div><div class="p-card-desc">Neutre, précis, challengeant. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
+    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Hardcore - Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Style CAC40.</div></div><div class="p-check"></div></div>
     <div class="divider"></div>
     <div class="slabel">Choisir votre recruteur</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px" id="recruiter-grid">
@@ -663,9 +663,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
     <div class="divider"></div>
     <div class="slabel">Mode spécial</div>
-    <div class="p-card" id="pc-aleatoire" onclick="toggleAleatoire()"><div class="p-card-icon">🎲</div><div class="p-card-body"><div class="p-card-title">Entretien Aléatoire</div><div class="p-card-desc">Poste et secteur choisis au hasard — entraîne ton adaptabilité</div></div><div class="p-check" id="alea-check"></div></div>
+    <div class="p-card" id="pc-aleatoire" onclick="toggleAleatoire()"><div class="p-card-icon">🎲</div><div class="p-card-body"><div class="p-card-title">Entretien Aléatoire</div><div class="p-card-desc">Poste et secteur choisis au hasard - entraîne ton adaptabilité</div></div><div class="p-check" id="alea-check"></div></div>
     <div style="height:16px"></div>
-    <button class="btn btn-primary" onclick="launchInterview()" style="font-size:16px;padding:17px;">Lancer l'entretien →</button>
+    <button class="btn btn-primary" onclick="launchInterview()" style="font-size:16px;padding:17px;">Lancer l'entretien -></button>
     <div style="height:32px"></div>
   </div>
 </div>
@@ -682,7 +682,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="brief-hero">
       <div class="brief-avatar" id="brief-avatar">🎙️</div>
       <div>
-        <div class="brief-name" id="brief-recruiter-name">Antoine — Recruteur IA</div>
+        <div class="brief-name" id="brief-recruiter-name">Antoine - Recruteur IA</div>
         <div class="brief-sub" id="brief-recruiter-sub">Mode Express · 8 questions</div>
         <div class="brief-badges">
           <span class="brief-badge" id="brief-badge-mode">⚡ Express</span>
@@ -727,15 +727,15 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="brief-section-title">🧍 Comportement attendu</div>
       <div class="brief-item">
         <div class="brief-item-icon bi-blue">🗣️</div>
-        <div class="brief-item-text"><strong>Parlez clairement</strong>, comme en vrai entretien — phrases complètes, ton professionnel</div>
+        <div class="brief-item-text"><strong>Parlez clairement</strong>, comme en vrai entretien - phrases complètes, ton professionnel</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-blue">🤐</div>
-        <div class="brief-item-text"><strong>Évitez les mots isolés</strong> — "oui", "non", "OK" seul ne seront pas évalués correctement</div>
+        <div class="brief-item-text"><strong>Évitez les mots isolés</strong> - "oui", "non", "OK" seul ne seront pas évalués correctement</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-blue">📵</div>
-        <div class="brief-item-text"><strong>Environnement calme</strong> — coupez les notifications, éloignez-vous du bruit</div>
+        <div class="brief-item-text"><strong>Environnement calme</strong> - coupez les notifications, éloignez-vous du bruit</div>
       </div>
     </div>
 
@@ -744,15 +744,15 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="brief-section-title">⚙️ Technique</div>
       <div class="brief-item">
         <div class="brief-item-icon bi-green">🎙️</div>
-        <div class="brief-item-text"><strong>Maintenez le bouton micro</strong> pendant toute votre réponse — relâchez quand vous avez terminé</div>
+        <div class="brief-item-text"><strong>Maintenez le bouton micro</strong> pendant toute votre réponse - relâchez quand vous avez terminé</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-green">🔊</div>
-        <div class="brief-item-text"><strong>Activez le son</strong> — le recruteur vous parlera, montez le volume</div>
+        <div class="brief-item-text"><strong>Activez le son</strong> - le recruteur vous parlera, montez le volume</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-green">📶</div>
-        <div class="brief-item-text"><strong>Connexion stable</strong> — la voix du recruteur nécessite du réseau</div>
+        <div class="brief-item-text"><strong>Connexion stable</strong> - la voix du recruteur nécessite du réseau</div>
       </div>
     </div>
 
@@ -761,15 +761,15 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="brief-section-title">💡 Conseils pour performer</div>
       <div class="brief-item">
         <div class="brief-item-icon bi-amber">⏸️</div>
-        <div class="brief-item-text"><strong>2-3 secondes de réflexion</strong> avant de répondre — c'est naturel et professionnel</div>
+        <div class="brief-item-text"><strong>2-3 secondes de réflexion</strong> avant de répondre - c'est naturel et professionnel</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-amber">📐</div>
-        <div class="brief-item-text"><strong>Structure STAR</strong> — Situation → Tâche → Action → Résultat pour les questions comportementales</div>
+        <div class="brief-item-text"><strong>Structure STAR</strong> - Situation -> Tâche -> Action -> Résultat pour les questions comportementales</div>
       </div>
       <div class="brief-item">
         <div class="brief-item-icon bi-amber">⏱️</div>
-        <div class="brief-item-text"><strong>1 à 2 minutes par réponse</strong> — ni trop court, ni trop long</div>
+        <div class="brief-item-text"><strong>1 à 2 minutes par réponse</strong> - ni trop court, ni trop long</div>
       </div>
     </div>
 
@@ -780,8 +780,8 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
 
     <!-- CTA -->
-    <button class="btn btn-primary" onclick="startFromBrief()" style="font-size:16px;padding:17px;margin-bottom:10px">Lancer l'entretien →</button>
-    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:32px">Bonne chance — donnez le meilleur de vous-même 💼</div>
+    <button class="btn btn-primary" onclick="startFromBrief()" style="font-size:16px;padding:17px;margin-bottom:10px">Lancer l'entretien -></button>
+    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:32px">Bonne chance - donnez le meilleur de vous-même 💼</div>
   </div>
 </div>
 
@@ -804,7 +804,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
           <div style="font-size:13px;font-weight:600;color:white" id="r-name-top">Thomas</div>
         </div>
       </div>
-      <div class="apt-chip" id="apt-chip"><div class="apt-dot"></div><span id="apt-text">—%</span></div>
+      <div class="apt-chip" id="apt-chip"><div class="apt-dot"></div><span id="apt-text">-%</span></div>
     </div>
     <div class="recruiter-row">
       <div class="recruiter-av" id="r-avatar">🧑‍💼</div>
@@ -847,7 +847,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
   </div>
   <div class="interview-actions" id="int-actions" style="display:none">
     <button class="btn btn-secondary" style="flex:0.45;font-size:13.5px" onclick="abandon()">Abandonner</button>
-    <button class="btn btn-primary" id="next-btn" onclick="nextQ()">Question suivante →</button>
+    <button class="btn btn-primary" id="next-btn" onclick="nextQ()">Question suivante -></button>
   </div>
 </div>
 
@@ -866,7 +866,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
     <!-- EXPRESS MODE : Q1 feedback + astuce + locked -->
     <div id="express-results" style="display:none">
-      <div class="slabel">💬 Réaction du recruteur — Présentation</div>
+      <div class="slabel">💬 Réaction du recruteur - Présentation</div>
       <div class="express-q1-feedback">
         <div class="express-q1-label">Feedback Q1</div>
         <div class="express-q1-text" id="express-q1-text"><div class="dot-loader"><span></span><span></span><span></span></div></div>
@@ -898,14 +898,14 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
             <div class="express-lock-icon">🔐</div>
             <div class="express-lock-title">Analyse complète disponible dans les packs</div>
             <div class="express-lock-desc">Score multi-critères · Points forts & axes · Réponses idéales · Historique de progression</div>
-            <button onclick="goTo('packs')" class="express-lock-btn">Choisir mon pack — dès 9,90€ →</button>
+            <button onclick="goTo('packs')" class="express-lock-btn">Choisir mon pack - dès 9,90€ -></button>
             <div class="express-lock-sub">🔒 Accès immédiat après paiement · Sans abonnement</div>
           </div>
         </div>
       </div>
 
       <div style="margin-top:32px">
-        <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser →</button>
+        <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser -></button>
       </div>
       <div style="height:32px"></div>
     </div>
@@ -916,19 +916,19 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="vocal-section">
         <div class="vocal-title">🎙️ Analyse vocale multi-critères</div>
         <div class="criteria-bar-row">
-          <div class="criteria-bar-header"><span class="criteria-bar-name">📐 Structure</span><span class="criteria-bar-score" id="bar-structure-val">—</span></div>
+          <div class="criteria-bar-header"><span class="criteria-bar-name">📐 Structure</span><span class="criteria-bar-score" id="bar-structure-val">-</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-blue" id="bar-structure" style="width:0%"></div></div>
         </div>
         <div class="criteria-bar-row">
-          <div class="criteria-bar-header"><span class="criteria-bar-name">💪 Confiance</span><span class="criteria-bar-score" id="bar-confiance-val">—</span></div>
+          <div class="criteria-bar-header"><span class="criteria-bar-name">💪 Confiance</span><span class="criteria-bar-score" id="bar-confiance-val">-</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-green" id="bar-confiance" style="width:0%"></div></div>
         </div>
         <div class="criteria-bar-row">
-          <div class="criteria-bar-header"><span class="criteria-bar-name">🎯 Pertinence</span><span class="criteria-bar-score" id="bar-pertinence-val">—</span></div>
+          <div class="criteria-bar-header"><span class="criteria-bar-name">🎯 Pertinence</span><span class="criteria-bar-score" id="bar-pertinence-val">-</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-purple" id="bar-pertinence" style="width:0%"></div></div>
         </div>
         <div class="criteria-bar-row">
-          <div class="criteria-bar-header"><span class="criteria-bar-name">📚 Vocabulaire</span><span class="criteria-bar-score" id="bar-vocabulaire-val">—</span></div>
+          <div class="criteria-bar-header"><span class="criteria-bar-name">📚 Vocabulaire</span><span class="criteria-bar-score" id="bar-vocabulaire-val">-</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-amber" id="bar-vocabulaire" style="width:0%"></div></div>
         </div>
       </div>
@@ -937,7 +937,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="wpm-block" id="wpm-block">
         <div class="wpm-block-icon" id="wpm-icon" style="background:var(--green-l)">🗣️</div>
         <div>
-          <div class="wpm-block-val" id="wpm-val">— mots/min</div>
+          <div class="wpm-block-val" id="wpm-val">- mots/min</div>
           <div class="wpm-block-lbl">Débit de parole moyen</div>
           <div class="wpm-block-tip" id="wpm-tip" style="color:var(--green)">Calcul en cours...</div>
         </div>
@@ -945,8 +945,8 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
       <div class="slabel">Statistiques</div>
       <div class="stats-grid">
-        <div class="stat-tile"><div class="stat-tile-val" id="s-duree">—</div><div class="stat-tile-lbl">Durée totale</div></div>
-        <div class="stat-tile"><div class="stat-tile-val" id="s-mots">—</div><div class="stat-tile-lbl">Mots / réponse</div></div>
+        <div class="stat-tile"><div class="stat-tile-val" id="s-duree">-</div><div class="stat-tile-lbl">Durée totale</div></div>
+        <div class="stat-tile"><div class="stat-tile-val" id="s-mots">-</div><div class="stat-tile-lbl">Mots / réponse</div></div>
         <div class="stat-tile"><div class="stat-tile-val" id="s-para">0</div><div class="stat-tile-lbl">Mots parasites</div></div>
         <div class="stat-tile"><div class="stat-tile-val" id="s-sil">0</div><div class="stat-tile-lbl">Silences</div></div>
       </div>
@@ -964,7 +964,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div id="res-axes" style="margin-bottom:16px"><div class="result-item"><div class="result-item-icon">⏳</div><div>Analyse IA en cours...</div></div></div>
 
       <div class="divider"></div>
-      <div class="slabel">💡 Réponses idéales — Question par question</div>
+      <div class="slabel">💡 Réponses idéales - Question par question</div>
       <div id="res-ideals" style="margin-bottom:20px"></div>
 
       <button class="btn btn-primary" onclick="newInterview()" style="margin-bottom:10px">🔄 Nouvel entretien</button>
@@ -983,8 +983,8 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <p>Évolution de tes performances</p>
     <div class="history-stats">
       <div class="h-stat"><div class="h-stat-val" id="h-total">0</div><div class="h-stat-lbl">Sessions</div></div>
-      <div class="h-stat"><div class="h-stat-val" id="h-best">—</div><div class="h-stat-lbl">Meilleur</div></div>
-      <div class="h-stat"><div class="h-stat-val trend-up" id="h-trend">—</div><div class="h-stat-lbl">Tendance</div></div>
+      <div class="h-stat"><div class="h-stat-val" id="h-best">-</div><div class="h-stat-lbl">Meilleur</div></div>
+      <div class="h-stat"><div class="h-stat-val trend-up" id="h-trend">-</div><div class="h-stat-lbl">Tendance</div></div>
     </div>
   </div>
 
@@ -1032,7 +1032,7 @@ const LS_PACKS = {
   essentiel:  { id:'34461eff-9f25-45d7-bb57-f4821e343472', name:'Essentiel',  interviews:8,  price:'19,90€' },
   intensif:   { id:'02f41cba-2e6e-42e3-8312-1c82017cfca5', name:'Intensif',   interviews:20, price:'34,90€' }
 };
-// Map variant ID → pack info (pour identifier le pack après achat)
+// Map variant ID -> pack info (pour identifier le pack après achat)
 const LS_VARIANT_MAP = {
   '0ed1af22-65f0-432d-af22-5d84376b9247': { name:'Découverte', interviews:3 },
   '34461eff-9f25-45d7-bb57-f4821e343472': { name:'Essentiel',  interviews:8 },
@@ -1124,7 +1124,7 @@ function applyPackToUI(pack){
   const rem = pack.interviewsRemaining;
   document.getElementById('pack-remaining-display').textContent =
     rem > 0 ? rem+' entretien'+(rem>1?'s':'')+' restant'+(rem>1?'s':'')
-            : '⚠️ Plus d\'entretiens — rachète un pack';
+            : '⚠️ Plus d\'entretiens - rachète un pack';
 }
 
 function resetPack(){
@@ -1296,7 +1296,7 @@ function initBrief() {
   const nbQ = isExpress ? 8 : 10;
   const duree = isExpress ? '25 min' : '40 min';
 
-  document.getElementById('brief-recruiter-name').textContent = (rec.name || 'Antoine') + ' — Recruteur IA';
+  document.getElementById('brief-recruiter-name').textContent = (rec.name || 'Antoine') + ' - Recruteur IA';
   document.getElementById('brief-recruiter-sub').textContent = (isExpress ? 'Mode Express' : 'Entretien Complet') + ' · ' + nbQ + ' questions';
   document.getElementById('brief-badge-mode').textContent = modeLabel;
   document.getElementById('brief-badge-level').textContent = levelLabels[level] || '💼 Exigeant';
@@ -1400,7 +1400,7 @@ function stopAudio() {
 }
 
 /* ── AUDIO PRE-BUFFER ── */
-let audioBuffer = {}; // key: text → blob URL
+let audioBuffer = {}; // key: text -> blob URL
 
 async function prefetchAudio(txt) {
   if(!txt || !S.config.voix) return;
@@ -1486,7 +1486,7 @@ async function speakTextAsync(txt) {
 }
 
 async function initInterview() {
-  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12};
+  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],reactions:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12};
   S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0; S.fillerLog={}; clearAudioBuffer();
 
   const rec = (S.recruiter && S.recruiter.name) ? S.recruiter : RECRUITERS.antoine;
@@ -1498,7 +1498,7 @@ async function initInterview() {
   safe('r-meta-name', el=>el.textContent=rec.name);
   safe('q-from', el=>el.textContent=rec.name+' dit');
   safe('r-avatar', el=>el.textContent=rec.avatar);
-  safe('apt-text', el=>el.textContent='—%');
+  safe('apt-text', el=>el.textContent='-%');
   safe('int-actions', el=>el.style.display='none');
   safe('feedback-wrap', el=>el.style.display='none');
   safe('filler-wrap', el=>el.style.display='none');
@@ -1511,7 +1511,7 @@ async function initInterview() {
   if (S.mode==='express') {
     document.getElementById('timer-wrap').style.display='flex';
     document.getElementById('recruiter-center').style.display='none';
-    document.getElementById('r-meta-role').textContent='Recruteur IA · Mode Express — 25 min';
+    document.getElementById('r-meta-role').textContent='Recruteur IA · Mode Express - 25 min';
     S.itv.qs=[...EXPRESS_QS];
     document.getElementById('q-counter').textContent='1 / '+S.itv.qs.length;
     document.getElementById('prog-fill').style.width=(1/S.itv.qs.length*100)+'%';
@@ -1532,10 +1532,10 @@ async function initInterview() {
       // Intro personnalisée selon type d'entreprise
       const rec2=S.recruiter||{name:'Antoine',genre:'homme'};
       const typeIntros={
-        grand_groupe: `Bonjour${S.config.poste?', je vois que vous candidatez pour le poste de '+S.config.poste:''}. Je suis ${rec2.name}, Responsable des Ressources Humaines. J'ai pris le soin de parcourir votre dossier avant notre entretien. Nous allons avoir un échange d'environ trente à quarante-cinq minutes — je souhaite mieux vous connaître, comprendre votre parcours, vos motivations, et évaluer votre adéquation avec ce que nous recherchons. Soyez à l'aise pour vous exprimer pleinement. Êtes-vous prêt à commencer ?`,
-        pme: `Bonjour, je suis ${rec2.name}. Je pilote les recrutements ici depuis quelques années, donc je connais bien nos besoins. J'ai jeté un œil à votre profil pour le poste de ${S.config.poste||'ce poste'}, et il y a des choses qui m'ont intéressé — j'aimerais qu'on creuse ça ensemble. On va avoir une discussion franche et directe, sans langue de bois. Je préfère qu'on se parle vraiment plutôt que de réciter des formules. Ça vous convient ?`,
-        startup: `Hey, bonjour ! Je suis ${rec2.name}, je gère le recrutement chez nous. Bon, je vais être honnête — on grandit vite et on a besoin de gens qui peuvent vraiment tenir la cadence. Le poste de ${S.config.poste||'ce poste'} est stratégique pour nous en ce moment. L'idée c'est qu'on ait une vraie conversation — pas un interrogatoire. Je veux comprendre qui vous êtes, ce qui vous drive, comment vous pensez. Donc n'hésitez pas à sortir des sentiers battus. On y va ?`,
-        administration: `Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement au sein de notre direction. Vous candidatez pour le poste de ${S.config.poste||'ce poste'}. Cet entretien se déroulera de façon structurée — je vous poserai plusieurs questions portant sur votre parcours, vos compétences, et votre motivation pour intégrer nos équipes. Prenez le temps de formuler des réponses précises et circonstanciées. Je suis attentif${rec2.genre==='femme'?'ve':''} à la cohérence de votre discours et à votre capacité d'adaptation au service public. Nous pouvons commencer.`
+        grand_groupe: `Bonjour${S.config.poste?', je vois que vous candidatez pour le poste de '+S.config.poste:''}. Je suis ${rec2.name}, Responsable des Ressources Humaines. J'ai pris le soin de parcourir votre dossier avant notre entretien. Nous allons avoir un échange d'environ trente à quarante-cinq minutes - je souhaite mieux vous connaître, comprendre votre parcours, vos motivations, et évaluer votre adéquation avec ce que nous recherchons. Soyez à l'aise pour vous exprimer pleinement. Êtes-vous prêt à commencer ?`,
+        pme: `Bonjour, je suis ${rec2.name}. Je pilote les recrutements ici depuis quelques années, donc je connais bien nos besoins. J'ai jeté un œil à votre profil pour le poste de ${S.config.poste||'ce poste'}, et il y a des choses qui m'ont intéressé - j'aimerais qu'on creuse ça ensemble. On va avoir une discussion franche et directe, sans langue de bois. Je préfère qu'on se parle vraiment plutôt que de réciter des formules. Ça vous convient ?`,
+        startup: `Hey, bonjour ! Je suis ${rec2.name}, je gère le recrutement chez nous. Bon, je vais être honnête - on grandit vite et on a besoin de gens qui peuvent vraiment tenir la cadence. Le poste de ${S.config.poste||'ce poste'} est stratégique pour nous en ce moment. L'idée c'est qu'on ait une vraie conversation - pas un interrogatoire. Je veux comprendre qui vous êtes, ce qui vous drive, comment vous pensez. Donc n'hésitez pas à sortir des sentiers battus. On y va ?`,
+        administration: `Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement au sein de notre direction. Vous candidatez pour le poste de ${S.config.poste||'ce poste'}. Cet entretien se déroulera de façon structurée - je vous poserai plusieurs questions portant sur votre parcours, vos compétences, et votre motivation pour intégrer nos équipes. Prenez le temps de formuler des réponses précises et circonstanciées. Je suis attentif${rec2.genre==='femme'?'ve':''} à la cohérence de votre discours et à votre capacité d'adaptation au service public. Nous pouvons commencer.`
       };
       const introText = typeIntros[S.config.type_entreprise||'grand_groupe'];
       document.getElementById('q-text').textContent=introText;
@@ -1574,49 +1574,54 @@ function updateTimerDisplay() {
 }
 
 async function genNextQuestion() {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
+  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const cvCtx = S.config.cv ? `CV du candidat : ${S.config.cv}` : 'Aucun CV fourni.';
+  const rec = S.recruiter || {name:'Antoine'};
+
+  // Keep only last 4 exchanges to limit prompt size
+  const hist = S.itv.history.slice(-4);
+  const histStr = hist.map((h,i)=>'Q: '+h.q.substring(0,80)+'\nR: '+h.a.substring(0,120)).join('\n');
+  const cvShort = S.config.cv ? S.config.cv.substring(0, 300) : '';
   const qCount = S.itv.qs.length;
-  const histStr = S.itv.history.map((h,i)=>`Q${i+1}: ${h.q}\nRéponse: ${h.a}`).join('\n\n');
-  const lastAnswer = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].a : '';
-  const lastQ = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].q : '';
 
-  const prompt = `Tu incarnes ${rec.name}, recruteur ${tone} qui conduit un entretien d'embauche RÉEL pour le poste de ${S.config.poste}${S.config.entreprise?' chez '+S.config.entreprise:''} dans un ${typeEntreprise}. Niveau recherché : ${S.config.niveau||'junior'}.
+  // Track which categories already covered
+  const allQs = S.itv.qs.join(' ').toLowerCase();
+  const coveredMotivation = allQs.includes('pourquoi') || allQs.includes('motiv');
+  const coveredSalaire = allQs.includes('salaire') || allQs.includes('prétention') || allQs.includes('rémunération');
+  const coveredDiff = allQs.includes('pas un autre') || allQs.includes('apportez');
+  const coveredStar = allQs.includes('situation') || allQs.includes('exemple') || allQs.includes('racontez');
+  const coveredProj = allQs.includes('ans') || allQs.includes('voyez-vous');
 
-${cvCtx}
+  // Force uncovered obligatory questions
+  if(!coveredMotivation && qCount >= 2) {
+    const q = `Qu'est-ce qui vous a spécifiquement attiré par ce poste de ${S.config.poste} - et pourquoi maintenant ?`;
+    return q;
+  }
+  if(!coveredStar && qCount >= 3) {
+    const q = `Donnez-moi un exemple concret d'une situation professionnelle difficile que vous avez gérée - contexte, ce que vous avez fait, résultat.`;
+    return q;
+  }
+  if(!coveredDiff && qCount >= 5) {
+    return `Pourquoi vous, et pas les autres candidats que je rencontre cette semaine ?`;
+  }
+  if(!coveredSalaire && qCount >= 6) {
+    return `Quelles sont vos prétentions salariales ? Et quelle est votre marge de négociation ?`;
+  }
+  if(!coveredProj && qCount >= 4) {
+    return `Où vous voyez-vous dans trois ans ? Et en quoi ce poste s'inscrit dans cette trajectoire ?`;
+  }
 
-═══ HISTORIQUE DE L'ENTRETIEN ═══
-${histStr || 'C\'est la première question après la présentation.'}
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau : ${S.config.niveau||'junior'}.
+${cvShort ? 'CV (résumé) : '+cvShort : ''}
+Historique récent :
+${histStr || 'Début.'}
+Question ${qCount+1}. Pose une question d'entretien naturelle et précise. Varie : comportemental STAR, compétences, culture fit, ambitions. Rebondis sur la dernière réponse si pertinent. 15-35 mots. Texte brut uniquement.`;
 
-═══ TON IDENTITÉ DE RECRUTEUR ═══
-Tu es un être humain avec une vraie personnalité. Tu as de l'expérience, tu sais lire entre les lignes, tu captes les incohérences, tu rebondis sur ce que dit le candidat. Tu ne lis pas une liste de questions — tu CONVERSES. Tu mémorises ce qui a été dit et tu t'y réfères. Tu peux dire "Vous m'avez mentionné tout à l'heure que...", "En vous écoutant, je remarque que...", "Ce que vous décrivez me fait penser à...", "Je vous rejoins sur ce point, mais permettez-moi de creuser...".
-
-Ton vocabulaire est riche et professionnel : "votre parcours témoigne de", "j'apprécie la précision de votre démarche", "c'est tout à fait pertinent", "permettez-moi d'être direct", "votre expérience semble cohérente avec", "je souhaite comprendre", "vous évoquez un point crucial", "c'est une question que je pose à tous nos candidats".
-
-═══ TYPES DE QUESTIONS À ALTERNER ═══
-Pioche selon contexte, ne répète jamais. Couvre toutes ces catégories :
-PARCOURS : départ poste précédent, échec professionnel, décision dont fier, évolution carrière, écarts CV
-MOTIVATIONS : pourquoi cette offre spécifiquement, projet à 3 ans, pourquoi maintenant
-COMPORTEMENTAL STAR : situation stressante, désaccord collègue, initiative prise seul, erreur commise, convaincre quelqu'un
-COMPÉTENCES : niveau expert, axes d'amélioration, veille sectorielle, ce qui distingue un excellent profil
-CULTURE : environnement idéal, gestion critique, travail équipe exemple concret, priorities changeantes
-DIFFÉRENCIATION : pourquoi vous pas un autre, valeur ajoutée unique, ce que vous feriez dès demain
-OBLIGATOIRES (à caser) : "Pourquoi vous et pas un autre candidat ?", prétentions salariales, autres entretiens en cours
-
-═══ RÈGLES ═══
-1. Cite ce que le candidat vient de dire. Rebondis dessus. Mentionne son prénom ou son expérience.
-2. Réponse vague → insiste : "Permettez-moi d'insister — donnez-moi un exemple concret."
-3. Incohérence CV/réponse → pointe-la directement.
-4. Adapte le registre : formel (administration), direct (startup), professionnel (grand groupe/PME).
-5. Question ${qCount+1}. Objectif ${S.itv.minQ}-${S.itv.maxQ} questions total. Équilibre les catégories.
-
-Génère UNIQUEMENT la prochaine question ou relance, en texte naturel, comme tu la dirais à voix haute. Entre 15 et 40 mots.`;
-
-  const res = await apiCall(prompt, 250);
+  const res = await apiCall(prompt, 150);
   return res.trim();
 }
+
 
 async function genCandidateQuestionAnswer(candidateQ) {
   const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
@@ -1627,15 +1632,15 @@ async function genCandidateQuestionAnswer(candidateQ) {
 
 Le candidat vient de te poser cette question en fin d'entretien : "${candidateQ}"
 
-Réponds de façon naturelle, humaine et réaliste — comme un vrai recruteur qui a passé 30 minutes avec ce candidat. 2 à 4 phrases. Ton vocabulaire est professionnel. Tu peux être chaleureux ou direct selon ton style.
+Réponds de façon naturelle, humaine et réaliste - comme un vrai recruteur qui a passé 30 minutes avec ce candidat. 2 à 4 phrases. Ton vocabulaire est professionnel. Tu peux être chaleureux ou direct selon ton style.
 
 Si la question porte sur :
-- L'équipe / l'environnement → décris-le de façon vivante et concrète
-- Les perspectives d'évolution → sois honnête et précis
-- Le processus de recrutement → explique les prochaines étapes clairement
-- La culture de l'entreprise → donne des éléments concrets
-- Le poste lui-même → développe les enjeux réels
-- Une question personnelle sur toi → réponds de façon authentique
+- L'équipe / l'environnement -> décris-le de façon vivante et concrète
+- Les perspectives d'évolution -> sois honnête et précis
+- Le processus de recrutement -> explique les prochaines étapes clairement
+- La culture de l'entreprise -> donne des éléments concrets
+- Le poste lui-même -> développe les enjeux réels
+- Une question personnelle sur toi -> réponds de façon authentique
 
 Commence directement par ta réponse, sans préambule.`;
   return await apiCall(prompt, 250);
@@ -1648,7 +1653,7 @@ async function genOutro() {
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
   const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien de 30-45 minutes pour le poste de ${S.config.poste}.
 
-Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Tu viens de passer du temps avec ce candidat — tu as une impression, même si tu ne la révèles pas. Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
+Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Tu viens de passer du temps avec ce candidat - tu as une impression, même si tu ne la révèles pas. Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
 
 Inclus impérativement :
 1. Un remerciement sincère pour le temps accordé
@@ -1657,12 +1662,12 @@ Inclus impérativement :
 4. Une formule de congé naturelle
 
 Adapte le registre au contexte :
-- Grand groupe → formel, procédurier, délais précis
-- PME → chaleureux, direct, "on vous recontacte rapidement"
-- Startup → décontracté, transparent, "on prend une décision vite"
-- Administration → protocole, délais administratifs, commission
+- Grand groupe -> formel, procédurier, délais précis
+- PME -> chaleureux, direct, "on vous recontacte rapidement"
+- Startup -> décontracté, transparent, "on prend une décision vite"
+- Administration -> protocole, délais administratifs, commission
 
-Commence par "Très bien" ou "Bien" ou "Voilà" — jamais directement par "Merci". Sois naturel, pas robotique.`;
+Commence par "Très bien" ou "Bien" ou "Voilà" - jamais directement par "Merci". Sois naturel, pas robotique.`;
   return await apiCall(prompt, 200);
 }
 
@@ -1683,24 +1688,24 @@ Génère une réaction verbale HUMAINE, NATURELLE et VARIÉE. 1 à 2 phrases max
 
 ANALYSE et RÉAGIS selon ce qui s'est passé :
 
-① Le candidat POSE UNE QUESTION (sur le poste, l'équipe, l'entreprise, le salaire, le processus...) :
-→ Réponds directement et naturellement. Sois utile. "Tout à fait, je peux vous répondre là-dessus —", "Bonne question —", "Je suis content que vous abordiez ce point —"
+1) Le candidat POSE UNE QUESTION (sur le poste, l'équipe, l'entreprise, le salaire, le processus...) :
+-> Réponds directement et naturellement. Sois utile. "Tout à fait, je peux vous répondre là-dessus -", "Bonne question -", "Je suis content que vous abordiez ce point -"
 
-② COMPORTEMENT INAPPROPRIÉ, agressif, irrespectueux, résigné ("j'en ai marre", "peu importe", ironie négative...) :
-→ Recadre avec calme et fermeté professionnelle. Ton sang-froid est total. Exemples de registre : "Je vous invite à maintenir une posture professionnelle — dans un contexte réel, cette attitude serait rédhibitoire.", "Je comprends que l'exercice soit exigeant, mais je vous repose ma question car elle est déterminante pour votre candidature.", "Je me permets d'être direct : ce type de réponse sonnerait comme une disqualification immédiate en entretien réel."
+2) COMPORTEMENT INAPPROPRIÉ, agressif, irrespectueux, résigné ("j'en ai marre", "peu importe", ironie négative...) :
+-> Recadre avec calme et fermeté professionnelle. Ton sang-froid est total. Exemples de registre : "Je vous invite à maintenir une posture professionnelle - dans un contexte réel, cette attitude serait rédhibitoire.", "Je comprends que l'exercice soit exigeant, mais je vous repose ma question car elle est déterminante pour votre candidature.", "Je me permets d'être direct : ce type de réponse sonnerait comme une disqualification immédiate en entretien réel."
 
-③ RÉPONSE VAGUE, ÉVASIVE, TROP COURTE (moins de 20 mots, pas de contenu concret) :
-→ Relance avec insistance professionnelle. "Je ne suis pas certain d'avoir une réponse à ma question — pouvez-vous illustrer par un exemple précis ?", "Vous effleurez le sujet. Ce qui m'intéresse c'est la situation concrète, le contexte, ce que vous avez fait.", "C'est un peu général. Pouvez-vous ancrer ça dans une expérience réelle ?"
+3) RÉPONSE VAGUE, ÉVASIVE, TROP COURTE (moins de 20 mots, pas de contenu concret) :
+-> Relance avec insistance professionnelle. "Je ne suis pas certain d'avoir une réponse à ma question - pouvez-vous illustrer par un exemple précis ?", "Vous effleurez le sujet. Ce qui m'intéresse c'est la situation concrète, le contexte, ce que vous avez fait.", "C'est un peu général. Pouvez-vous ancrer ça dans une expérience réelle ?"
 
-④ CONTRADICTION ou INCOHÉRENCE avec l'historique ou le CV :
-→ Pointe-la calmement. "Vous m'aviez indiqué tout à l'heure que... et là vous dites... — pouvez-vous m'aider à réconcilier ces deux éléments ?", "Ce que vous décrivez là me semble en décalage avec ce que j'ai lu dans votre parcours."
+4) CONTRADICTION ou INCOHÉRENCE avec l'historique ou le CV :
+-> Pointe-la calmement. "Vous m'aviez indiqué tout à l'heure que... et là vous dites... - pouvez-vous m'aider à réconcilier ces deux éléments ?", "Ce que vous décrivez là me semble en décalage avec ce que j'ai lu dans votre parcours."
 
-⑤ RÉPONSE CORRECTE et bien construite :
-→ Transition d'écoute active courte et variée selon l'ambiance. Ne répète jamais la même formule. Exemples : "Je vois, c'est clair.", "D'accord, j'entends ça.", "C'est cohérent avec ce que vous m'avez décrit.", "Bien, merci pour cette précision.", "Tout à fait, c'est pertinent.", "Intéressant."
-→ Si la réponse est excellente, structurée, convaincante → renvoie exactement : SKIP
+5) RÉPONSE CORRECTE et bien construite :
+-> Transition d'écoute active courte et variée selon l'ambiance. Ne répète jamais la même formule. Exemples : "Je vois, c'est clair.", "D'accord, j'entends ça.", "C'est cohérent avec ce que vous m'avez décrit.", "Bien, merci pour cette précision.", "Tout à fait, c'est pertinent.", "Intéressant."
+-> Si la réponse est excellente, structurée, convaincante -> renvoie exactement : SKIP
 
-⑥ PRÉSENTATION initiale (toute première réponse) :
-→ Réaction d'écoute active, chaleureuse selon le ton. "Bien, merci pour cette introduction — votre parcours est effectivement assez varié.", "D'accord, j'ai une meilleure vision de votre profil.", "Votre trajectoire est atypique, c'est ce qui m'a attiré dans votre candidature."
+6) PRÉSENTATION initiale (toute première réponse) :
+-> Réaction d'écoute active, chaleureuse selon le ton. "Bien, merci pour cette introduction - votre parcours est effectivement assez varié.", "D'accord, j'ai une meilleure vision de votre profil.", "Votre trajectoire est atypique, c'est ce qui m'a attiré dans votre candidature."
 
 Renvoie UNIQUEMENT la réaction en texte brut, naturelle, comme tu la dirais. Jamais de guillemets, jamais d'explication méta. Si aucune réaction n'est nécessaire : SKIP`;
 
@@ -1711,7 +1716,7 @@ Renvoie UNIQUEMENT la réaction en texte brut, naturelle, comme tu la dirais. Ja
 }
 
 async function genQuestions(n) {
-  // Legacy — used by express mode only
+  // Legacy - used by express mode only
   const q1='Pouvez-vous vous présenter en quelques mots et me parler de votre parcours ?';
   const q2='Quels sont vos principaux points forts ? Et quel est votre point faible principal ?';
   return [q1,q2,'Pourquoi ce poste ?','Pourquoi vous et pas un autre candidat ?','Décrivez une réussite concrète.','Comment gérez-vous le stress ?'].slice(0,n);
@@ -1742,7 +1747,7 @@ function displayQ(i) {
 
 /* Web Speech API replaced by ElevenLabs */
 
-/* RECORDING — Deepgram */
+/* RECORDING - Deepgram */
 function startRec(e) {
   e.preventDefault();
   if(isRecording) return;
@@ -1835,7 +1840,7 @@ async function stopRec(e) {
   document.getElementById('answer-box').className='answer-box has-answer';
   S.itv.answers.push(answer);
 
-  // AI Evaluation — skip for candidate questions phase
+  // AI Evaluation - skip for candidate questions phase
   if(S.mode==='complet' && S.itv.phase==='candidate_questions'){
     S.itv.scores.push(0); S.itv.criteria.push({structure:0,confiance:0,pertinence:0,vocabulaire:0}); S.itv.feedbacks.push(''); S.itv.ideals.push('');
     showNextBtn(); return;
@@ -1847,23 +1852,15 @@ async function stopRec(e) {
   try {
     const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
     S.itv.scores.push(ev.score);
-    // Conversational reaction — recruiter responds naturally (skip Q0)
+    // Conversational reaction - recruiter responds naturally (skip Q0)
     if(S.mode==='complet' && S.itv.currentQ > 0){
       try{
         const reaction = await genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer);
         if(reaction){
-          // Show reaction text briefly above feedback
-          const fbWrap = document.getElementById('feedback-wrap');
-          const reactionEl = document.getElementById('recruiter-reaction') || (() => {
-            const el = document.createElement('div');
-            el.id = 'recruiter-reaction';
-            el.style.cssText = 'background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:10px;padding:10px 14px;margin:0 20px 8px;font-size:13.5px;color:var(--navy);font-style:italic;display:none';
-            fbWrap.parentNode.insertBefore(el, fbWrap);
-            return el;
-          })();
-          reactionEl.textContent = '"' + reaction + '"';
-          reactionEl.style.display = 'block';
-          // Speak the reaction immediately
+          // Store for results - do NOT show inline during interview
+          S.itv.reactions = S.itv.reactions || [];
+          S.itv.reactions[S.itv.currentQ] = reaction;
+          // Only speak the reaction via ElevenLabs
           if(S.config.voix) speakText(reaction);
         }
       }catch(_){}
@@ -1891,15 +1888,15 @@ async function stopRec(e) {
 }
 
 function wpmClass(wpm){
-  if(wpm<90) return{cls:'wpm-slow',label:'Trop lent — parle avec plus d\'énergie'};
+  if(wpm<90) return{cls:'wpm-slow',label:'Trop lent - parle avec plus d\'énergie'};
   if(wpm<=160) return{cls:'wpm-ok',label:'Débit idéal ✓'};
-  return{cls:'wpm-fast',label:'Trop rapide — ralentis'};
+  return{cls:'wpm-fast',label:'Trop rapide - ralentis'};
 }
 
 function showNextBtn() {
-  let nextLabel = 'Question suivante →';
-  if(S.mode==='express' && S.itv.currentQ>=S.itv.qs.length-1) nextLabel='Voir les résultats →';
-  if(S.mode==='complet' && S.itv.phase==='candidate_questions') nextLabel='Terminer l\'entretien →';
+  let nextLabel = 'Question suivante ->';
+  if(S.mode==='express' && S.itv.currentQ>=S.itv.qs.length-1) nextLabel='Voir les résultats ->';
+  if(S.mode==='complet' && S.itv.phase==='candidate_questions') nextLabel='Terminer l\'entretien ->';
   document.getElementById('int-actions').style.display='flex';
   document.getElementById('next-btn').textContent=nextLabel;
   setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},200);
@@ -1921,7 +1918,7 @@ async function nextQ() {
     return;
   }
 
-  // ── PACK COMPLET mode — dynamic ──
+  // ── PACK COMPLET mode - dynamic ──
   const currentAnswer = S.itv.answers[S.itv.currentQ] || '';
   const currentQuestion = S.itv.qs[S.itv.currentQ] || '';
 
@@ -1934,7 +1931,7 @@ async function nextQ() {
 
   // Phase: candidate questions
   if(S.itv.phase === 'candidate_questions'){
-    // They just answered a candidate question — generate recruiter's response
+    // They just answered a candidate question - generate recruiter's response
     const candidateQ = S.itv.qs[S.itv.currentQ];
     document.getElementById('int-actions').style.display='none';
     document.getElementById('mic-area').style.display='none';
@@ -1950,7 +1947,7 @@ async function nextQ() {
     return;
   }
 
-  // Decide: enough questions asked? → candidate questions phase
+  // Decide: enough questions asked? -> candidate questions phase
   const shouldEnd = qAsked >= S.itv.maxQ || 
     (qAsked >= S.itv.minQ && S.itv.scores.length >= S.itv.minQ && 
      Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) >= 60);
@@ -1995,10 +1992,25 @@ async function nextQ() {
     const pct = Math.min(90, Math.round((qAsked / S.itv.maxQ) * 90));
     document.getElementById('prog-fill').style.width = pct + '%';
     document.getElementById('q-text').textContent = nextQuestion;
-    // Start audio immediately — no delay
+    // Start audio immediately - no delay
     if(S.config.voix) speakText(nextQuestion);
   } catch(e) {
-    document.getElementById('q-text').textContent = 'Question suivante impossible à charger. Réessaie.';
+    // Fallback: use a pre-defined question rather than showing error
+    const fallbacks = [
+      "Décrivez une situation professionnelle difficile et comment vous l'avez gérée.",
+      "Comment vos anciens collègues décriraient-ils votre façon de travailler ?",
+      "Qu'est-ce qui vous distingue des autres candidats pour ce poste ?",
+      "Comment gérez-vous la pression et les délais serrés ?",
+      "Quelle est votre plus grande réussite professionnelle à ce jour ?",
+      "Avez-vous d'autres entretiens en cours actuellement ?"
+    ];
+    const usedQs = S.itv.qs.join(' ');
+    const fallback = fallbacks.find(q => !usedQs.includes(q.substring(0,30))) || fallbacks[0];
+    S.itv.qs.push(fallback);
+    S.itv.currentQ++;
+    document.getElementById('q-text').textContent = fallback;
+    document.getElementById('prog-fill').style.width = Math.min(90, Math.round((S.itv.history.length / S.itv.maxQ) * 90)) + '%';
+    if(S.config.voix) speakText(fallback);
   }
 }
 
@@ -2127,7 +2139,7 @@ async function showResults() {
     const m=Math.floor(dur/60),s=dur%60;
     document.getElementById('s-duree').textContent=m+'m'+(s<10?'0':'')+s+'s';
     const answered=S.itv.answers.filter(a=>a.length>0).length;
-    document.getElementById('s-mots').textContent=answered>0?Math.round(S.totalWords/answered):'—';
+    document.getElementById('s-mots').textContent=answered>0?Math.round(S.totalWords/answered):'-';
     document.getElementById('s-para').textContent=S.totalFillers;
     document.getElementById('s-sil').textContent=S.totalSilences;
 
@@ -2144,7 +2156,19 @@ async function showResults() {
     }
 
     const idealsEl=document.getElementById('res-ideals');
-    idealsEl.innerHTML=S.itv.qs.map((q,i)=>`<div class="ideal-item"><div class="ideal-q">Q${i+1}. ${q}</div><div class="ideal-a">${S.itv.ideals[i]||'<span style="color:var(--gray-400)">Non disponible</span>'}</div></div>`).join('');
+    const reactions = S.itv.reactions || [];
+    idealsEl.innerHTML=S.itv.qs.map((q,i)=>{
+      const reaction = reactions[i];
+      const ideal = S.itv.ideals[i];
+      const answer = S.itv.answers[i];
+      if(!answer && !ideal) return '';
+      return `<div class="ideal-item">
+        <div class="ideal-q">Q${i+1}. ${q}</div>
+        ${answer ? `<div style="font-size:12.5px;color:var(--gray-500);font-style:italic;margin-bottom:8px;padding:8px 10px;background:#f8f8f8;border-radius:6px">Votre réponse : "${answer.substring(0,120)}${answer.length>120?'...':''}"</div>` : ''}
+        ${reaction ? `<div style="font-size:12.5px;color:var(--blue);font-style:italic;margin-bottom:8px;padding:8px 10px;background:var(--blue-light);border-radius:6px;border-left:3px solid var(--blue)">💬 Réaction du recruteur : "${reaction}"</div>` : ''}
+        <div class="ideal-a"><strong>Réponse idéale :</strong> ${ideal||'<span style="color:var(--gray-400)">Non disponible</span>'}</div>
+      </div>`;
+    }).filter(Boolean).join('');
 
     if(S.accessCode){
       const avgWPM2=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
@@ -2220,8 +2244,8 @@ function openHistory(){
 
   document.getElementById('h-total').textContent=sessions.length;
   if(sessions.length===0){
-    document.getElementById('h-best').textContent='—';
-    document.getElementById('h-trend').textContent='—';
+    document.getElementById('h-best').textContent='-';
+    document.getElementById('h-trend').textContent='-';
     document.getElementById('chart-wrap').style.display='none';
     document.getElementById('history-list').innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Aucune session enregistrée</div><div class="empty-desc">Fais un entretien complet pour voir ta progression ici.</div></div>`;
     return;
@@ -2236,8 +2260,8 @@ function openHistory(){
     const tEl=document.getElementById('h-trend');
     if(diff>0){tEl.textContent='↑ +'+diff+'%';tEl.className='h-stat-val trend-up';}
     else if(diff<0){tEl.textContent='↓ '+diff+'%';tEl.className='h-stat-val trend-down';}
-    else{tEl.textContent='→ Stable';tEl.className='h-stat-val trend-flat';}
-  } else { document.getElementById('h-trend').textContent='—'; }
+    else{tEl.textContent='-> Stable';tEl.className='h-stat-val trend-flat';}
+  } else { document.getElementById('h-trend').textContent='-'; }
 
   // Mini chart
   if(sessions.length>=2){
@@ -2279,7 +2303,7 @@ function openHistory(){
 
 function fmtDate(iso){
   try{const d=new Date(iso);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
-  catch(e){return '—';}
+  catch(e){return '-';}
 }
 
 
@@ -2329,7 +2353,7 @@ function handleCvUpload(input) {
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    // Store PDF text extraction — basic fallback: store filename + signal
+    // Store PDF text extraction - basic fallback: store filename + signal
     S.config.cv_filename = file.name;
     S.config.cv_pdf = true;
     // Try to extract text via ArrayBuffer for basic PDF parsing
@@ -2379,7 +2403,7 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--green)">9,90€</div>
       </div>
       <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Recruteur au choix · Analyse complète · Score multi-critères · Idéal pour tester</div>
-      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Découverte →</a>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Découverte -></a>
     </div>
 
     <!-- Pack Essentiel - Recommandé -->
@@ -2393,7 +2417,7 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--blue)">19,90€</div>
       </div>
       <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Découverte · Historique de progression · 8 sessions pour vraiment progresser</div>
-      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="btn btn-primary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Essentiel →</a>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="btn btn-primary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Essentiel -></a>
     </div>
 
     <!-- Pack Intensif -->
@@ -2406,7 +2430,7 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--purple)">34,90€</div>
       </div>
       <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Essentiel · 20 sessions · Pour les candidats déterminés à décrocher leur poste</div>
-      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Intensif →</a>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Intensif -></a>
     </div>
 
     <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:8px">🔒 Paiement sécurisé via Lemon Squeezy · Tu reçois ta clé par email</div>
