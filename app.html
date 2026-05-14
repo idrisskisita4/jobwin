@@ -1592,6 +1592,29 @@ async function genQuestions(n) {
   return ['Pouvez-vous vous présenter et me parler de votre parcours ?','Quels sont vos points forts et votre principal point faible ?','Pourquoi ce poste ?','Pourquoi vous et pas un autre candidat ?','Décrivez une réussite concrète.','Comment gérez-vous le stress ?'].slice(0,n);
 }
 
+function displayQ(i) {
+  const n=S.itv.qs.length;
+  if(S.mode==='express') {
+    document.getElementById('q-counter').textContent=(i+1)+' / '+n;
+    document.getElementById('prog-fill').style.width=((i+1)/n*100)+'%';
+  } else {
+    document.getElementById('q-counter').style.display='none';
+    document.getElementById('prog-fill').style.width=((i+1)/n*100)+'%';
+  }
+  document.getElementById('q-text').textContent=S.itv.qs[i];
+  currentTranscript='';
+  document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
+  document.getElementById('answer-box').className='answer-box';
+  document.getElementById('feedback-wrap').style.display='none';
+  document.getElementById('int-actions').style.display='none';
+  document.getElementById('filler-wrap').style.display='none';
+  document.getElementById('wpm-display').style.display='none';
+  document.getElementById('mic-hint').textContent='Maintenir pour parler';
+  document.getElementById('mic-btn').className='mic-btn';
+  const _mb=document.getElementById('move-on-badge');if(_mb)_mb.style.display='none';
+  if(S.config.voix) setTimeout(()=>speakText(S.itv.qs[i]),80);
+}
+
 function startRec(e) {
   e.preventDefault(); if(isRecording) return;
   stopAudio();
