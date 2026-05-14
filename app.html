@@ -1520,76 +1520,42 @@ function updateTimerDisplay() {
 }
 
 async function genNextQuestion() {
-  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant mais ferme';
-  const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
-  const recStyle = {antoine:'rigoureux',laurent:'analytique',guillaume:'direct',manon:'exigeante',jeanne:'méthodique',victoria:'incisive'}[recKey]||'professionnel';
-  const tone = baseStyle+', '+recStyle;
-  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'exigeant':'bienveillant';
   const rec = S.recruiter || RECRUITERS.antoine;
-  const cvShort = S.config.cv ? S.config.cv.substring(0,500) : '';
-  const qCount = S.itv.qs.length;
-  const lastA = S.itv.history.length>0 ? S.itv.history[S.itv.history.length-1].a : '';
+  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
+  const type = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const cv = S.config.cv ? S.config.cv.substring(0,250) : '';
+  const lastA = S.itv.history.length>0 ? S.itv.history[S.itv.history.length-1].a.substring(0,100) : '';
+  const lastQ = S.itv.history.length>0 ? S.itv.history[S.itv.history.length-1].q.substring(0,80) : '';
 
-  // Full list of already asked questions
-  const alreadyAsked = S.itv.qs.filter(Boolean).map((q,i)=>(i+1)+'. '+q).join('\n');
+  // Already asked — send full list to avoid repeats
+  const asked = S.itv.qs.filter(Boolean).slice(0,12).map((q,i)=>String(i+1)+'. '+q.substring(0,60)).join('\n');
 
-  // Full conversation history
-  const histStr = S.itv.history.slice(-6).map(h=>'[Q] '+h.q.substring(0,80)+'\n[R] '+h.a.substring(0,120)).join('\n');
+  // Next mandatory topic
+  const todo = !S.itv._askedMotiv?'motivations pour ce poste':
+               !S.itv._askedStar?'exemple situation difficile (STAR)':
+               !S.itv._askedDiff?'pourquoi vous pas un autre':
+               !S.itv._askedSalaire?'pretentions salariales':'libre';
 
-  // Mandatory topics not yet covered
-  const todo = [];
-  if(!S.itv._askedMotiv) todo.push('motivations spécifiques pour ce poste');
-  if(!S.itv._askedStar) todo.push('exemple STAR situation difficile');
-  if(!S.itv._askedDiff) todo.push('pourquoi vous et pas un autre candidat');
-  if(!S.itv._askedSalaire) todo.push('pretentions salariales');
+  if(todo==='motivations pour ce poste') S.itv._askedMotiv=true;
+  else if(todo==='exemple situation difficile (STAR)') S.itv._askedStar=true;
+  else if(todo==='pourquoi vous pas un autre') S.itv._askedDiff=true;
+  else if(todo==='pretentions salariales') S.itv._askedSalaire=true;
 
-  // Random seed to vary questions between candidates
-  const seeds = ['compétences opérationnelles','gestion de conflits','prise de décision sous pression',
-    'travail en équipe','autonomie','adaptabilité','leadership','rigueur','créativité',
-    'gestion du temps','relation client','négociation','analyse','organisation','communication'];
-  const randomSeed = seeds[Math.floor(Math.random()*seeds.length)];
+  const seeds=['autonomie','leadership','rigueur','relation client','adaptabilité','communication','initiative','organisation'];
+  const angle = seeds[Math.floor(Math.random()*seeds.length)];
 
-  // Build CV-specific instructions
-  const cvInstructions = cvShort ?
-    `CV DU CANDIDAT (LIS ATTENTIVEMENT):
-${cvShort}
+  const prompt = `Recruteur ${tone} (${rec.name}), ${type}, poste: ${S.config.poste}.
+${cv?'CV: '+cv:''}
+Dernière Q: "${lastQ}" / Réponse: "${lastA}"
+Questions déjà posées (NE PAS RÉPÉTER):
+${asked}
+Sujet obligatoire: ${todo}
+Angle: ${angle}
+${cv?'Cite un élément du CV si pertinent.':''}
+Pose UNE question naturelle (15-35 mots). Texte brut.`;
 
-RÈGLE CV: Tu DOIS utiliser le CV. Cite ses employeurs passés, ses postes, ses formations, ses lacunes ou trous de parcours. Pose au moins 1 question directement liée à un élément du CV. Ex: "Vous avez travaillé chez [entreprise] — pourquoi ce départ ?", "Je vois une période sans emploi entre X et Y — que s'est-il passé ?", "Votre formation en [domaine] — comment vous sert-elle aujourd'hui ?"` :
-    'Aucun CV fourni — base-toi sur les réponses données pour personnaliser.';
-
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}.
-
-${cvInstructions}
-
-QUESTIONS DÉJÀ POSÉES — INTERDICTION ABSOLUE DE RÉPÉTER:
-${alreadyAsked||'Aucune encore.'}
-
-CONVERSATION:
-${histStr||'Début.'}
-
-DERNIÈRE RÉPONSE DU CANDIDAT: "${lastA}"
-
-SUJET À ABORDER MAINTENANT: ${todo.length>0?todo[0]:'tous les sujets clés couverts'}
-
-RÈGLES:
-1. INTERDIT de répéter une question déjà posée
-2. Rebondis sur la dernière réponse avec ses mots exacts si pertinent
-3. Si la réponse était vague, note-le en 3 mots ("Soyons concrets —") puis NOUVELLE question
-4. Varie avec cet angle pour cette question: ${randomSeed}
-5. Chaque candidat doit avoir des questions UNIQUES basées sur son profil
-6. Tu diriges l'entretien avec autorité
-7. Texte brut uniquement, 15-40 mots`;
-
-  // Mark obligatory as asked
-  if(todo.length>0){
-    if(todo[0].includes('motivat')) S.itv._askedMotiv=true;
-    else if(todo[0].includes('STAR')) S.itv._askedStar=true;
-    else if(todo[0].includes('autre candidat')) S.itv._askedDiff=true;
-    else if(todo[0].includes('salaire')) S.itv._askedSalaire=true;
-  }
-
-  const res = await apiCall(prompt, 200);
+  const res = await apiCall(prompt, 150);
   return res.trim();
 }
 
@@ -1897,7 +1863,16 @@ async function nextQ() {
     document.getElementById('q-text').textContent=nq;
     if(S.config.voix) speakText(nq);
   }catch(_){
-    const fb='Comment gérez-vous la pression et les délais serrés ?';
+    const _pool=["Parlez-moi d'une réussite concrète dans votre parcours.",
+      "Comment décririez-vous votre style de travail en équipe ?",
+      "Qu'est-ce que vous apporteriez à cette équipe que les autres n'apporteraient pas ?",
+      "Où vous voyez-vous dans trois ans ?",
+      "Quelle est votre approche face à un désaccord avec votre manager ?",
+      "Qu'est-ce qui vous a le plus marqué dans votre dernier poste ?",
+      "Comment gérez-vous les priorités multiples en même temps ?",
+      "Décrivez votre environnement de travail idéal."];
+    const _used = S.itv.qs.join(' ');
+    const fb = _pool.find(q=>!_used.includes(q.substring(0,20))) || _pool[Math.floor(Math.random()*_pool.length)];
     S.itv.qs.push(fb);S.itv.currentQ++;
     document.getElementById('q-text').textContent=fb;
     if(S.config.voix) speakText(fb);
