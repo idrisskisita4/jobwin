@@ -1520,56 +1520,76 @@ function updateTimerDisplay() {
 }
 
 async function genNextQuestion() {
-  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant mais professionnel';
+  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant mais ferme';
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
   const recStyle = {antoine:'rigoureux',laurent:'analytique',guillaume:'direct',manon:'exigeante',jeanne:'méthodique',victoria:'incisive'}[recKey]||'professionnel';
   const tone = baseStyle+', '+recStyle;
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
   const rec = S.recruiter || RECRUITERS.antoine;
-  const hist = S.itv.history.slice(-5);
-  const histStr = hist.map(h=>'Q: '+h.q.substring(0,100)+'\nR: '+h.a.substring(0,150)).join('\n---\n');
-  const cvShort = S.config.cv ? S.config.cv.substring(0,300) : '';
+  const cvShort = S.config.cv ? S.config.cv.substring(0,500) : '';
   const qCount = S.itv.qs.length;
-  const lastA = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].a : '';
+  const lastA = S.itv.history.length>0 ? S.itv.history[S.itv.history.length-1].a : '';
 
-  // Obligatoires à poser dans l'ordre
-  const mustAsk = [];
-  if(!S.itv._askedMotiv && qCount>=2) mustAsk.push('motivations pour ce poste spécifiquement');
-  if(!S.itv._askedStar && qCount>=3) mustAsk.push('exemple STAR situation difficile vécue');
-  if(!S.itv._askedDiff && qCount>=5) mustAsk.push('pourquoi vous et pas un autre candidat');
-  if(!S.itv._askedSalaire && qCount>=6) mustAsk.push('prétentions salariales');
+  // Full list of already asked questions
+  const alreadyAsked = S.itv.qs.filter(Boolean).map((q,i)=>(i+1)+'. '+q).join('\n');
 
-  // Marque comme posé
-  if(mustAsk.length>0){
-    const m = mustAsk[0];
-    if(m.includes('motivat')) S.itv._askedMotiv=true;
-    else if(m.includes('STAR')) S.itv._askedStar=true;
-    else if(m.includes('plutôt')||m.includes('autre candidat')) S.itv._askedDiff=true;
-    else if(m.includes('salaire')) S.itv._askedSalaire=true;
-  }
+  // Full conversation history
+  const histStr = S.itv.history.slice(-6).map(h=>'[Q] '+h.q.substring(0,80)+'\n[R] '+h.a.substring(0,120)).join('\n');
 
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}.
-${cvShort?'CV du candidat: '+cvShort:''}
+  // Mandatory topics not yet covered
+  const todo = [];
+  if(!S.itv._askedMotiv) todo.push('motivations spécifiques pour ce poste');
+  if(!S.itv._askedStar) todo.push('exemple STAR situation difficile');
+  if(!S.itv._askedDiff) todo.push('pourquoi vous et pas un autre candidat');
+  if(!S.itv._askedSalaire) todo.push('pretentions salariales');
 
-HISTORIQUE DE L'ENTRETIEN:
-${histStr||'Début — première question après présentation.'}
+  // Random seed to vary questions between candidates
+  const seeds = ['compétences opérationnelles','gestion de conflits','prise de décision sous pression',
+    'travail en équipe','autonomie','adaptabilité','leadership','rigueur','créativité',
+    'gestion du temps','relation client','négociation','analyse','organisation','communication'];
+  const randomSeed = seeds[Math.floor(Math.random()*seeds.length)];
+
+  // Build CV-specific instructions
+  const cvInstructions = cvShort ?
+    `CV DU CANDIDAT (LIS ATTENTIVEMENT):
+${cvShort}
+
+RÈGLE CV: Tu DOIS utiliser le CV. Cite ses employeurs passés, ses postes, ses formations, ses lacunes ou trous de parcours. Pose au moins 1 question directement liée à un élément du CV. Ex: "Vous avez travaillé chez [entreprise] — pourquoi ce départ ?", "Je vois une période sans emploi entre X et Y — que s'est-il passé ?", "Votre formation en [domaine] — comment vous sert-elle aujourd'hui ?"` :
+    'Aucun CV fourni — base-toi sur les réponses données pour personnaliser.';
+
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}.
+
+${cvInstructions}
+
+QUESTIONS DÉJÀ POSÉES — INTERDICTION ABSOLUE DE RÉPÉTER:
+${alreadyAsked||'Aucune encore.'}
+
+CONVERSATION:
+${histStr||'Début.'}
 
 DERNIÈRE RÉPONSE DU CANDIDAT: "${lastA}"
 
-TON RÔLE: Tu diriges cet entretien. Tu as l'autorité. Le candidat répond, toi tu questionnes.
+SUJET À ABORDER MAINTENANT: ${todo.length>0?todo[0]:'tous les sujets clés couverts'}
 
-INSTRUCTIONS:
-- Si la dernière réponse rebondit sur quelque chose de concret (entreprise, poste, expérience mentionnée), commence ta question par une référence directe: "Vous m'avez mentionné X —", "En évoquant Y —", "Je retiens que Z —"
-- Si la réponse est évasive ou vague, tu peux le signaler en 5 mots max avant ta question: "Restons concrets —" ou "Soyons précis —"
-- Si la réponse était irrespectueux ou un refus catégorique, commence par: "Je note votre position." puis enchaîne sur la question suivante sans t'attarder
-- NE RÉPÈTE JAMAIS une question déjà posée dans l'historique
-- Varie le type: comportemental, compétences, culture, projection
-${mustAsk.length>0?'- OBLIGATOIRE: ta prochaine question DOIT porter sur: '+mustAsk[0]:'- Tous les sujets clés sont couverts, pose une question de fond selon le profil'}
+RÈGLES:
+1. INTERDIT de répéter une question déjà posée
+2. Rebondis sur la dernière réponse avec ses mots exacts si pertinent
+3. Si la réponse était vague, note-le en 3 mots ("Soyons concrets —") puis NOUVELLE question
+4. Varie avec cet angle pour cette question: ${randomSeed}
+5. Chaque candidat doit avoir des questions UNIQUES basées sur son profil
+6. Tu diriges l'entretien avec autorité
+7. Texte brut uniquement, 15-40 mots`;
 
-Génère UNIQUEMENT la question suivante. Texte brut. 15-45 mots.`;
+  // Mark obligatory as asked
+  if(todo.length>0){
+    if(todo[0].includes('motivat')) S.itv._askedMotiv=true;
+    else if(todo[0].includes('STAR')) S.itv._askedStar=true;
+    else if(todo[0].includes('autre candidat')) S.itv._askedDiff=true;
+    else if(todo[0].includes('salaire')) S.itv._askedSalaire=true;
+  }
 
-  const res = await apiCall(prompt, 180);
+  const res = await apiCall(prompt, 200);
   return res.trim();
 }
 
