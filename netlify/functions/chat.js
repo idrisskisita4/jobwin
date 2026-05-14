@@ -8,34 +8,55 @@ exports.handler = async (event) => {
     const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 
     if (!ANTHROPIC_KEY) {
-      return { statusCode: 500, body: JSON.stringify({ error: 'Service temporairement indisponible' }) };
+      return { statusCode: 500, body: JSON.stringify({ error: 'Clé API manquante dans les variables Netlify' }) };
     }
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: maxTokens || 600,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
+    // Try models in order — fallback if one fails
+    const MODELS = [
+      'claude-haiku-4-5-20251001',
+      'claude-haiku-4-5',
+      'claude-3-haiku-20240307'
+    ];
 
-    if (!response.ok) {
-      const err = await response.text();
-      return { statusCode: response.status, body: JSON.stringify({ error: err }) };
+    let lastError = null;
+
+    for (const model of MODELS) {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: maxTokens || 600,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          statusCode: 200,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: data.content[0].text })
+        };
+      }
+
+      const errText = await response.text();
+      lastError = `Model ${model} → ${response.status}: ${errText}`;
+
+      // If 401 (bad key) no point trying other models
+      if (response.status === 401) {
+        return {
+          statusCode: 401,
+          body: JSON.stringify({ error: 'Clé API Anthropic invalide ou expirée. Vérifiez Netlify > Environment variables > ANTHROPIC_API_KEY.' })
+        };
+      }
     }
 
-    const data = await response.json();
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: data.content[0].text })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: lastError }) };
 
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
