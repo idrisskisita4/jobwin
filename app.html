@@ -1390,14 +1390,14 @@ let currentAudio = null;
 function stopAudio() {
   if(currentAudio){ currentAudio.pause(); currentAudio=null; }
   const mbtn = document.getElementById('mic-btn');
-  if(mbtn && !isRecording){ mbtn.style.opacity='1'; mbtn.style.pointerEvents='auto'; }
+  if(mbtn && !isRecording) mbtn.style.opacity='1';
 }
 
 function speakText(txt) {
   if(!txt) return;
   stopAudio();
   const mbtn = document.getElementById('mic-btn');
-  if(mbtn){ mbtn.style.opacity='0.35'; mbtn.style.pointerEvents='none'; }
+  if(mbtn) mbtn.style.opacity='0.5';
   const rec = S.recruiter || EXPRESS_RECRUITER;
   fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST',
@@ -2180,5 +2180,47 @@ function handleCvUpload(input) {
 if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices());}
 if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
 </script>
+
+
+<!-- =========== PACKS =========== -->
+<div id="screen-packs" class="screen">
+  <nav class="nav">
+    <button class="nav-back" onclick="goTo('home','back')">← Retour</button>
+    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);"><div class="logo-icon"><svg viewBox="0 0 16 16" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div><span>Job<b>win</b></span></div>
+    <div style="width:72px"></div>
+  </nav>
+  <div class="content">
+    <div class="eyebrow"><div class="eyebrow-dot"></div><div class="eyebrow-text">Choisis ton pack</div></div>
+    <h2 style="font-size:24px;line-height:1.2;margin-bottom:6px;">Entraîne-toi jusqu'à décrocher ton poste</h2>
+    <p style="font-size:13.5px;color:var(--gray-500);margin-bottom:24px;">Accès immédiat après paiement · Sans abonnement · Clé par email</p>
+    <div style="background:var(--white);border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Découverte</div><div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">3 entretiens complets</div></div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--green)">9,90€</div>
+      </div>
+      <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Recruteur au choix · Analyse complète · Score multi-critères · Idéal pour tester</div>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Découverte →</a>
+    </div>
+    <div style="background:var(--white);border:2.5px solid var(--blue);border-radius:var(--r-sm);padding:18px;margin-bottom:12px;box-shadow:0 4px 20px rgba(37,99,235,.15);position:relative">
+      <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-size:11px;font-weight:700;padding:3px 14px;border-radius:20px;white-space:nowrap">⭐ LE PLUS POPULAIRE</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:6px">
+        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Essentiel</div><div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">8 entretiens complets</div></div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--blue)">19,90€</div>
+      </div>
+      <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Découverte · Historique de progression · 8 sessions pour vraiment progresser</div>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="btn btn-primary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Essentiel →</a>
+    </div>
+    <div style="background:var(--white);border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:18px;margin-bottom:24px;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Intensif</div><div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">20 entretiens complets</div></div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--purple)">34,90€</div>
+      </div>
+      <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Essentiel · 20 sessions · Pour les candidats déterminés</div>
+      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Intensif →</a>
+    </div>
+    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:8px">🔒 Paiement sécurisé via Lemon Squeezy · Tu reçois ta clé par email</div>
+    <div style="height:16px"></div>
+  </div>
+</div>
 </body>
 </html>
