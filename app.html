@@ -1552,8 +1552,9 @@ async function initInterview() {
       if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='flex';
       document.getElementById('q-counter').style.display='none';
       document.getElementById('prog-fill').style.width='5%';
-      // First question is always the presentation
-      S.itv.qs=['Pouvez-vous vous présenter et me parler de votre parcours ?'];
+      // First question - generated dynamically from CV (or random opener)
+      const firstQ = await genFirstQuestion();
+      S.itv.qs = [firstQ];
       displayQ(0);
     } catch(e) {
       document.getElementById('q-text').textContent='⚠️ Erreur API. Vérifie ta clé Anthropic.';
@@ -1580,6 +1581,49 @@ function updateTimerDisplay() {
   display.classList.toggle('urgent', S.expressSecondsLeft<=120);
 }
 
+async function genFirstQuestion() {
+  const rec = S.recruiter || RECRUITERS.antoine;
+  const cv = (S.config.cv || '').trim();
+
+  // No CV → varied generic openers (random)
+  if(cv.length < 50){
+    const openers = [
+      "Pour commencer, présentez-vous - votre parcours, votre situation actuelle, et ce qui vous a amené à postuler.",
+      "Avant d'entrer dans le détail, racontez-moi en quelques minutes votre trajectoire et où vous en êtes aujourd'hui.",
+      "Commençons simplement : qui êtes-vous professionnellement, et comment en êtes-vous arrivé à postuler pour ce poste ?",
+      "Pour ouvrir notre échange, dites-moi ce qui vous définit dans votre parcours professionnel.",
+      "Présentez-vous - allez à l'essentiel : qui vous êtes, ce que vous avez fait, ce qui vous anime."
+    ];
+    return openers[Math.floor(Math.random()*openers.length)];
+  }
+
+  // CV present → personalized opener anchored on CV
+  const tone = S.config.personnalite==='hardcore'?'exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
+  const prompt = `Tu es ${rec.name}, recruteur ${tone}, recrutant pour le poste de ${S.config.poste}.
+
+CV du candidat :
+${cv.substring(0, 2000)}
+
+Tu viens de saluer le candidat. Tu poses ta PREMIÈRE question d'entretien.
+
+Cette question invite le candidat à se présenter ET fait référence à UN élément précis et concret de SON CV (une entreprise, une expérience, une transition, une formation, un projet, une compétence, une durée, une période) que tu trouves intéressant ou que tu veux creuser. Sois SPÉCIFIQUE - cite l'élément du CV.
+
+Exemples du registre attendu :
+- "Avant qu'on entre dans le détail, présentez-vous - je vois notamment votre passage chez [Entreprise], ça m'intrigue."
+- "Commencez par vous présenter, et insistez sur [élément précis] qui m'a interpellé."
+- "Présentez-vous, et expliquez-moi cette transition entre [poste A] et [poste B]."
+- "Racontez-moi votre parcours - et notamment ce que vous avez fait pendant [période] chez [X]."
+
+UNE question. 25 à 50 mots. Texte brut. Pas de guillemets, pas de préambule, pas de numérotation.`;
+
+  try {
+    const res = await apiCall(prompt, 200);
+    return res.trim();
+  } catch(e) {
+    return "Pour commencer, présentez-vous - votre parcours, votre situation actuelle, et ce qui vous a amené à postuler pour ce poste.";
+  }
+}
+
 async function genNextQuestion() {
   const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant et attentif';
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
@@ -1595,85 +1639,93 @@ async function genNextQuestion() {
   const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup tech',administration:'administration publique'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
   const rec = S.recruiter || RECRUITERS.antoine;
-  const cvShort = S.config.cv ? S.config.cv.substring(0, 400) : '';
+  const cv = (S.config.cv || '').substring(0, 1800);
   const qCount = S.itv.qs.length;
   const hist = S.itv.history.slice(-5);
-  const histStr = hist.map(h=>'Q: '+h.q.substring(0,90)+'\nR: '+h.a.substring(0,150)).join('\n---\n');
-  const lastEntry = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1] : null;
+  const histStr = hist.map(h=>'Q: '+h.q.substring(0,90)+'\nR: '+h.a.substring(0,180)).join('\n---\n');
+  const lastEntry = hist.length > 0 ? hist[hist.length-1] : null;
 
   // === FOLLOW-UP DETECTION ===
-  // If last answer was vague, too short, or a refusal → stay on topic
   if(lastEntry) {
     const lastAnswer = lastEntry.a.trim();
     const wordCount = lastAnswer.split(/\s+/).filter(Boolean).length;
-    const isRefusal = /\b(je (ne |n')?(sais|veux|peux|souhaite)|pas envie|aucune idée|sans réponse|je refuse|peu importe|ça ne|c'est personnel)\b/i.test(lastAnswer);
-    const isVague = wordCount < 20 && !isRefusal;
+    const isRefusal = /\b(je (ne |n')?(sais|veux|peux|souhaite)|pas envie|aucune idée|sans réponse|je refuse|peu importe|c'est personnel)\b/i.test(lastAnswer);
+    const isVague = wordCount < 18 && !isRefusal;
 
     if(isRefusal) {
       const recadrage = [
-        `Je comprends que ce soit une question délicate, mais elle est importante pour moi dans ce processus. Pouvez-vous m'en dire un peu plus, même de façon générale ?`,
-        `C'est tout à fait votre droit, mais dans un entretien réel, ce silence serait interprété. Que puis-je vous dire pour vous mettre plus à l'aise sur ce point ?`,
-        `Je vous invite à tenter une réponse - je ne cherche pas la perfection, je cherche à comprendre comment vous pensez. Qu'est-ce qui vous retient ?`
+        `Je comprends que ce soit délicat, mais cette question est importante pour moi. Pouvez-vous m'en dire un peu plus, même de façon générale ?`,
+        `C'est votre droit, mais dans un entretien réel, ce silence serait interprété. Que puis-je vous dire pour vous mettre plus à l'aise sur ce point ?`,
+        `Je vous invite à tenter une réponse - je ne cherche pas la perfection, je cherche à comprendre comment vous pensez.`,
+        `D'accord, mais permettez-moi d'insister - ce que vous évitez me dit autant que ce que vous me racontez. Essayez.`
       ];
       return recadrage[Math.floor(Math.random()*recadrage.length)];
     }
 
     if(isVague) {
-      const prompt = `Tu es ${rec.name}, recruteur ${tone}. Poste : ${S.config.poste}.
-Tu venais de poser cette question : "${lastEntry.q}"
-Le candidat a répondu : "${lastAnswer}"
-Sa réponse est trop courte ou trop vague (${wordCount} mots seulement).
-Génère UNE relance courte et directe (15-30 mots) pour l'amener à développer avec un exemple concret. Commence par une observation naturelle. Texte brut uniquement.`;
+      const prompt = `Tu es ${rec.name}, recruteur ${tone}. Tu venais de poser : "${lastEntry.q}"
+Le candidat a répondu de façon trop courte/vague (${wordCount} mots) : "${lastAnswer}"
+Génère UNE relance ciblée (15-30 mots) qui demande un exemple concret ou une précision. Commence par une observation naturelle. Texte brut uniquement.`;
       const res = await apiCall(prompt, 100);
       return res.trim();
     }
   }
 
-  // === THÈMES OBLIGATOIRES (injectés contextuellement) ===
+  // === COVERAGE TRACKING (soft suggestion only) ===
   const allQs = S.itv.qs.join(' ').toLowerCase();
-  const allAs = (S.itv.history||[]).map(h=>h.a).join(' ').toLowerCase();
-  const coveredMotivation = allQs.includes('pourquoi') || allQs.includes('motiv') || allAs.includes('motiv');
-  const coveredSalaire = allQs.includes('salaire') || allQs.includes('prétention') || allQs.includes('rémunération');
-  const coveredDiff = allQs.includes('pas un autre') || allQs.includes('distingue') || allQs.includes('apportez');
-  const coveredStar = allQs.includes('situation') || allQs.includes('exemple') || allQs.includes('racontez') || allQs.includes('moment où');
-  const coveredProj = allQs.includes('ans') || allQs.includes('voyez-vous') || allQs.includes('objectif');
-  const coveredGapCV = S.config.cv && (allQs.includes('transition') || allQs.includes('passage') || allQs.includes('gap') || qCount < 3);
+  const themesNonCouverts = [];
+  if(!(allQs.includes('pourquoi') || allQs.includes('motiv'))) themesNonCouverts.push('motivations spécifiques');
+  if(!(allQs.includes('situation') || allQs.includes('exemple concret') || allQs.includes('racontez'))) themesNonCouverts.push('exemple STAR concret');
+  if(!(allQs.includes('voyez-vous') || allQs.includes('trois ans') || allQs.includes('5 ans'))) themesNonCouverts.push('projection');
+  if(!(allQs.includes('distingue') || allQs.includes('pas un autre') || allQs.includes('apportez'))) themesNonCouverts.push('différenciation');
+  if(!(allQs.includes('salaire') || allQs.includes('prétention') || allQs.includes('rémunération')) && qCount >= 5) themesNonCouverts.push('prétentions salariales');
 
-  // === PROMPT CONVERSATIONNEL COMPLET ===
-  const themesRestants = [
-    !coveredMotivation && 'motivations pour ce poste spécifique / pourquoi maintenant',
-    !coveredStar && 'exemple STAR concret (situation difficile, réussite, échec géré)',
-    !coveredProj && 'projection à 3 ans et trajectoire',
-    !coveredDiff && 'différenciation vs autres candidats',
-    !coveredSalaire && 'prétentions salariales',
-  ].filter(Boolean);
-
-  const cvHint = S.config.cv && lastEntry ? `
-CV du candidat (extrait) : ${cvShort}
-Si tu vois un élément du CV non encore exploré (gap, transition, poste court, compétence mentionnée), c'est le bon moment pour y revenir.` : '';
+  // === ANGLES VARIÉS (pour éviter la répétition entre entretiens) ===
+  const angles = [
+    "creuse une transition ou une période courte dans son CV",
+    "interroge la cohérence du parcours vers ce poste",
+    "fais-le raconter une réussite très concrète avec des chiffres ou un résultat mesurable",
+    "fais-le raconter un échec, un conflit ou une situation mal gérée",
+    "challenge sa motivation : pourquoi maintenant, pourquoi nous, qu'est-ce qui a déclenché",
+    "explore son rapport au collectif, à la hiérarchie, au feedback",
+    "teste sa capacité d'adaptation face au changement ou à l'imprévu",
+    "interroge une compétence revendiquée sur le CV - sur quel projet, avec quel résultat",
+    "explore son rapport à l'autonomie, à la décision, à la responsabilité",
+    "fais-lui imaginer une situation concrète typique du poste et demande sa réaction",
+    "demande-lui comment ses anciens collègues ou managers le décriraient",
+    "creuse une période non documentée dans son CV ou un changement non expliqué"
+  ];
+  const angle = angles[Math.floor(Math.random()*angles.length)];
 
   const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau candidat : ${S.config.niveau||'junior'}.
-${cvHint}
 
-Historique de l'entretien :
-${histStr || '(début de l\'entretien)'}
+CV COMPLET du candidat :
+${cv || '(aucun CV fourni)'}
 
-${themesRestants.length > 0 ? `Thèmes importants pas encore abordés : ${themesRestants.join(' / ')}` : 'Tous les grands thèmes ont été couverts.'}
+Échanges précédents :
+${histStr || '(c\'est la 2e question de l\'entretien)'}
 
-Tu dois générer la question ${qCount+1} de l'entretien. Raisonne comme un vrai recruteur :
+Question ${qCount+1}. RÈGLE ABSOLUE : ta question DOIT être UNIQUE et personnalisée à CE candidat. Pas de question d'entretien générique sortie d'un manuel RH.
 
-1. Si la dernière réponse contenait un élément concret (entreprise, projet, chiffre, période, compétence, situation), COMMENCE par y faire référence naturellement avant de creuser ou de bifurquer.
-   Exemples : "Vous évoquiez [X] - qu'est-ce que ça vous a appris ?", "Cette expérience chez [Y], combien de temps ça a duré ?", "Vous dites [Z] - concrètement, c'était quoi la situation ?"
+Stratégie de génération :
+1. PRIORITÉ : identifie un élément SPÉCIFIQUE (a) du CV non encore exploré, ou (b) d'une réponse précédente qui mérite d'être creusé. Cite-le directement dans ta question.
+2. Si rien de spécifique à creuser, aborde un thème non couvert en l'ANCRANT dans le contexte de ce candidat précis.
 
-2. Si la réponse précédente était forte et complète, passe à un nouveau thème de la liste restante.
+Angle suggéré cette fois : ${angle}
+${themesNonCouverts.length > 0 ? 'Thèmes pas encore abordés (à couvrir avant la fin) : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts, creuse en profondeur.'}
 
-3. Varie les registres : comportemental, compétences, motivations, culture fit, projection, CV.
+Exemples de questions SPÉCIFIQUES (à imiter) :
+- "Vous avez passé 8 mois chez [X] - c'est court, qu'est-ce qui s'est passé ?"
+- "Je vois un master en [domaine] mais vous travaillez dans [autre] - racontez-moi cette transition."
+- "Votre dernière expérience date d'il y a [période] - qu'avez-vous fait depuis ?"
+- "Vous mentionnez [compétence] - sur quel projet l'avez-vous utilisée et avec quel résultat ?"
+- "Vous m'avez parlé de [élément de réponse précédente] - développez la partie [aspect spécifique]."
 
-4. Sois naturel. Un recruteur parle, il ne récite pas.
+À ÉVITER absolument : "Quelle est votre plus grande force ?", "Pourquoi ce poste ?" sans contexte, "Décrivez votre méthode de travail", "Comment gérez-vous le stress ?" — sauf si reformulé SPÉCIFIQUEMENT pour ce candidat avec une référence concrète à son CV ou à ses réponses.
 
-Génère UNE SEULE question. 15 à 45 mots. Texte brut. Pas de guillemets, pas de numéro, pas de préambule.`;
+UNE seule question. 15 à 50 mots. Texte brut, pas de guillemets, pas de numérotation, pas de préambule.`;
 
-  const res = await apiCall(prompt, 160);
+  const res = await apiCall(prompt, 180);
   return res.trim();
 }
 
