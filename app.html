@@ -1659,8 +1659,11 @@ async function stopRec(e) {
   if(wpm>0){S.totalWPM+=wpm;S.wpmCount++;}
 
   // Fillers
-  const fillers=(answer.match(FILLERS_RE)||[]).length;
+  const fillerMatches=(answer.match(FILLERS_RE)||[]);
+  const fillers=fillerMatches.length;
   S.totalFillers+=fillers;
+  if(!S.fillerLog) S.fillerLog={};
+  fillerMatches.forEach(w=>{const k=w.toLowerCase().trim();S.fillerLog[k]=(S.fillerLog[k]||0)+1;});
   if(fillers>0){
     document.getElementById('filler-wrap').style.display='block';
     document.getElementById('filler-txt').textContent=`${fillers} mot${fillers>1?'s':''} parasite${fillers>1?'s':''} détecté${fillers>1?'s':''}`;
@@ -1917,13 +1920,32 @@ async function showResults() {
     document.getElementById('s-para').textContent=S.totalFillers;
     document.getElementById('s-sil').textContent=S.totalSilences;
 
-    if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite. Très bonne fluidité.';}
-    else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent='Quelques hésitations — globalement satisfaisant.';}
-    else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent='Trop de mots parasites — travaille ta fluidité.';}
-    if(S.totalFillers>0){document.getElementById('filler-warn').style.display='flex';document.getElementById('filler-warn-txt').textContent=`${S.totalFillers} mot${S.totalFillers>1?'s':''} parasite${S.totalFillers>1?'s':''} détecté${S.totalFillers>1?'s':''}`;}
+    const fillerEntries = Object.entries(S.fillerLog||{}).sort((a,b)=>b[1]-a[1]);
+    const topFillers = fillerEntries.slice(0,4).map(([w,c])=>'"'+w+'" ('+c+'x)').join(', ');
+    if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite détecté. Très bonne fluidité.';}
+    else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent='Quelques hésitations. Mots fréquents : '+topFillers+'.';}
+    else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent='Trop de mots parasites. À éliminer : '+topFillers+'.';}
+    if(S.totalFillers>0){
+      document.getElementById('filler-warn').style.display='flex';
+      const fw=S.fillerLog||{};
+      const pills=Object.entries(fw).sort((a,b)=>b[1]-a[1]).map(([w,c])=>'<span style="background:var(--amber-l);color:var(--amber);border:1px solid rgba(217,119,6,.2);border-radius:16px;padding:2px 9px;font-size:12px;font-weight:600;margin:2px">"'+w+'" '+c+'x</span>').join('');
+      document.getElementById('filler-warn-txt').innerHTML='<div style="font-weight:600;margin-bottom:4px">'+S.totalFillers+' mot'+(S.totalFillers>1?'s':'')+' parasite'+(S.totalFillers>1?'s':'')+' détecté'+(S.totalFillers>1?'s':'')+' :</div><div>'+pills+'</div>';
+    }
 
     const idealsEl=document.getElementById('res-ideals');
-    idealsEl.innerHTML=S.itv.qs.map((q,i)=>`<div class="ideal-item"><div class="ideal-q">Q${i+1}. ${q}</div><div class="ideal-a">${S.itv.ideals[i]||'<span style="color:var(--gray-400)">Non disponible</span>'}</div></div>`).join('');
+    const reactions=S.itv.reactions||[];
+    idealsEl.innerHTML=S.itv.qs.map((q,i)=>{
+      const ideal=S.itv.ideals[i];
+      const answer=S.itv.answers[i];
+      const reaction=reactions[i];
+      if(!answer&&!ideal) return '';
+      return '<div class="ideal-item">'
+        +'<div class="ideal-q">Q'+(i+1)+'. '+q+'</div>'
+        +(answer?'<div style="font-size:12.5px;color:var(--gray-500);font-style:italic;margin:6px 0;padding:8px 10px;background:#f8f8f8;border-radius:6px">Votre réponse : "'+answer.substring(0,120)+(answer.length>120?'...':'')+'"</div>':'')
+        +(reaction?'<div style="font-size:12.5px;color:var(--blue);font-style:italic;margin-bottom:8px;padding:8px 10px;background:var(--blue-light);border-radius:6px;border-left:3px solid var(--blue)">Recruteur : "'+reaction+'"</div>':'')
+        +'<div class="ideal-a"><strong>Réponse idéale : </strong>'+(ideal||'<span style="color:var(--gray-400)">Non disponible</span>')+'</div>'
+        +'</div>';
+    }).filter(Boolean).join('');
 
     if(S.accessCode){
       const avgWPM2=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
