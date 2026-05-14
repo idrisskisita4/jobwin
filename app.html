@@ -829,6 +829,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="answer-box" id="answer-box">Ta réponse apparaîtra ici...</div>
     </div>
     <div id="wpm-display" style="display:none"></div>
+    <div id="recruiter-reaction" style="display:none;padding-bottom:4px"></div>
     <div id="filler-wrap" style="display:none;padding:0 20px 0">
       <div class="filler-pill">⚠️ <span id="filler-txt">0 mot parasite</span></div>
     </div>
@@ -1580,8 +1581,7 @@ function updateTimerDisplay() {
 }
 
 async function genNextQuestion() {
-  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et direct':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant et attentif';
-  // Recruiter-specific personality layer
+  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant et attentif';
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
   const recStyle = {
     antoine: 'rigoureux et structuré',
@@ -1592,58 +1592,88 @@ async function genNextQuestion() {
     victoria: 'dynamique et incisive'
   }[recKey] || 'professionnel';
   const tone = baseStyle + ', ' + recStyle;
-  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
+  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup tech',administration:'administration publique'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
   const rec = S.recruiter || RECRUITERS.antoine;
-
-  // Keep only last 4 exchanges to limit prompt size
-  const hist = S.itv.history.slice(-4);
-  const histStr = hist.map((h,i)=>'Q: '+h.q.substring(0,80)+'\nR: '+h.a.substring(0,120)).join('\n');
-  const cvShort = S.config.cv ? S.config.cv.substring(0, 300) : '';
+  const cvShort = S.config.cv ? S.config.cv.substring(0, 400) : '';
   const qCount = S.itv.qs.length;
-
-  // Track which categories already covered
-  const allQs = S.itv.qs.join(' ').toLowerCase();
-  const coveredMotivation = allQs.includes('pourquoi') || allQs.includes('motiv');
-  const coveredSalaire = allQs.includes('salaire') || allQs.includes('prétention') || allQs.includes('rémunération');
-  const coveredDiff = allQs.includes('pas un autre') || allQs.includes('apportez');
-  const coveredStar = allQs.includes('situation') || allQs.includes('exemple') || allQs.includes('racontez');
-  const coveredProj = allQs.includes('ans') || allQs.includes('voyez-vous');
-
-  // Force uncovered obligatory questions
-  if(!coveredMotivation && qCount >= 2) {
-    const q = `Qu'est-ce qui vous a spécifiquement attiré par ce poste de ${S.config.poste} - et pourquoi maintenant ?`;
-    return q;
-  }
-  if(!coveredStar && qCount >= 3) {
-    const q = `Donnez-moi un exemple concret d'une situation professionnelle difficile que vous avez gérée - contexte, ce que vous avez fait, résultat.`;
-    return q;
-  }
-  if(!coveredDiff && qCount >= 5) {
-    return `Pourquoi vous, et pas les autres candidats que je rencontre cette semaine ?`;
-  }
-  if(!coveredSalaire && qCount >= 6) {
-    return `Quelles sont vos prétentions salariales ? Et quelle est votre marge de négociation ?`;
-  }
-  if(!coveredProj && qCount >= 4) {
-    return `Où vous voyez-vous dans trois ans ? Et en quoi ce poste s'inscrit dans cette trajectoire ?`;
-  }
-
-  // Get last answer for natural reference
+  const hist = S.itv.history.slice(-5);
+  const histStr = hist.map(h=>'Q: '+h.q.substring(0,90)+'\nR: '+h.a.substring(0,150)).join('\n---\n');
   const lastEntry = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1] : null;
-  const lastAnswerRef = lastEntry ? lastEntry.a.substring(0, 150) : '';
 
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau : ${S.config.niveau||'junior'}.
-${cvShort ? 'CV resume: '+cvShort : ''}
-Historique recent: ${histStr || 'Debut.'}
+  // === FOLLOW-UP DETECTION ===
+  // If last answer was vague, too short, or a refusal → stay on topic
+  if(lastEntry) {
+    const lastAnswer = lastEntry.a.trim();
+    const wordCount = lastAnswer.split(/\s+/).filter(Boolean).length;
+    const isRefusal = /\b(je (ne |n')?(sais|veux|peux|souhaite)|pas envie|aucune idée|sans réponse|je refuse|peu importe|ça ne|c'est personnel)\b/i.test(lastAnswer);
+    const isVague = wordCount < 20 && !isRefusal;
 
-Question ${qCount+1}. RÈGLE PRINCIPALE : si la dernière réponse du candidat contient un élément concret (un employeur, un poste, une réussite, une durée, un projet, une compétence mentionnée), commence ta question en y faisant référence naturellement. Exemples : "Vous m'avez indiqué que...", "En vous entendant parler de...", "Vous évoquez [X] -", "Cette expérience chez [Y] -".
+    if(isRefusal) {
+      const recadrage = [
+        `Je comprends que ce soit une question délicate, mais elle est importante pour moi dans ce processus. Pouvez-vous m'en dire un peu plus, même de façon générale ?`,
+        `C'est tout à fait votre droit, mais dans un entretien réel, ce silence serait interprété. Que puis-je vous dire pour vous mettre plus à l'aise sur ce point ?`,
+        `Je vous invite à tenter une réponse - je ne cherche pas la perfection, je cherche à comprendre comment vous pensez. Qu'est-ce qui vous retient ?`
+      ];
+      return recadrage[Math.floor(Math.random()*recadrage.length)];
+    }
 
-Si aucune référence pertinente, pose une question nouvelle sur une catégorie non encore couverte.
-Varie : comportemental STAR, compétences, motivations, culture fit, projection.
-15 à 40 mots. Texte brut. Pas de "Question :" ou numéro.`;
+    if(isVague) {
+      const prompt = `Tu es ${rec.name}, recruteur ${tone}. Poste : ${S.config.poste}.
+Tu venais de poser cette question : "${lastEntry.q}"
+Le candidat a répondu : "${lastAnswer}"
+Sa réponse est trop courte ou trop vague (${wordCount} mots seulement).
+Génère UNE relance courte et directe (15-30 mots) pour l'amener à développer avec un exemple concret. Commence par une observation naturelle. Texte brut uniquement.`;
+      const res = await apiCall(prompt, 100);
+      return res.trim();
+    }
+  }
 
-  const res = await apiCall(prompt, 150);
+  // === THÈMES OBLIGATOIRES (injectés contextuellement) ===
+  const allQs = S.itv.qs.join(' ').toLowerCase();
+  const allAs = (S.itv.history||[]).map(h=>h.a).join(' ').toLowerCase();
+  const coveredMotivation = allQs.includes('pourquoi') || allQs.includes('motiv') || allAs.includes('motiv');
+  const coveredSalaire = allQs.includes('salaire') || allQs.includes('prétention') || allQs.includes('rémunération');
+  const coveredDiff = allQs.includes('pas un autre') || allQs.includes('distingue') || allQs.includes('apportez');
+  const coveredStar = allQs.includes('situation') || allQs.includes('exemple') || allQs.includes('racontez') || allQs.includes('moment où');
+  const coveredProj = allQs.includes('ans') || allQs.includes('voyez-vous') || allQs.includes('objectif');
+  const coveredGapCV = S.config.cv && (allQs.includes('transition') || allQs.includes('passage') || allQs.includes('gap') || qCount < 3);
+
+  // === PROMPT CONVERSATIONNEL COMPLET ===
+  const themesRestants = [
+    !coveredMotivation && 'motivations pour ce poste spécifique / pourquoi maintenant',
+    !coveredStar && 'exemple STAR concret (situation difficile, réussite, échec géré)',
+    !coveredProj && 'projection à 3 ans et trajectoire',
+    !coveredDiff && 'différenciation vs autres candidats',
+    !coveredSalaire && 'prétentions salariales',
+  ].filter(Boolean);
+
+  const cvHint = S.config.cv && lastEntry ? `
+CV du candidat (extrait) : ${cvShort}
+Si tu vois un élément du CV non encore exploré (gap, transition, poste court, compétence mentionnée), c'est le bon moment pour y revenir.` : '';
+
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau candidat : ${S.config.niveau||'junior'}.
+${cvHint}
+
+Historique de l'entretien :
+${histStr || '(début de l\'entretien)'}
+
+${themesRestants.length > 0 ? `Thèmes importants pas encore abordés : ${themesRestants.join(' / ')}` : 'Tous les grands thèmes ont été couverts.'}
+
+Tu dois générer la question ${qCount+1} de l'entretien. Raisonne comme un vrai recruteur :
+
+1. Si la dernière réponse contenait un élément concret (entreprise, projet, chiffre, période, compétence, situation), COMMENCE par y faire référence naturellement avant de creuser ou de bifurquer.
+   Exemples : "Vous évoquiez [X] - qu'est-ce que ça vous a appris ?", "Cette expérience chez [Y], combien de temps ça a duré ?", "Vous dites [Z] - concrètement, c'était quoi la situation ?"
+
+2. Si la réponse précédente était forte et complète, passe à un nouveau thème de la liste restante.
+
+3. Varie les registres : comportemental, compétences, motivations, culture fit, projection, CV.
+
+4. Sois naturel. Un recruteur parle, il ne récite pas.
+
+Génère UNE SEULE question. 15 à 45 mots. Texte brut. Pas de guillemets, pas de numéro, pas de préambule.`;
+
+  const res = await apiCall(prompt, 160);
   return res.trim();
 }
 
@@ -1695,34 +1725,6 @@ Adapte le registre au contexte :
 Commence par "Très bien" ou "Bien" ou "Voilà" - jamais directement par "Merci". Sois naturel, pas robotique.`;
   return await apiCall(prompt, 200);
 }
-
-async function genRecruiterReaction(question, answer) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant et intimidant, autoritaire':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant et professionnel';
-  const histLen = S.itv.history.length;
-
-  const recName = S.recruiter?.name || 'Antoine';
-  const histContext = S.itv.history.length > 1 ? `Contexte de l'entretien : ${S.itv.history.slice(-3).map(h=>`[Q: ${h.q.substring(0,60)}... / R: ${h.a.substring(0,80)}...]`).join(' | ')}` : '';
-
-  const prompt = `Tu es ${recName}, recruteur ${tone} en entretien pour le poste de ${S.config.poste}.
-
-Le candidat vient de répondre à cette question : "${question}"
-Sa réponse : "${answer}"
-
-Génère UNE réaction verbale très courte (5 à 12 mots maximum). C'est un simple accusé de réception oral naturel avant de passer à la question suivante. 
-
-RÈGLE ABSOLUE : NE POSE JAMAIS UNE QUESTION. NE RELANCE JAMAIS SUR CETTE RÉPONSE. Tu passes à la suite.
-
-Selon la qualité de la réponse :
-- Réponse correcte ou bonne -> transition naturelle courte. Exemples : "Je vois, c'est clair.", "D'accord, bien.", "C'est noté.", "Tout à fait.", "Je comprends.", "Bien, merci."
-- Réponse très courte ou vague -> marque une légère surprise professionnelle. Exemples : "D'accord...", "Je prends note.", "Très bien."
-- Comportement inapproprié (irrespect, abandon, hors sujet total) -> recadre en 1 phrase ferme SANS poser de question. Exemple : "Je vous invite à rester professionnel dans vos réponses."
-- Réponse excellente et structurée -> renvoie exactement : SKIP
-
-Renvoie UNIQUEMENT la réaction en texte brut. Jamais de question. Jamais de guillemets.`
-  const res = await apiCall(prompt, 150);
-  return res.trim();
-}
-
 
 async function genCandidateQuestionAnswer(candidateQ) {
   const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
@@ -1935,11 +1937,21 @@ async function stopRec(e) {
       try{
         const reaction = await genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer);
         if(reaction){
-          // Store for results - do NOT show inline during interview
           S.itv.reactions = S.itv.reactions || [];
           S.itv.reactions[S.itv.currentQ] = reaction;
-          // Only speak the reaction via ElevenLabs
-          if(S.config.voix) speakText(reaction);
+          // Display reaction visually as recruiter bubble
+          const _re = document.getElementById('recruiter-reaction');
+          if(_re){
+            const recName = S.recruiter?.name || 'Antoine';
+            _re.style.display = 'block';
+            _re.innerHTML = `<div style="margin:12px 20px 4px;display:flex;align-items:flex-start;gap:10px">
+              <div style="width:32px;height:32px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid rgba(255,255,255,.15)">${S.recruiter?.emoji||'🎙️'}</div>
+              <div style="background:var(--navy);color:rgba(255,255,255,.9);border-radius:4px 14px 14px 14px;padding:11px 15px;font-size:14.5px;line-height:1.55;max-width:calc(100% - 48px)">${reaction}</div>
+            </div>`;
+            setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},100);
+          }
+          if(S.config.voix) await speakTextAsync(reaction);
+          else await new Promise(r=>setTimeout(r,Math.min(reaction.length*55, 3000)));
         }
       }catch(_){}
     }
@@ -2007,21 +2019,61 @@ async function nextQ() {
 
   const qAsked = S.itv.history.length;
 
-  // Phase: candidate questions
+  // Phase: candidate questions (multi-tour, max 3)
   if(S.itv.phase === 'candidate_questions'){
-    // They just answered a candidate question - generate recruiter's response
-    const candidateQ = S.itv.qs[S.itv.currentQ];
+    S.itv.candidateQCount = (S.itv.candidateQCount || 0) + 1;
+    const maxCandidateQs = 3;
+
     document.getElementById('int-actions').style.display='none';
     document.getElementById('mic-area').style.display='none';
     document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+
+    // Detect if candidate has no more questions
+    const noMoreQ = /\b(non|pas (d'autres?|de)|c'est tout|rien d'autre|ça ira|c'est bon|je n'en ai pas|aucune autre|pas pour l'instant)\b/i.test(currentAnswer) || currentAnswer.trim().length < 6;
+
+    if(noMoreQ || S.itv.candidateQCount >= maxCandidateQs){
+      // Recruiter closes gracefully if candidate had a last question
+      if(!noMoreQ){
+        try {
+          const recruiterAnswer = await genCandidateQuestionAnswer(currentAnswer);
+          document.getElementById('q-text').textContent = recruiterAnswer;
+          if(S.config.voix) await speakTextAsync(recruiterAnswer);
+          else await new Promise(r=>setTimeout(r,1200));
+        } catch(e){}
+      }
+      await doOutro();
+      return;
+    }
+
+    // Recruiter answers the candidate's question
     try {
       const recruiterAnswer = await genCandidateQuestionAnswer(currentAnswer);
       document.getElementById('q-text').textContent = recruiterAnswer;
       if(S.config.voix) await speakTextAsync(recruiterAnswer);
       else await new Promise(r=>setTimeout(r,1200));
     } catch(e) {}
-    // Outro
-    await doOutro();
+
+    // Ask if candidate has another question
+    const followUps = [
+      "Avez-vous d'autres questions ?",
+      "Autre chose que vous souhaiteriez me demander ?",
+      "Y a-t-il autre chose qui vous intéresse sur le poste ou l'entreprise ?"
+    ];
+    const followUp = followUps[Math.min(S.itv.candidateQCount - 1, followUps.length - 1)];
+
+    await new Promise(r=>setTimeout(r,400));
+    S.itv.qs.push(followUp);
+    S.itv.currentQ++;
+    document.getElementById('q-text').textContent = followUp;
+    document.getElementById('answer-box').textContent = 'Ta réponse apparaîtra ici...';
+    document.getElementById('answer-box').className = 'answer-box';
+    document.getElementById('filler-wrap').style.display='none';
+    document.getElementById('wpm-display').style.display='none';
+    document.getElementById('recruiter-reaction') && (document.getElementById('recruiter-reaction').style.display='none');
+    document.getElementById('mic-hint').textContent = 'Maintenir pour parler';
+    document.getElementById('mic-btn').className = 'mic-btn';
+    document.getElementById('mic-area').style.display = 'flex';
+    if(S.config.voix) setTimeout(()=>speakText(followUp), 80);
     return;
   }
 
