@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>JOBWIN - Simulateur d'Entretien IA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(typeof pdfjsLib!=='undefined') pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
@@ -1745,30 +1747,7 @@ Commence directement par ta réponse, sans préambule.`;
   return await apiCall(prompt, 250);
 }
 
-async function genOutro() {
-  const avg = S.itv.scores.length > 0 ? Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) : 0;
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien de 30-45 minutes pour le poste de ${S.config.poste}.
 
-Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Tu viens de passer du temps avec ce candidat - tu as une impression, même si tu ne la révèles pas. Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
-
-Inclus impérativement :
-1. Un remerciement sincère pour le temps accordé
-2. Une indication concrète des prochaines étapes (délai de réponse, nombre de candidats rencontrés si pertinent, suite du process)
-3. Une invitation à poser une dernière question si besoin
-4. Une formule de congé naturelle
-
-Adapte le registre au contexte :
-- Grand groupe -> formel, procédurier, délais précis
-- PME -> chaleureux, direct, "on vous recontacte rapidement"
-- Startup -> décontracté, transparent, "on prend une décision vite"
-- Administration -> protocole, délais administratifs, commission
-
-Commence par "Très bien" ou "Bien" ou "Voilà" - jamais directement par "Merci". Sois naturel, pas robotique.`;
-  return await apiCall(prompt, 200);
-}
 
 async function genRecruiterReaction(question, answer) {
   const tone = S.config.personnalite==='hardcore'?'très exigeant et intimidant, autoritaire':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant et professionnel';
@@ -2047,8 +2026,10 @@ async function nextQ() {
   }
 
   // Decide: enough questions asked? -> candidate questions phase
-  const shouldEnd = qAsked >= S.itv.maxQ || 
-    (qAsked >= S.itv.minQ && S.itv.scores.length >= S.itv.minQ && 
+  // Use qs.length as hard stop (more reliable than history count)
+  const totalAsked = S.itv.qs.length;
+  const shouldEnd = totalAsked > S.itv.maxQ || qAsked >= S.itv.maxQ ||
+    (qAsked >= S.itv.minQ && S.itv.scores.length >= S.itv.minQ &&
      Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) >= 60);
 
   if(shouldEnd){
@@ -2439,40 +2420,37 @@ function switchCvTab(tab) {
   }
 }
 
-function handleCvUpload(input) {
+async function handleCvUpload(input) {
   const file = input.files[0];
   if(!file) return;
-  if(file.size > 5 * 1024 * 1024) {
-    alert('Le fichier est trop volumineux (max 5 Mo).');
-    return;
-  }
-  document.getElementById('cv-file-name').textContent = '✓ ' + file.name;
-  document.getElementById('cv-drop-label').style.borderColor = 'var(--blue)';
-  document.getElementById('cv-drop-label').style.background = 'var(--blue-light)';
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    // Store PDF text extraction - basic fallback: store filename + signal
-    S.config.cv_filename = file.name;
-    S.config.cv_pdf = true;
-    // Try to extract text via ArrayBuffer for basic PDF parsing
-    const arr = new Uint8Array(e.target.result);
-    let raw = '';
-    for(let i=0;i<arr.length;i++) raw += String.fromCharCode(arr[i]);
-    const textMatches = raw.match(/BT[\s\S]*?ET/g);
-    if(textMatches) {
-      const extracted = textMatches
-        .join(' ')
-        .replace(/Tf|Tm|Td|TD|T\*|Tj|TJ/g, ' ')
-        .replace(/[^\x20-\x7E\xC0-\xFF]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .substring(0, 1500);
-      document.getElementById('cfg-cv').value = extracted || 'CV importé : ' + file.name;
-    } else {
-      document.getElementById('cfg-cv').value = 'CV importé : ' + file.name;
+  if(file.size > 5 * 1024 * 1024) { alert('Fichier trop volumineux (max 5 Mo).'); return; }
+  const nameEl = document.getElementById('cv-file-name');
+  const dropEl = document.getElementById('cv-drop-label');
+  nameEl.textContent = 'Lecture en cours...';
+  dropEl.style.borderColor = 'var(--blue)';
+  dropEl.style.background = 'var(--blue-light)';
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    if(typeof pdfjsLib !== 'undefined') {
+      const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+      let fullText = '';
+      for(let p = 1; p <= Math.min(pdf.numPages, 6); p++) {
+        const page = await pdf.getPage(p);
+        const tc = await page.getTextContent();
+        fullText += tc.items.map(item => item.str).join(' ') + ' ';
+      }
+      fullText = fullText.replace(/\s+/g, ' ').trim().substring(0, 2000);
+      if(fullText.length > 50) {
+        document.getElementById('cfg-cv').value = fullText;
+        nameEl.textContent = '✓ ' + file.name + ' (' + fullText.length + ' car.)';
+        return;
+      }
     }
-  };
-  reader.readAsArrayBuffer(file);
+    nameEl.textContent = '⚠️ ' + file.name + ' — colle ton parcours manuellement';
+  } catch(err) {
+    nameEl.textContent = '❌ Erreur — colle ton parcours manuellement';
+    dropEl.style.borderColor = 'var(--red)';
+  }
 }
 
 /* Init */
