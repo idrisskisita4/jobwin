@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>JOBWIN — Simulateur d'Entretien IA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(typeof pdfjsLib!=='undefined') pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
@@ -1382,22 +1384,17 @@ const RECRUITERS = {
   victoria:  { name:'Victoria', genre:'femme', voiceId:'O31r762Gb3WFygrEOGh0', avatar:'👩‍🎓' },
 };
 const EXPRESS_RECRUITER = RECRUITERS.antoine;
-if(!S.recruiter) S.recruiter = RECRUITERS.antoine;
 
 /* ===== ELEVENLABS ===== */
 let currentAudio = null;
 
 function stopAudio() {
   if(currentAudio){ currentAudio.pause(); currentAudio=null; }
-  const mbtn = document.getElementById('mic-btn');
-  if(mbtn && !isRecording) mbtn.style.opacity='1';
 }
 
 function speakText(txt) {
   if(!txt) return;
   stopAudio();
-  const mbtn = document.getElementById('mic-btn');
-  if(mbtn) mbtn.style.opacity='0.5';
   const rec = S.recruiter || EXPRESS_RECRUITER;
   fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST',
@@ -1434,7 +1431,7 @@ async function speakTextAsync(txt) {
 }
 
 async function initInterview() {
-  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],reactions:[],replyCount:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12};
+  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],startTime:Date.now()};
   S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0;
 
   const rec = (S.recruiter && S.recruiter.name) ? S.recruiter : RECRUITERS.antoine;
@@ -1477,14 +1474,15 @@ async function initInterview() {
     document.getElementById('r-meta-role').textContent='Recruteur IA · Entretien en cours';
     document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
     try {
-      const rec2=S.recruiter||RECRUITERS.antoine;
+      S.itv.qs=await genQuestions(10);
+      // Intro personnalisée selon type d'entreprise et CV
       const typeIntros={
-        grand_groupe:`Bonjour, je suis ${rec2.name}, Responsable RH. J'ai pris connaissance de votre candidature pour le poste de ${S.config.poste}. Nous allons échanger environ 30 à 45 minutes. Commençons.`,
-        pme:`Bonjour, je suis ${rec2.name}. J'ai regardé votre profil pour le poste de ${S.config.poste}, ça m'a semblé intéressant. On va discuter tranquillement.`,
-        startup:`Bonjour, je suis ${rec2.name}. On cherche quelqu'un pour le poste de ${S.config.poste}, un rôle clé pour nous. On va avoir une conversation ouverte, sans formalisme.`,
-        administration:`Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${S.config.poste}. Cet entretien évaluera vos compétences et votre adéquation au poste.`
+        grand_groupe: `Bonjour, je suis ${rec.name}, Responsable RH. J'ai pris connaissance de votre candidature pour le poste de ${S.config.poste}. Nous allons échanger 30 à 40 minutes sur votre parcours et vos motivations. Commençons.`,
+        pme: `Bonjour, je suis ${rec.name}. Je m'occupe du recrutement ici. J'ai regardé votre profil pour le poste de ${S.config.poste} — ça m'a semblé intéressant. On va discuter tranquillement.`,
+        startup: `Bonjour, ${rec.name} ! Je gère le recrutement chez nous. On cherche quelqu'un pour le poste de ${S.config.poste} — un rôle clé pour nous. On va avoir une conversation ouverte, sans formalisme.`,
+        administration: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${S.config.poste}. Cet entretien a pour but d'évaluer vos compétences et votre adéquation avec les missions du poste.`
       };
-      const introText=typeIntros[S.config.type_entreprise||'grand_groupe'];
+      const introText = typeIntros[S.config.type_entreprise||'grand_groupe'];
       document.getElementById('q-text').textContent=introText;
       if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='none';
       if(S.config.voix) await speakTextAsync(introText);
@@ -1492,7 +1490,6 @@ async function initInterview() {
       if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='flex';
       document.getElementById('q-counter').style.display='none';
       document.getElementById('prog-fill').style.width='5%';
-      S.itv.qs=['Pouvez-vous vous présenter et me parler de votre parcours ?'];
       displayQ(0);
     } catch(e) {
       document.getElementById('q-text').textContent='⚠️ Erreur API. Vérifie ta clé Anthropic.';
@@ -1519,113 +1516,25 @@ function updateTimerDisplay() {
   display.classList.toggle('urgent', S.expressSecondsLeft<=120);
 }
 
-async function genNextQuestion() {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'exigeant':'bienveillant';
-  const rec = S.recruiter || RECRUITERS.antoine;
-  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
-  const type = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const cv = S.config.cv ? S.config.cv.substring(0,250) : '';
-  const lastA = S.itv.history.length>0 ? S.itv.history[S.itv.history.length-1].a.substring(0,100) : '';
-  const lastQ = S.itv.history.length>0 ? S.itv.history[S.itv.history.length-1].q.substring(0,80) : '';
-
-  // Already asked — send full list to avoid repeats
-  const asked = S.itv.qs.filter(Boolean).slice(0,12).map((q,i)=>String(i+1)+'. '+q.substring(0,60)).join('\n');
-
-  // Next mandatory topic
-  const todo = !S.itv._askedMotiv?'motivations pour ce poste':
-               !S.itv._askedStar?'exemple situation difficile (STAR)':
-               !S.itv._askedDiff?'pourquoi vous pas un autre':
-               !S.itv._askedSalaire?'pretentions salariales':'libre';
-
-  if(todo==='motivations pour ce poste') S.itv._askedMotiv=true;
-  else if(todo==='exemple situation difficile (STAR)') S.itv._askedStar=true;
-  else if(todo==='pourquoi vous pas un autre') S.itv._askedDiff=true;
-  else if(todo==='pretentions salariales') S.itv._askedSalaire=true;
-
-  const seeds=['autonomie','leadership','rigueur','relation client','adaptabilité','communication','initiative','organisation'];
-  const angle = seeds[Math.floor(Math.random()*seeds.length)];
-
-  const prompt = `Recruteur ${tone} (${rec.name}), ${type}, poste: ${S.config.poste}.
-${cv?'CV: '+cv:''}
-Dernière Q: "${lastQ}" / Réponse: "${lastA}"
-Questions déjà posées (NE PAS RÉPÉTER):
-${asked}
-Sujet obligatoire: ${todo}
-Angle: ${angle}
-${cv?'Cite un élément du CV si pertinent.':''}
-Pose UNE question naturelle (15-35 mots). Texte brut.`;
-
-  const res = await apiCall(prompt, 150);
-  return res.trim();
-}
-
-
-async function genRecruiterReaction(question, answer) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant et autoritaire':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant mais ferme';
-  const recName = S.recruiter?.name||'Antoine';
-
-  const prompt = `Tu es ${recName}, recruteur ${tone} qui conduit un entretien d'embauche réel.
-
-Question posée: "${question}"
-Réponse du candidat: "${answer}"
-
-ANALYSE et RÉAGIS en une phrase (8-15 mots max):
-
-CAS 1 — Réponse CORRECTE et développée → SKIP (aucune réaction, tu passes directement)
-
-CAS 2 — Réponse VAGUE ou trop courte (moins de 20 mots sans contenu) → relance ferme.
-Exemples: "Soyez plus précis, je vous repose la question." / "Je n'ai pas eu de réponse concrète — développez."
-
-CAS 3 — Refus de répondre, réponse désinvolte ("je sais pas", "peu importe", "ça m'intéresse pas") → recadrage autoritaire.
-Exemples: "Je vous invite à rester professionnel." / "Ce type de réponse ne convient pas dans ce contexte."
-
-CAS 4 — Comportement irrespectueux, insulte, agressivité → renvoie exactement: END_INTERVIEW
-
-CAS 5 — Le candidat pose une question sur le poste ou l'entreprise → réponds en 1-2 phrases naturelles.
-
-Renvoie: SKIP, END_INTERVIEW, ou la réaction en texte brut.`;
-
-  const res = await apiCall(prompt, 80);
-  const txt = res.trim();
-
-  if(txt === 'END_INTERVIEW') {
-    // Recruiter ends the interview
-    const ending = `Je mets fin à cet entretien. Votre comportement ne correspond pas à ce que nous attendons d'un candidat. Bonne continuation.`;
-    document.getElementById('q-text').textContent = ending;
-    document.getElementById('int-actions').style.display = 'none';
-    document.getElementById('mic-area').style.display = 'none';
-    if(S.config.voix) await speakTextAsync(ending);
-    else await new Promise(r=>setTimeout(r,2000));
-    showResults();
-    return null;
-  }
-
-  if(txt === 'SKIP' || txt.length < 4) return null;
-  return txt;
-}
-
-
-async function genCandidateQuestionAnswer(candidateQ) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const cvCtx = S.config.cv ? `CV: ${S.config.cv.substring(0,200)}` : '';
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. ${cvCtx}
-Le candidat te pose cette question: "${candidateQ}". Réponds naturellement, 2-4 phrases.`;
-  return await apiCall(prompt, 200);
-}
-
-async function genOutro() {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Poste: ${S.config.poste}. Rédige une conclusion d'entretien naturelle (3-4 phrases): remerciement, prochaines étapes, formule de congé. Commence par "Très bien" ou "Bien".`;
-  return await apiCall(prompt, 180);
-}
-
 async function genQuestions(n) {
-  // Legacy express mode only
-  return ['Pouvez-vous vous présenter et me parler de votre parcours ?','Quels sont vos points forts et votre principal point faible ?','Pourquoi ce poste ?','Pourquoi vous et pas un autre candidat ?','Décrivez une réussite concrète.','Comment gérez-vous le stress ?'].slice(0,n);
+  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
+  const typeLabels={grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const cv = S.config.cv ? S.config.cv.substring(0,600) : '';
+  const angles = ['parcours et transitions','gestion de conflits','prise de décision','autonomie','leadership','rigueur','relation client','adaptabilité','créativité','travail en équipe'];
+  const picked = angles.sort(()=>Math.random()-0.5).slice(0,4).join(', ');
+  const cvBlock = cv ? 'CV DU CANDIDAT (OBLIGATOIRE — cite ses entreprises, postes, lacunes):\n'+cv : 'Aucun CV.';
+  const prompt = 'Tu es recruteur '+tone+' dans un '+typeEntreprise+' pour le poste de '+S.config.poste+(S.config.entreprise?' chez '+S.config.entreprise:'')+', niveau '+(S.config.niveau||'confirmé')+'.\n\n'+cvBlock+'\n\nGénère '+n+' questions EN FRANÇAIS. Obligatoires: 1 motivation spécifique pour ce poste | 1 STAR situation difficile | "Pourquoi vous pas un autre ?" | prétentions salariales. Si CV: min 2 questions liées au CV (cite entreprise ou lacune). Angles: '+picked+'. Questions naturelles, variées, jamais génériques. Tableau JSON de '+n+' strings uniquement.';
+  try {
+    const res = await apiCall(prompt, 900);
+    const clean = res.replace(/```json|```/g,'').trim();
+    const arr = JSON.parse(clean);
+    if(Array.isArray(arr) && arr.length>0) return arr.slice(0,n);
+    throw new Error('bad');
+  } catch(e) {
+    const p = S.config.poste||'ce poste';
+    return ["Pouvez-vous vous présenter et parler de votre parcours vers "+p+" ?","Qu'est-ce qui vous attire dans ce poste de "+p+" ?","Décrivez une situation difficile — contexte, action, résultat.","Quels sont vos points forts et votre axe d'amélioration ?","Pourquoi vous et pas un autre candidat ?","Comment travaillez-vous en équipe ? Exemple concret.","Où vous voyez-vous dans 3 ans ?","Quelle décision professionnelle vous a le plus marqué ?","Comment gérez-vous plusieurs priorités en même temps ?","Quelles sont vos prétentions salariales ?"].slice(0,n);
+  }
 }
 
 function displayQ(i) {
@@ -1647,10 +1556,12 @@ function displayQ(i) {
   document.getElementById('wpm-display').style.display='none';
   document.getElementById('mic-hint').textContent='Maintenir pour parler';
   document.getElementById('mic-btn').className='mic-btn';
-  const _mb=document.getElementById('move-on-badge');if(_mb)_mb.style.display='none';
-  if(S.config.voix) setTimeout(()=>speakText(S.itv.qs[i]),80);
+  if(S.config.voix) setTimeout(()=>speakText(S.itv.qs[i]),600);
 }
 
+/* Web Speech API replaced by ElevenLabs */
+
+/* RECORDING — Deepgram */
 function startRec(e) {
   e.preventDefault(); if(isRecording) return;
   stopAudio();
@@ -1718,11 +1629,8 @@ async function stopRec(e) {
   if(wpm>0){S.totalWPM+=wpm;S.wpmCount++;}
 
   // Fillers
-  const fillerMatches=(answer.match(FILLERS_RE)||[]);
-  const fillers=fillerMatches.length;
+  const fillers=(answer.match(FILLERS_RE)||[]).length;
   S.totalFillers+=fillers;
-  if(!S.fillerLog) S.fillerLog={};
-  fillerMatches.forEach(w=>{const k=w.toLowerCase().trim();S.fillerLog[k]=(S.fillerLog[k]||0)+1;});
   if(fillers>0){
     document.getElementById('filler-wrap').style.display='block';
     document.getElementById('filler-txt').textContent=`${fillers} mot${fillers>1?'s':''} parasite${fillers>1?'s':''} détecté${fillers>1?'s':''}`;
@@ -1747,24 +1655,6 @@ async function stopRec(e) {
   try {
     const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
     S.itv.scores.push(ev.score);
-    if(S.mode==='complet'&&S.itv.currentQ>0){
-      S.itv.replyCount[S.itv.currentQ]=(S.itv.replyCount[S.itv.currentQ]||0)+1;
-      const badge=document.getElementById('move-on-badge');
-      if(S.itv.replyCount[S.itv.currentQ]===1){
-        try{
-          const reaction=await genRecruiterReaction(S.itv.qs[S.itv.currentQ],answer);
-          if(reaction){
-            S.itv.reactions=S.itv.reactions||[];
-            S.itv.reactions[S.itv.currentQ]=reaction;
-            // Show reaction in question area + speak
-            document.getElementById('q-text').textContent=reaction;
-            if(S.config.voix) speakText(reaction);
-          } else {
-            if(badge) badge.style.display='block';
-          }
-        }catch(_){if(badge) badge.style.display='block';}
-      } else {if(badge) badge.style.display='block';}
-    }
     S.itv.criteria.push({structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire});
     S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
     const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
@@ -1794,108 +1684,29 @@ function wpmClass(wpm){
 }
 
 function showNextBtn() {
-  let nextLabel='Question suivante ->';
-  if(S.mode==='express'&&S.itv.currentQ>=S.itv.qs.length-1) nextLabel='Voir les résultats ->';
-  if(S.mode==='complet'&&S.itv.phase==='candidate_questions') nextLabel="Terminer l'entretien ->";
+  const isLast=S.itv.currentQ>=S.itv.qs.length-1;
   document.getElementById('int-actions').style.display='flex';
-  document.getElementById('next-btn').textContent=nextLabel;
+  document.getElementById('next-btn').textContent=isLast?'Voir les résultats →':'Question suivante →';
   setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},200);
 }
 async function nextQ() {
-  if(S.mode==='express'){
-    if(S.itv.currentQ>=S.itv.qs.length-1){
-      const outro='Merci beaucoup pour cet échange, nous reviendrons vers vous rapidement.';
+  if(S.itv.currentQ>=S.itv.qs.length-1){
+    // Express outro
+    if(S.mode==='express'){
+      const outro=`Merci beaucoup pour cet échange, nous reviendrons vers vous rapidement.`;
       document.getElementById('q-text').textContent=outro;
       document.getElementById('int-actions').style.display='none';
       document.getElementById('mic-area').style.display='none';
-      if(S.config.voix){await speakTextAsync(outro);await new Promise(r=>setTimeout(r,800));}
-      else{await new Promise(r=>setTimeout(r,1800));}
-      showResults();
-    } else { S.itv.currentQ++; displayQ(S.itv.currentQ); }
-    return;
+      if(S.config.voix){
+        await speakTextAsync(outro);
+        await new Promise(r=>setTimeout(r,800));
+      } else {
+        await new Promise(r=>setTimeout(r,1800));
+      }
+    }
+    showResults(); return;
   }
-  const currAnswer=S.itv.answers[S.itv.currentQ]||'';
-  const currQ=S.itv.qs[S.itv.currentQ]||'';
-  if(currQ&&currAnswer) S.itv.history.push({q:currQ,a:currAnswer});
-  const qAsked=S.itv.history.length;
-  if(S.itv.phase==='candidate_questions'){
-    document.getElementById('int-actions').style.display='none';
-    document.getElementById('mic-area').style.display='none';
-    document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
-    try{const ans=await genCandidateQuestionAnswer(currAnswer);document.getElementById('q-text').textContent=ans;if(S.config.voix) await speakTextAsync(ans);else await new Promise(r=>setTimeout(r,1200));}catch(_){}
-    await doOutro(); return;
-  }
-  const shouldEnd=qAsked>=S.itv.maxQ||(qAsked>=S.itv.minQ&&S.itv.scores.length>=S.itv.minQ&&Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length)>=60);
-  if(shouldEnd){
-    S.itv.phase='candidate_questions';
-    const tq="Nous avons presque terminé. Avez-vous des questions sur le poste ou la suite du processus ?";
-    S.itv.qs.push(tq);S.itv.currentQ++;
-    document.getElementById('q-text').textContent=tq;
-    document.getElementById('prog-fill').style.width='95%';
-    document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
-    document.getElementById('answer-box').className='answer-box';
-    document.getElementById('feedback-wrap').style.display='none';
-    document.getElementById('int-actions').style.display='none';
-    document.getElementById('filler-wrap').style.display='none';
-    document.getElementById('wpm-display').style.display='none';
-    document.getElementById('mic-hint').textContent='Maintenir pour parler';
-    document.getElementById('mic-btn').className='mic-btn';
-    const _mb=document.getElementById('move-on-badge');if(_mb)_mb.style.display='none';
-    if(S.config.voix) setTimeout(()=>speakText(tq),80);
-    return;
-  }
-  document.getElementById('int-actions').style.display='none';
-  document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
-  document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
-  document.getElementById('answer-box').className='answer-box';
-  document.getElementById('feedback-wrap').style.display='none';
-  document.getElementById('filler-wrap').style.display='none';
-  document.getElementById('wpm-display').style.display='none';
-  document.getElementById('mic-hint').textContent='Maintenir pour parler';
-  document.getElementById('mic-btn').className='mic-btn';
-  document.getElementById('mic-area').style.display='flex';
-  const _mb2=document.getElementById('move-on-badge');if(_mb2)_mb2.style.display='none';
-  currentTranscript='';
-  try{
-    const nq=await genNextQuestion();
-    S.itv.qs.push(nq);S.itv.currentQ++;
-    document.getElementById('prog-fill').style.width=Math.min(90,Math.round((qAsked/S.itv.maxQ)*90))+'%';
-    document.getElementById('q-text').textContent=nq;
-    if(S.config.voix) speakText(nq);
-  }catch(_){
-    const _pool=["Parlez-moi d'une réussite concrète dans votre parcours.",
-      "Comment décririez-vous votre style de travail en équipe ?",
-      "Qu'est-ce que vous apporteriez à cette équipe que les autres n'apporteraient pas ?",
-      "Où vous voyez-vous dans trois ans ?",
-      "Quelle est votre approche face à un désaccord avec votre manager ?",
-      "Qu'est-ce qui vous a le plus marqué dans votre dernier poste ?",
-      "Comment gérez-vous les priorités multiples en même temps ?",
-      "Décrivez votre environnement de travail idéal."];
-    const _used = S.itv.qs.join(' ');
-    const fb = _pool.find(q=>!_used.includes(q.substring(0,20))) || _pool[Math.floor(Math.random()*_pool.length)];
-    S.itv.qs.push(fb);S.itv.currentQ++;
-    document.getElementById('q-text').textContent=fb;
-    if(S.config.voix) speakText(fb);
-  }
-}
-
-async function doOutro(){
-  document.getElementById('mic-area').style.display='none';
-  document.getElementById('int-actions').style.display='none';
-  document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
-  try{
-    const outro=await genOutro();
-    document.getElementById('q-text').textContent=outro;
-    document.getElementById('prog-fill').style.width='100%';
-    if(S.config.voix){await speakTextAsync(outro);await new Promise(r=>setTimeout(r,600));}
-    else{await new Promise(r=>setTimeout(r,2000));}
-  }catch(_){
-    const fallback='Merci pour cet entretien. Nous reviendrons vers vous dans les prochains jours.';
-    document.getElementById('q-text').textContent=fallback;
-    if(S.config.voix) await speakTextAsync(fallback);
-    else await new Promise(r=>setTimeout(r,2000));
-  }
-  showResults();
+  S.itv.currentQ++; displayQ(S.itv.currentQ);
 }
 function abandon() {
   if(!confirm('Abandonner l\'entretien ?')) return;
@@ -1917,13 +1728,17 @@ async function apiCall(prompt, maxTokens=600) {
 
 async function evalAnswer(q, answer) {
   const tone=S.config.personnalite==='hardcore'?'très exigeant, froid':S.config.personnalite==='exigeant'?'professionnel, exigeant':'bienveillant';
-  const prompt=`Recruteur ${tone}, poste : ${S.config.poste}.
-QUESTION : "${q}"
-RÉPONSE : "${answer}"
+  const cvCtxE = S.config.cv ? '\nCV du candidat: '+S.config.cv.substring(0,300) : '';
+  const prompt = `Recruteur ${tone}, poste: ${S.config.poste}.${cvCtxE}
+Question posée: "${q}"
+Réponse du candidat: "${answer}"
 
-Retourne UNIQUEMENT ce JSON (sans markdown, sans explication) :
-{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"[1-2 phrases ton ${tone}]","ideal":"[réponse idéale 2-4 phrases]"}
-Chaque note entre 0 et 100.`;
+Évalue et retourne ce JSON valide uniquement:
+{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"feedback ici","ideal":"réponse idéale ici"}
+
+Pour feedback: 1-2 phrases. Cite un élément concret de la réponse (ou du CV si pertinent). Identifie ce qui manquait précisément.
+Pour ideal: réponse idéale STAR 3-4 phrases naturelles. Si CV fourni, utilise les expériences du candidat.
+Scores 0-100. Aucun markdown.`;
   const txt=await apiCall(prompt,500);
   try{return JSON.parse(txt.replace(/```json?|```/g,'').trim())}
   catch(e){return{score:60,structure:60,confiance:60,pertinence:60,vocabulaire:60,feedback:'Réponse enregistrée.',ideal:''}}
@@ -1995,32 +1810,13 @@ async function showResults() {
     document.getElementById('s-para').textContent=S.totalFillers;
     document.getElementById('s-sil').textContent=S.totalSilences;
 
-    const fillerEntries = Object.entries(S.fillerLog||{}).sort((a,b)=>b[1]-a[1]);
-    const topFillers = fillerEntries.slice(0,4).map(([w,c])=>'"'+w+'" ('+c+'x)').join(', ');
-    if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite détecté. Très bonne fluidité.';}
-    else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent='Quelques hésitations. Mots fréquents : '+topFillers+'.';}
-    else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent='Trop de mots parasites. À éliminer : '+topFillers+'.';}
-    if(S.totalFillers>0){
-      document.getElementById('filler-warn').style.display='flex';
-      const fw=S.fillerLog||{};
-      const pills=Object.entries(fw).sort((a,b)=>b[1]-a[1]).map(([w,c])=>'<span style="background:var(--amber-l);color:var(--amber);border:1px solid rgba(217,119,6,.2);border-radius:16px;padding:2px 9px;font-size:12px;font-weight:600;margin:2px">"'+w+'" '+c+'x</span>').join('');
-      document.getElementById('filler-warn-txt').innerHTML='<div style="font-weight:600;margin-bottom:4px">'+S.totalFillers+' mot'+(S.totalFillers>1?'s':'')+' parasite'+(S.totalFillers>1?'s':'')+' détecté'+(S.totalFillers>1?'s':'')+' :</div><div>'+pills+'</div>';
-    }
+    if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite. Très bonne fluidité.';}
+    else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent='Quelques hésitations — globalement satisfaisant.';}
+    else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent='Trop de mots parasites — travaille ta fluidité.';}
+    if(S.totalFillers>0){document.getElementById('filler-warn').style.display='flex';document.getElementById('filler-warn-txt').textContent=`${S.totalFillers} mot${S.totalFillers>1?'s':''} parasite${S.totalFillers>1?'s':''} détecté${S.totalFillers>1?'s':''}`;}
 
     const idealsEl=document.getElementById('res-ideals');
-    const reactions=S.itv.reactions||[];
-    idealsEl.innerHTML=S.itv.qs.map((q,i)=>{
-      const ideal=S.itv.ideals[i];
-      const answer=S.itv.answers[i];
-      const reaction=reactions[i];
-      if(!answer&&!ideal) return '';
-      return '<div class="ideal-item">'
-        +'<div class="ideal-q">Q'+(i+1)+'. '+q+'</div>'
-        +(answer?'<div style="font-size:12.5px;color:var(--gray-500);font-style:italic;margin:6px 0;padding:8px 10px;background:#f8f8f8;border-radius:6px">Votre réponse : "'+answer.substring(0,120)+(answer.length>120?'...':'')+'"</div>':'')
-        +(reaction?'<div style="font-size:12.5px;color:var(--blue);font-style:italic;margin-bottom:8px;padding:8px 10px;background:var(--blue-light);border-radius:6px;border-left:3px solid var(--blue)">Recruteur : "'+reaction+'"</div>':'')
-        +'<div class="ideal-a"><strong>Réponse idéale : </strong>'+(ideal||'<span style="color:var(--gray-400)">Non disponible</span>')+'</div>'
-        +'</div>';
-    }).filter(Boolean).join('');
+    idealsEl.innerHTML=S.itv.qs.map((q,i)=>`<div class="ideal-item"><div class="ideal-q">Q${i+1}. ${q}</div><div class="ideal-a">${S.itv.ideals[i]||'<span style="color:var(--gray-400)">Non disponible</span>'}</div></div>`).join('');
 
     if(S.accessCode){
       const avgWPM2=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
@@ -2192,47 +1988,71 @@ function switchCvTab(tab) {
   }
 }
 
-function handleCvUpload(input) {
+async function handleCvUpload(input) {
   const file = input.files[0];
   if(!file) return;
   if(file.size > 5 * 1024 * 1024) {
     alert('Le fichier est trop volumineux (max 5 Mo).');
     return;
   }
-  document.getElementById('cv-file-name').textContent = '✓ ' + file.name;
-  document.getElementById('cv-drop-label').style.borderColor = 'var(--blue)';
-  document.getElementById('cv-drop-label').style.background = 'var(--blue-light)';
+  const nameEl = document.getElementById('cv-file-name');
+  const dropEl = document.getElementById('cv-drop-label');
+  nameEl.textContent = 'Lecture en cours...';
+  dropEl.style.borderColor = 'var(--blue)';
+  dropEl.style.background = 'var(--blue-light)';
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    // Store PDF text extraction — basic fallback: store filename + signal
-    S.config.cv_filename = file.name;
-    S.config.cv_pdf = true;
-    // Try to extract text via ArrayBuffer for basic PDF parsing
-    const arr = new Uint8Array(e.target.result);
-    let raw = '';
-    for(let i=0;i<arr.length;i++) raw += String.fromCharCode(arr[i]);
-    const textMatches = raw.match(/BT[\s\S]*?ET/g);
-    if(textMatches) {
-      const extracted = textMatches
-        .join(' ')
-        .replace(/Tf|Tm|Td|TD|T\*|Tj|TJ/g, ' ')
-        .replace(/[^\x20-\x7E\xC0-\xFF]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .substring(0, 1500);
-      document.getElementById('cfg-cv').value = extracted || 'CV importé : ' + file.name;
-    } else {
-      document.getElementById('cfg-cv').value = 'CV importé : ' + file.name;
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+
+    // Use pdf.js if available
+    if(typeof pdfjsLib !== 'undefined') {
+      const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+      let fullText = '';
+      for(let p = 1; p <= Math.min(pdf.numPages, 6); p++) {
+        const page = await pdf.getPage(p);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        fullText += pageText + ' ';
+      }
+      fullText = fullText.replace(/\s+/g, ' ').trim().substring(0, 2000);
+      if(fullText.length > 50) {
+        document.getElementById('cfg-cv').value = fullText;
+        nameEl.textContent = '✓ ' + file.name + ' — texte extrait (' + fullText.length + ' caractères)';
+        return;
+      }
     }
-  };
-  reader.readAsArrayBuffer(file);
+
+    // Fallback: basic extraction
+    const arr = new Uint8Array(arrayBuffer);
+    let raw = '';
+    for(let i = 0; i < arr.length; i++) raw += String.fromCharCode(arr[i]);
+    const matches = raw.match(/\(([^\)]{2,})\)/g);
+    if(matches) {
+      const text = matches.map(m=>m.slice(1,-1)).join(' ')
+        .replace(/[^ -~À-ÿ]/g,' ')
+        .replace(/\s+/g,' ').trim().substring(0, 1500);
+      if(text.length > 50) {
+        document.getElementById('cfg-cv').value = text;
+        nameEl.textContent = '✓ ' + file.name;
+        return;
+      }
+    }
+
+    // Last resort
+    document.getElementById('cfg-cv').value = 'CV importé: ' + file.name + '. Demandez au candidat de coller son parcours manuellement.';
+    nameEl.textContent = '⚠️ ' + file.name + ' — extraction partielle, collez votre parcours manuellement';
+
+  } catch(err) {
+    document.getElementById('cfg-cv').value = '';
+    nameEl.textContent = '❌ Erreur lecture — colle ton parcours manuellement';
+    dropEl.style.borderColor = 'var(--red)';
+  }
 }
 
 /* Init */
 if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices());}
 if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
 </script>
-
 
 <!-- =========== PACKS =========== -->
 <div id="screen-packs" class="screen">
@@ -2245,34 +2065,52 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
     <div class="eyebrow"><div class="eyebrow-dot"></div><div class="eyebrow-text">Choisis ton pack</div></div>
     <h2 style="font-size:24px;line-height:1.2;margin-bottom:6px;">Entraîne-toi jusqu'à décrocher ton poste</h2>
     <p style="font-size:13.5px;color:var(--gray-500);margin-bottom:24px;">Accès immédiat après paiement · Sans abonnement · Clé par email</p>
+
+    <!-- Pack Découverte -->
     <div style="background:var(--white);border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Découverte</div><div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">3 entretiens complets</div></div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Découverte</div>
+          <div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">3 entretiens complets</div>
+        </div>
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--green)">9,90€</div>
       </div>
       <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Recruteur au choix · Analyse complète · Score multi-critères · Idéal pour tester</div>
       <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Découverte →</a>
     </div>
+
+    <!-- Pack Essentiel - Recommandé -->
     <div style="background:var(--white);border:2.5px solid var(--blue);border-radius:var(--r-sm);padding:18px;margin-bottom:12px;box-shadow:0 4px 20px rgba(37,99,235,.15);position:relative">
       <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-size:11px;font-weight:700;padding:3px 14px;border-radius:20px;white-space:nowrap">⭐ LE PLUS POPULAIRE</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:6px">
-        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Essentiel</div><div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">8 entretiens complets</div></div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Essentiel</div>
+          <div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">8 entretiens complets</div>
+        </div>
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--blue)">19,90€</div>
       </div>
       <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Découverte · Historique de progression · 8 sessions pour vraiment progresser</div>
       <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="btn btn-primary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Essentiel →</a>
     </div>
+
+    <!-- Pack Intensif -->
     <div style="background:var(--white);border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:18px;margin-bottom:24px;box-shadow:var(--shadow)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Intensif</div><div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">20 entretiens complets</div></div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Intensif</div>
+          <div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">20 entretiens complets</div>
+        </div>
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--purple)">34,90€</div>
       </div>
-      <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Essentiel · 20 sessions · Pour les candidats déterminés</div>
+      <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Essentiel · 20 sessions · Pour les candidats déterminés à décrocher leur poste</div>
       <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Intensif →</a>
     </div>
+
     <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:8px">🔒 Paiement sécurisé via Lemon Squeezy · Tu reçois ta clé par email</div>
     <div style="height:16px"></div>
   </div>
 </div>
+
+</div><!-- /#app -->
 </body>
 </html>
