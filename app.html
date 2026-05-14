@@ -1878,6 +1878,7 @@ async function stopRec(e) {
   await new Promise(r=>setTimeout(r,600));
   const answer=currentTranscript.trim();
 
+  // SILENCE handling
   if(!answer||answer.length<8) {
     S.totalSilences++;
     document.getElementById('answer-box').textContent='(Silence comptabilisé)';
@@ -1887,7 +1888,13 @@ async function stopRec(e) {
     S.itv.answers.push(''); S.itv.scores.push(0);
     S.itv.criteria.push({structure:0,confiance:0,pertinence:0,vocabulaire:0});
     S.itv.feedbacks.push('Aucune réponse.'); S.itv.ideals.push('');
-    showNextBtn(); return;
+    if(S.mode === 'complet'){
+      // Auto-flow even on silence - recruiter will react naturally on next gen
+      setTimeout(()=>nextQ(), 600);
+    } else {
+      showNextBtn();
+    }
+    return;
   }
 
   // WPM calculation
@@ -1920,61 +1927,93 @@ async function stopRec(e) {
   document.getElementById('answer-box').className='answer-box has-answer';
   S.itv.answers.push(answer);
 
-  // AI Evaluation - skip for candidate questions phase
+  // SKIP eval for candidate questions phase
   if(S.mode==='complet' && S.itv.phase==='candidate_questions'){
     S.itv.scores.push(0); S.itv.criteria.push({structure:0,confiance:0,pertinence:0,vocabulaire:0}); S.itv.feedbacks.push(''); S.itv.ideals.push('');
-    showNextBtn(); return;
+    document.getElementById('mic-btn').className='mic-btn';
+    setTimeout(()=>nextQ(), 300);
+    return;
   }
-  if(S.itv.currentQ === 0) {
-    document.getElementById('feedback-wrap').style.display='block';
-    document.getElementById('feedback-txt').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
-  }
-  try {
-    const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
-    S.itv.scores.push(ev.score);
-    // Conversational reaction - recruiter responds naturally (skip Q0)
-    if(S.mode==='complet' && S.itv.currentQ > 0){
-      try{
-        const reaction = await genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer);
-        if(reaction){
-          S.itv.reactions = S.itv.reactions || [];
-          S.itv.reactions[S.itv.currentQ] = reaction;
-          // Display reaction visually as recruiter bubble
-          const _re = document.getElementById('recruiter-reaction');
-          if(_re){
-            const recName = S.recruiter?.name || 'Antoine';
-            _re.style.display = 'block';
-            _re.innerHTML = `<div style="margin:12px 20px 4px;display:flex;align-items:flex-start;gap:10px">
-              <div style="width:32px;height:32px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid rgba(255,255,255,.15)">${S.recruiter?.emoji||'🎙️'}</div>
-              <div style="background:var(--navy);color:rgba(255,255,255,.9);border-radius:4px 14px 14px 14px;padding:11px 15px;font-size:14.5px;line-height:1.55;max-width:calc(100% - 48px)">${reaction}</div>
-            </div>`;
-            setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},100);
-          }
-          if(S.config.voix) await speakTextAsync(reaction);
-          else await new Promise(r=>setTimeout(r,Math.min(reaction.length*55, 3000)));
-        }
-      }catch(_){}
-    }
-    S.itv.criteria.push({structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire});
-    S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
-    const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
-    document.getElementById('apt-text').textContent=avg+'%';
+
+  // ============== EXPRESS MODE - keep button-based flow ==============
+  if(S.mode === 'express'){
     if(S.itv.currentQ === 0) {
-      document.getElementById('feedback-txt').textContent=ev.feedback;
-      if(S.config.voix && S.mode!=='express') speakText(ev.feedback);
+      document.getElementById('feedback-wrap').style.display='block';
+      document.getElementById('feedback-txt').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+    }
+    try {
+      const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
+      S.itv.scores.push(ev.score);
+      S.itv.criteria.push({structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire});
+      S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
+      const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
+      document.getElementById('apt-text').textContent=avg+'%';
+      if(S.itv.currentQ === 0) document.getElementById('feedback-txt').textContent=ev.feedback;
+    } catch(err) {
+      S.itv.scores.push(55);
+      S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55});
+      S.itv.feedbacks.push('Réponse enregistrée.'); S.itv.ideals.push('');
+      if(S.itv.currentQ === 0) document.getElementById('feedback-txt').textContent='⚠️ Analyse indisponible.';
     }
     document.getElementById('mic-btn').className='mic-btn';
     document.getElementById('mic-hint').textContent='✓ Réponse enregistrée';
     showNextBtn();
-  } catch(err) {
-    S.itv.scores.push(55);
-    S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55});
-    S.itv.feedbacks.push('Réponse enregistrée.'); S.itv.ideals.push('');
-    document.getElementById('feedback-txt').textContent='⚠️ Analyse indisponible.';
-    document.getElementById('mic-btn').className='mic-btn';
-    document.getElementById('mic-hint').textContent='Maintenir pour parler';
-    showNextBtn();
+    return;
   }
+
+  // ============== COMPLET MODE - conversational auto-flow ==============
+  // No inline feedback shown - everything goes to results
+  document.getElementById('feedback-wrap').style.display='none';
+  document.getElementById('mic-area').style.display='none';
+  document.getElementById('mic-btn').className='mic-btn analyzing';
+  document.getElementById('mic-hint').textContent='Le recruteur réfléchit...';
+
+  // Show only "Abandonner" during recruiter turn so user can exit
+  const _ia = document.getElementById('int-actions');
+  const _nb = document.getElementById('next-btn');
+  if(_ia){ _ia.style.display = 'flex'; if(_nb) _nb.style.display = 'none'; }
+
+  // Reaction + Eval in PARALLEL - reaction works even if eval fails
+  let reaction = null, ev = null;
+  const [rRes, eRes] = await Promise.allSettled([
+    genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer),
+    evalAnswer(S.itv.qs[S.itv.currentQ], answer)
+  ]);
+  if(rRes.status === 'fulfilled') reaction = rRes.value;
+  if(eRes.status === 'fulfilled') ev = eRes.value;
+
+  // Store eval (with fallback if it failed)
+  if(!ev) ev = {score:55, structure:55, confiance:55, pertinence:55, vocabulaire:55, feedback:'Réponse enregistrée.', ideal:''};
+  S.itv.scores.push(ev.score);
+  S.itv.criteria.push({structure:ev.structure, confiance:ev.confiance, pertinence:ev.pertinence, vocabulaire:ev.vocabulaire});
+  S.itv.feedbacks.push(ev.feedback);
+  S.itv.ideals.push(ev.ideal);
+  S.itv.reactions = S.itv.reactions || [];
+  if(reaction) S.itv.reactions[S.itv.currentQ] = reaction;
+
+  const avg = Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
+  document.getElementById('apt-text').textContent = avg + '%';
+
+  // Display reaction visually + speak it (awaited)
+  if(reaction){
+    const _re = document.getElementById('recruiter-reaction');
+    if(_re){
+      _re.style.display = 'block';
+      _re.innerHTML = `<div style="margin:12px 20px 4px;display:flex;align-items:flex-start;gap:10px">
+        <div style="width:32px;height:32px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid rgba(255,255,255,.15)">${S.recruiter?.emoji||'🎙️'}</div>
+        <div style="background:var(--navy);color:rgba(255,255,255,.9);border-radius:4px 14px 14px 14px;padding:11px 15px;font-size:14.5px;line-height:1.55;max-width:calc(100% - 48px)">${reaction}</div>
+      </div>`;
+      setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},100);
+    }
+    if(S.config.voix) await speakTextAsync(reaction);
+    else await new Promise(r=>setTimeout(r, Math.min(reaction.length*55, 2500)));
+  } else {
+    await new Promise(r=>setTimeout(r, 400));
+  }
+
+  // Auto-flow: enchaîne directement sur la question suivante
+  document.getElementById('mic-btn').className = 'mic-btn';
+  setTimeout(()=>nextQ(), 250);
 }
 
 function wpmClass(wpm){
@@ -1988,7 +2027,9 @@ function showNextBtn() {
   if(S.mode==='express' && S.itv.currentQ>=S.itv.qs.length-1) nextLabel='Voir les résultats ->';
   if(S.mode==='complet' && S.itv.phase==='candidate_questions') nextLabel='Terminer l\'entretien ->';
   document.getElementById('int-actions').style.display='flex';
-  document.getElementById('next-btn').textContent=nextLabel;
+  const _nb = document.getElementById('next-btn');
+  _nb.style.display = '';
+  _nb.textContent=nextLabel;
   setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},200);
 }
 async function nextQ() {
