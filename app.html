@@ -1532,16 +1532,19 @@ async function genNextQuestion() {
   const cvShort = S.config.cv ? S.config.cv.substring(0,300) : '';
   const qCount = S.itv.qs.length;
 
-  // Force obligatory questions by order
-  const allQs = S.itv.qs.join(' ').toLowerCase();
+  // Track covered categories via history (more reliable than text matching)
+  const allHistory = S.itv.history.map(h=>h.q).join(' ').toLowerCase();
+  const allQsLow = S.itv.qs.join(' ').toLowerCase();
+  const covered = (kws) => kws.some(k => allQsLow.includes(k) || allHistory.includes(k));
   const lastA = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].a : '';
-  if(!allQs.includes('pourquoi') && !allQs.includes('motiv') && qCount>=2)
+
+  if(!covered(['attire','motivat','pourquoi ce poste','intéresse','attiré']) && qCount>=2)
     return `Vous m'avez indiqué ${lastA.substring(0,60).trim()||'votre parcours'} — qu'est-ce qui vous attire spécifiquement dans ce poste de ${S.config.poste} ?`;
-  if(!allQs.includes('situation') && !allQs.includes('exemple') && qCount>=3)
-    return `Donnez-moi un exemple concret d'une situation professionnelle difficile que vous avez gérée — contexte, action, résultat.`;
-  if(!allQs.includes('pas un autre') && !allQs.includes('apportez') && qCount>=5)
+  if(!covered(['situation','exemple concret','racontez','décrivez une']) && qCount>=3)
+    return `Donnez-moi un exemple concret d'une situation professionnelle difficile que vous avez gérée.`;
+  if(!covered(['pas un autre','vous distingue','apportez','différenciez']) && qCount>=5)
     return `Pourquoi vous, et pas les autres candidats que je rencontre cette semaine ?`;
-  if(!allQs.includes('salaire') && !allQs.includes('prétention') && qCount>=6)
+  if(!covered(['salaire','prétention','rémunération']) && qCount>=6)
     return `Quelles sont vos prétentions salariales ?`;
 
   const lastRef = lastA.length > 20 ? `En référence à ce que vous venez de dire, ` : '';
