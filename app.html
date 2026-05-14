@@ -1520,63 +1520,104 @@ function updateTimerDisplay() {
 }
 
 async function genNextQuestion() {
-  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et direct':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant et attentif';
+  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant mais professionnel';
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
-  const recStyle = {antoine:'rigoureux et structuré',laurent:'analytique et précis',guillaume:'direct et efficace',manon:'empathique mais exigeante',jeanne:'méthodique et attentive',victoria:'dynamique et incisive'}[recKey]||'professionnel';
+  const recStyle = {antoine:'rigoureux',laurent:'analytique',guillaume:'direct',manon:'exigeante',jeanne:'méthodique',victoria:'incisive'}[recKey]||'professionnel';
   const tone = baseStyle+', '+recStyle;
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
   const rec = S.recruiter || RECRUITERS.antoine;
-  const hist = S.itv.history.slice(-4);
-  const histStr = hist.map(h=>'Q: '+h.q.substring(0,80)+'\nR: '+h.a.substring(0,120)).join('\n');
+  const hist = S.itv.history.slice(-5);
+  const histStr = hist.map(h=>'Q: '+h.q.substring(0,100)+'\nR: '+h.a.substring(0,150)).join('\n---\n');
   const cvShort = S.config.cv ? S.config.cv.substring(0,300) : '';
   const qCount = S.itv.qs.length;
-
-  // Track covered categories via history (more reliable than text matching)
   const lastA = S.itv.history.length > 0 ? S.itv.history[S.itv.history.length-1].a : '';
 
-  // Q obligatoires — mots-clés alignés sur le texte exact des questions retournées
-  if(!S.itv._askedMotiv && qCount>=2){
-    S.itv._askedMotiv=true;
-    return `Vous m'avez indiqué ${lastA.substring(0,60).trim()||'votre parcours'} — qu'est-ce qui vous attire spécifiquement dans ce poste de ${S.config.poste} ?`;
-  }
-  if(!S.itv._askedStar && qCount>=3){
-    S.itv._askedStar=true;
-    return `Donnez-moi un exemple concret d'une situation professionnelle difficile que vous avez gérée.`;
-  }
-  if(!S.itv._askedDiff && qCount>=5){
-    S.itv._askedDiff=true;
-    return `Pourquoi vous, et pas les autres candidats que je rencontre cette semaine ?`;
-  }
-  if(!S.itv._askedSalaire && qCount>=6){
-    S.itv._askedSalaire=true;
-    return `Quelles sont vos prétentions salariales ?`;
+  // Obligatoires à poser dans l'ordre
+  const mustAsk = [];
+  if(!S.itv._askedMotiv && qCount>=2) mustAsk.push('motivations pour ce poste spécifiquement');
+  if(!S.itv._askedStar && qCount>=3) mustAsk.push('exemple STAR situation difficile vécue');
+  if(!S.itv._askedDiff && qCount>=5) mustAsk.push('pourquoi vous et pas un autre candidat');
+  if(!S.itv._askedSalaire && qCount>=6) mustAsk.push('prétentions salariales');
+
+  // Marque comme posé
+  if(mustAsk.length>0){
+    const m = mustAsk[0];
+    if(m.includes('motivat')) S.itv._askedMotiv=true;
+    else if(m.includes('STAR')) S.itv._askedStar=true;
+    else if(m.includes('plutôt')||m.includes('autre candidat')) S.itv._askedDiff=true;
+    else if(m.includes('salaire')) S.itv._askedSalaire=true;
   }
 
-  const lastRef = lastA.length > 20 ? `En référence à ce que vous venez de dire, ` : '';
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}.${cvShort?'\nCV: '+cvShort:''}
-Historique: ${histStr||'Début.'}
-${lastRef}Question ${qCount+1}: pose une question d'entretien naturelle qui rebondit sur la dernière réponse si pertinent. Varie: STAR, compétences, culture, projection. 15-40 mots. Texte brut.`;
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}.
+${cvShort?'CV du candidat: '+cvShort:''}
 
-  const res = await apiCall(prompt, 150);
+HISTORIQUE DE L'ENTRETIEN:
+${histStr||'Début — première question après présentation.'}
+
+DERNIÈRE RÉPONSE DU CANDIDAT: "${lastA}"
+
+TON RÔLE: Tu diriges cet entretien. Tu as l'autorité. Le candidat répond, toi tu questionnes.
+
+INSTRUCTIONS:
+- Si la dernière réponse rebondit sur quelque chose de concret (entreprise, poste, expérience mentionnée), commence ta question par une référence directe: "Vous m'avez mentionné X —", "En évoquant Y —", "Je retiens que Z —"
+- Si la réponse est évasive ou vague, tu peux le signaler en 5 mots max avant ta question: "Restons concrets —" ou "Soyons précis —"
+- Si la réponse était irrespectueux ou un refus catégorique, commence par: "Je note votre position." puis enchaîne sur la question suivante sans t'attarder
+- NE RÉPÈTE JAMAIS une question déjà posée dans l'historique
+- Varie le type: comportemental, compétences, culture, projection
+${mustAsk.length>0?'- OBLIGATOIRE: ta prochaine question DOIT porter sur: '+mustAsk[0]:'- Tous les sujets clés sont couverts, pose une question de fond selon le profil'}
+
+Génère UNIQUEMENT la question suivante. Texte brut. 15-45 mots.`;
+
+  const res = await apiCall(prompt, 180);
   return res.trim();
 }
 
+
 async function genRecruiterReaction(question, answer) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant';
+  const tone = S.config.personnalite==='hardcore'?'très exigeant et autoritaire':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant mais ferme';
   const recName = S.recruiter?.name||'Antoine';
-  const prompt = `Tu es ${recName}, recruteur ${tone}.
+
+  const prompt = `Tu es ${recName}, recruteur ${tone} qui conduit un entretien d'embauche réel.
+
 Question posée: "${question}"
-Réponse: "${answer}"
-DÉCIDE: la réponse nécessite-t-elle une relance ?
-RELANCE si question ouverte ET réponse vague (<25 mots, sans exemple, hors sujet): pose 1 question précise (10-20 mots).
-SKIP si réponse claire, structurée, ou question fermée (salaire, dispo, oui/non).
-Renvoie uniquement la relance OU le mot SKIP.`;
+Réponse du candidat: "${answer}"
+
+ANALYSE et RÉAGIS en une phrase (8-15 mots max):
+
+CAS 1 — Réponse CORRECTE et développée → SKIP (aucune réaction, tu passes directement)
+
+CAS 2 — Réponse VAGUE ou trop courte (moins de 20 mots sans contenu) → relance ferme.
+Exemples: "Soyez plus précis, je vous repose la question." / "Je n'ai pas eu de réponse concrète — développez."
+
+CAS 3 — Refus de répondre, réponse désinvolte ("je sais pas", "peu importe", "ça m'intéresse pas") → recadrage autoritaire.
+Exemples: "Je vous invite à rester professionnel." / "Ce type de réponse ne convient pas dans ce contexte."
+
+CAS 4 — Comportement irrespectueux, insulte, agressivité → renvoie exactement: END_INTERVIEW
+
+CAS 5 — Le candidat pose une question sur le poste ou l'entreprise → réponds en 1-2 phrases naturelles.
+
+Renvoie: SKIP, END_INTERVIEW, ou la réaction en texte brut.`;
+
   const res = await apiCall(prompt, 80);
   const txt = res.trim();
-  if(txt==='SKIP'||txt.length<4) return null;
+
+  if(txt === 'END_INTERVIEW') {
+    // Recruiter ends the interview
+    const ending = `Je mets fin à cet entretien. Votre comportement ne correspond pas à ce que nous attendons d'un candidat. Bonne continuation.`;
+    document.getElementById('q-text').textContent = ending;
+    document.getElementById('int-actions').style.display = 'none';
+    document.getElementById('mic-area').style.display = 'none';
+    if(S.config.voix) await speakTextAsync(ending);
+    else await new Promise(r=>setTimeout(r,2000));
+    showResults();
+    return null;
+  }
+
+  if(txt === 'SKIP' || txt.length < 4) return null;
   return txt;
 }
+
 
 async function genCandidateQuestionAnswer(candidateQ) {
   const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
@@ -1726,8 +1767,15 @@ async function stopRec(e) {
       if(S.itv.replyCount[S.itv.currentQ]===1){
         try{
           const reaction=await genRecruiterReaction(S.itv.qs[S.itv.currentQ],answer);
-          if(reaction){S.itv.reactions=S.itv.reactions||[];S.itv.reactions[S.itv.currentQ]=reaction;document.getElementById('q-text').textContent=reaction;if(S.config.voix) speakText(reaction);}
-          else{if(badge) badge.style.display='block';}
+          if(reaction){
+            S.itv.reactions=S.itv.reactions||[];
+            S.itv.reactions[S.itv.currentQ]=reaction;
+            // Show reaction in question area + speak
+            document.getElementById('q-text').textContent=reaction;
+            if(S.config.voix) speakText(reaction);
+          } else {
+            if(badge) badge.style.display='block';
+          }
         }catch(_){if(badge) badge.style.display='block';}
       } else {if(badge) badge.style.display='block';}
     }
