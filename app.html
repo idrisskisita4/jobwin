@@ -1491,7 +1491,8 @@ async function speakTextAsync(txt) {
 }
 
 async function initInterview() {
-  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],reactions:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12};
+  const sessionSeed = Math.random().toString(36).substring(2,8);
+  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],reactions:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12,candidateQCount:0,sessionSeed};
   S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0; S.fillerLog={}; clearAudioBuffer();
 
   const rec = (S.recruiter && S.recruiter.name) ? S.recruiter : RECRUITERS.antoine;
@@ -1536,15 +1537,8 @@ async function initInterview() {
     document.getElementById('r-meta-role').textContent='Recruteur IA · Entretien en cours';
     document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
     try {
-      // Intro personnalisée selon type d'entreprise
       const rec2=S.recruiter||{name:'Antoine',genre:'homme'};
-      const typeIntros={
-        grand_groupe: `Bonjour${S.config.poste?', je vois que vous candidatez pour le poste de '+S.config.poste:''}. Je suis ${rec2.name}, Responsable des Ressources Humaines. J'ai pris le soin de parcourir votre dossier avant notre entretien. Nous allons avoir un échange d'environ trente à quarante-cinq minutes - je souhaite mieux vous connaître, comprendre votre parcours, vos motivations, et évaluer votre adéquation avec ce que nous recherchons. Soyez à l'aise pour vous exprimer pleinement. Êtes-vous prêt à commencer ?`,
-        pme: `Bonjour, je suis ${rec2.name}. Je pilote les recrutements ici depuis quelques années, donc je connais bien nos besoins. J'ai jeté un œil à votre profil pour le poste de ${S.config.poste||'ce poste'}, et il y a des choses qui m'ont intéressé - j'aimerais qu'on creuse ça ensemble. On va avoir une discussion franche et directe, sans langue de bois. Je préfère qu'on se parle vraiment plutôt que de réciter des formules. Ça vous convient ?`,
-        startup: `Hey, bonjour ! Je suis ${rec2.name}, je gère le recrutement chez nous. Bon, je vais être honnête - on grandit vite et on a besoin de gens qui peuvent vraiment tenir la cadence. Le poste de ${S.config.poste||'ce poste'} est stratégique pour nous en ce moment. L'idée c'est qu'on ait une vraie conversation - pas un interrogatoire. Je veux comprendre qui vous êtes, ce qui vous drive, comment vous pensez. Donc n'hésitez pas à sortir des sentiers battus. On y va ?`,
-        administration: `Bonjour, je suis ${rec2.name}, chargé${rec2.genre==='femme'?'e':''} de recrutement au sein de notre direction. Vous candidatez pour le poste de ${S.config.poste||'ce poste'}. Cet entretien se déroulera de façon structurée - je vous poserai plusieurs questions portant sur votre parcours, vos compétences, et votre motivation pour intégrer nos équipes. Prenez le temps de formuler des réponses précises et circonstanciées. Je suis attentif${rec2.genre==='femme'?'ve':''} à la cohérence de votre discours et à votre capacité d'adaptation au service public. Nous pouvons commencer.`
-      };
-      const introText = typeIntros[S.config.type_entreprise||'grand_groupe'];
+      const introText = await genRecruiterIntro(rec2);
       document.getElementById('q-text').textContent=introText;
       if(document.getElementById('mic-area')) document.getElementById('mic-area').style.display='none';
       if(S.config.voix) await speakTextAsync(introText);
@@ -1579,6 +1573,44 @@ function updateTimerDisplay() {
   const display=document.getElementById('timer-display');
   display.textContent=m+':'+(s<10?'0':'')+s;
   display.classList.toggle('urgent', S.expressSecondsLeft<=120);
+}
+
+async function genRecruiterIntro(rec) {
+  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const tone = S.config.personnalite==='hardcore'?'exigeant et direct':S.config.personnalite==='exigeant'?'professionnel':S.config.personnalite==='standard'?'bienveillant et chaleureux':'professionnel';
+  const cv = (S.config.cv||'').substring(0,300);
+  const seed = S.itv?.sessionSeed || Math.random().toString(36).substring(2,6);
+
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Tu reçois un candidat pour le poste de ${S.config.poste}.
+${cv ? 'Tu as lu son CV : '+cv : 'Tu n\'as pas de CV sous la main.'}
+
+Rédige ton DISCOURS D'OUVERTURE de l'entretien. C'est ce que tu dis au candidat pour lancer l'échange.
+
+Contraintes :
+- 3 à 5 phrases naturelles, parlées (pas écrites)
+- Présente-toi rapidement (prénom + rôle)
+- Mentionne le poste
+- Annonce le déroulé de façon naturelle (pas formelle)
+- Ajoute UNE petite remarque personnelle ou une touche spécifique à ton style (curiosité, franchise, bienveillance, rigueur...)
+- Termine par une invitation à commencer
+- Varie : ne commence pas forcément par "Bonjour"
+- Seed de variation : ${seed}
+
+Texte brut, naturel, comme si tu parlais. Pas de guillemets, pas de tirets, pas de listes.`;
+
+  try {
+    const res = await apiCall(prompt, 250);
+    return res.trim();
+  } catch(e) {
+    const fallbacks = {
+      grand_groupe: `Bonjour, je suis ${rec.name}, Responsable RH. Je suis ravi de vous recevoir pour ce poste de ${S.config.poste}. J'ai pris le temps de regarder votre dossier et j'ai quelques questions précises. On va avoir un échange d'environ quarante minutes. Prêt à commencer ?`,
+      pme: `Bonjour ! ${rec.name}, je pilote les recrutements ici. On va avoir une discussion franche - je préfère qu'on se parle vraiment plutôt que de réciter des formules. Le poste de ${S.config.poste||'ce poste'} nous est important en ce moment. On y va ?`,
+      startup: `Salut, ${rec.name} ! Je gère le recrutement. Pas de prise de tête - on va juste avoir une vraie conversation sur vous et ce que vous pouvez apporter. Le poste de ${S.config.poste||'ce poste'} est stratégique pour nous. Lancez-vous.`,
+      administration: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement. Cet entretien portera sur votre parcours et votre motivation pour le poste de ${S.config.poste||'ce poste'}. Prenez le temps de formuler des réponses précises. Nous pouvons commencer.`
+    };
+    return fallbacks[S.config.type_entreprise||'grand_groupe'];
+  }
 }
 
 async function genFirstQuestion() {
@@ -1697,7 +1729,9 @@ Génère UNE relance ciblée (15-30 mots) qui demande un exemple concret ou une 
   ];
   const angle = angles[Math.floor(Math.random()*angles.length)];
 
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau candidat : ${S.config.niveau||'junior'}.
+  const seed = S.itv?.sessionSeed || '';
+
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau candidat : ${S.config.niveau||'junior'}. Session : ${seed}.
 
 CV COMPLET du candidat :
 ${cv || '(aucun CV fourni)'}
@@ -1705,25 +1739,22 @@ ${cv || '(aucun CV fourni)'}
 Échanges précédents :
 ${histStr || '(c\'est la 2e question de l\'entretien)'}
 
-Question ${qCount+1}. RÈGLE ABSOLUE : ta question DOIT être UNIQUE et personnalisée à CE candidat. Pas de question d'entretien générique sortie d'un manuel RH.
+QUESTION ${qCount+1}. Tu dois décider entre deux options :
 
-Stratégie de génération :
-1. PRIORITÉ : identifie un élément SPÉCIFIQUE (a) du CV non encore exploré, ou (b) d'une réponse précédente qui mérite d'être creusé. Cite-le directement dans ta question.
-2. Si rien de spécifique à creuser, aborde un thème non couvert en l'ANCRANT dans le contexte de ce candidat précis.
+OPTION A — CREUSER LE MÊME SUJET : si la dernière réponse a abordé quelque chose d'intéressant (une entreprise, un projet, une compétence, une transition) qui mérite d'être approfondi, pose une question de relance sur CE MÊME élément.
+OPTION B — NOUVEAU SUJET : si le sujet précédent a été suffisamment exploré, passe à un nouveau thème.
 
-Angle suggéré cette fois : ${angle}
-${themesNonCouverts.length > 0 ? 'Thèmes pas encore abordés (à couvrir avant la fin) : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts, creuse en profondeur.'}
+Angle suggéré pour cette question : ${angle}
+${themesNonCouverts.length > 0 ? 'Thèmes pas encore abordés (à couvrir) : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts.'}
 
-Exemples de questions SPÉCIFIQUES (à imiter) :
-- "Vous avez passé 8 mois chez [X] - c'est court, qu'est-ce qui s'est passé ?"
-- "Je vois un master en [domaine] mais vous travaillez dans [autre] - racontez-moi cette transition."
-- "Votre dernière expérience date d'il y a [période] - qu'avez-vous fait depuis ?"
-- "Vous mentionnez [compétence] - sur quel projet l'avez-vous utilisée et avec quel résultat ?"
-- "Vous m'avez parlé de [élément de réponse précédente] - développez la partie [aspect spécifique]."
+Mix attendu sur l'entretien : 50% questions ancrées sur SON CV / SES réponses, 50% questions classiques reformulées à SON profil et contexte.
 
-À ÉVITER absolument : "Quelle est votre plus grande force ?", "Pourquoi ce poste ?" sans contexte, "Décrivez votre méthode de travail", "Comment gérez-vous le stress ?" — sauf si reformulé SPÉCIFIQUEMENT pour ce candidat avec une référence concrète à son CV ou à ses réponses.
+RÈGLES ABSOLUES :
+- Ta question doit être UNIQUE à ce candidat - pas une question générique type "Quelle est votre plus grande force ?"
+- Si tu utilises un thème classique, ancre-le dans son contexte : "Pour un poste de ${S.config.poste} chez nous, concrètement, qu'est-ce que vous apporteriez que quelqu'un d'autre n'apporterait pas ?"
+- Cite des éléments concrets de son CV ou de ses réponses quand tu en as
 
-UNE seule question. 15 à 50 mots. Texte brut, pas de guillemets, pas de numérotation, pas de préambule.`;
+UNE seule question. 15 à 50 mots. Texte brut, pas de guillemets, pas de numérotation.`;
 
   const res = await apiCall(prompt, 180);
   return res.trim();
@@ -2020,10 +2051,10 @@ async function stopRec(e) {
   document.getElementById('mic-btn').className='mic-btn analyzing';
   document.getElementById('mic-hint').textContent='Le recruteur réfléchit...';
 
-  // Show only "Abandonner" during recruiter turn so user can exit
+  // Show both buttons - user can skip at any time
   const _ia = document.getElementById('int-actions');
   const _nb = document.getElementById('next-btn');
-  if(_ia){ _ia.style.display = 'flex'; if(_nb) _nb.style.display = 'none'; }
+  if(_ia){ _ia.style.display = 'flex'; if(_nb){ _nb.style.display=''; _nb.textContent='Question suivante ->'; } }
 
   // Reaction + Eval in PARALLEL - reaction works even if eval fails
   let reaction = null, ev = null;
@@ -2063,9 +2094,13 @@ async function stopRec(e) {
     await new Promise(r=>setTimeout(r, 400));
   }
 
-  // Auto-flow: enchaîne directement sur la question suivante
+  // Auto-flow: enchaîne directement (sauf si le candidat a déjà cliqué manuellement)
   document.getElementById('mic-btn').className = 'mic-btn';
-  setTimeout(()=>nextQ(), 250);
+  const autoFlowQ = S.itv.currentQ;
+  setTimeout(()=>{
+    // Guard: only auto-advance if still on the same question (user didn't click manually)
+    if(S.itv.currentQ === autoFlowQ && S.itv.phase !== 'done') nextQ();
+  }, 300);
 }
 
 function wpmClass(wpm){
@@ -2277,29 +2312,40 @@ async function apiCall(prompt, maxTokens=600) {
 
 async function evalAnswer(q, answer) {
   const tone=S.config.personnalite==='hardcore'?'très exigeant, froid':S.config.personnalite==='exigeant'?'professionnel, exigeant':'bienveillant';
-  const prompt=`Tu es un recruteur ${tone} expert qui évalue une réponse d'entretien d'embauche.
+  const prompt=`Tu es un recruteur ${tone} expert.
+POSTE : ${S.config.poste}
+QUESTION : "${q}"
+RÉPONSE : "${answer}"
 
-POSTE VISÉ : ${S.config.poste}
-TYPE ENTREPRISE : ${S.config.type_entreprise||'grand_groupe'}
-QUESTION POSÉE : "${q}"
-RÉPONSE DU CANDIDAT : "${answer}"
+Évalue selon ces critères (0-100) :
+- score : note globale
+- structure : clarté, fil conducteur, méthode STAR
+- confiance : assurance vs hésitations
+- pertinence : adéquation, exemples concrets
+- vocabulaire : richesse lexicale, registre pro
 
-Évalue cette réponse selon ces critères stricts :
-- score (0-100) : note globale pondérée
-- structure (0-100) : clarté de l'argumentation, fil conducteur, méthode STAR si applicable
-- confiance (0-100) : assurance dans la formulation, affirmations nettes vs hésitations
-- pertinence (0-100) : adéquation de la réponse avec ce qui était attendu, exemples concrets
-- vocabulaire (0-100) : richesse lexicale, registre professionnel, précision des termes
+Feedback : 1-2 phrases max, ton ${tone}, UN point faible + UN point fort.
 
-Pour le feedback : adopte le ton d'un recruteur ${tone}. Sois direct et précis. Pointe UN point faible majeur et UN point fort. Maximum 2 phrases. Utilise un vocabulaire professionnel riche.
-
-Pour la réponse idéale : rédige ce qu'aurait dit un candidat excellent. 3-4 phrases, structure STAR si applicable, avec des tournures du type "J'ai été amené à...", "Dans ce contexte, j'ai choisi de...", "Le résultat a été...". Réponse en français, naturelle.
-
-Retourne UNIQUEMENT ce JSON valide (sans markdown, sans texte autour) :
-{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"feedback ici","ideal":"réponse idéale ici"}`;
-  const txt=await apiCall(prompt,700);
+JSON uniquement (sans markdown) :
+{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"ici"}`;
+  const txt=await apiCall(prompt,300);
   try{return JSON.parse(txt.replace(/```json?|```/g,'').trim())}
-  catch(e){return{score:60,structure:60,confiance:60,pertinence:60,vocabulaire:60,feedback:'Réponse enregistrée.',ideal:''}}
+  catch(e){return{score:60,structure:60,confiance:60,pertinence:60,vocabulaire:60,feedback:'Réponse enregistrée.'}}
+}
+
+async function genIdealResponse(q, answer, i) {
+  const tone=S.config.personnalite==='hardcore'?'très exigeant':'professionnel';
+  const prompt=`Recruteur ${tone}. Poste : ${S.config.poste}.
+Question posée : "${q}"
+Réponse du candidat : "${answer||'(silence)'}"
+
+Rédige la réponse idéale qu'aurait donnée un excellent candidat à cette question. 3-4 phrases, structure STAR si applicable, avec des tournures naturelles du type "J'ai été amené à...", "Dans ce contexte, j'ai choisi de...", "Le résultat a été...". En français, naturel et professionnel.
+
+Texte brut uniquement, pas de préambule.`;
+  try {
+    const txt = await apiCall(prompt, 250);
+    return txt.trim();
+  } catch(e) { return ''; }
 }
 
 /* ========== RESULTS ========== */
@@ -2382,18 +2428,41 @@ async function showResults() {
 
     const idealsEl=document.getElementById('res-ideals');
     const reactions = S.itv.reactions || [];
+    // Render skeleton first
     idealsEl.innerHTML=S.itv.qs.map((q,i)=>{
-      const reaction = reactions[i];
-      const ideal = S.itv.ideals[i];
       const answer = S.itv.answers[i];
-      if(!answer && !ideal) return '';
-      return `<div class="ideal-item">
+      const reaction = reactions[i];
+      const feedback = S.itv.feedbacks[i];
+      if(!answer && i >= S.itv.qs.length - 2) return ''; // skip candidate-question phase
+      if(!q) return '';
+      return `<div class="ideal-item" id="ideal-item-${i}">
         <div class="ideal-q">Q${i+1}. ${q}</div>
-        ${answer ? `<div style="font-size:12.5px;color:var(--gray-500);font-style:italic;margin-bottom:8px;padding:8px 10px;background:#f8f8f8;border-radius:6px">Votre réponse : "${answer.substring(0,120)}${answer.length>120?'...':''}"</div>` : ''}
-        ${reaction ? `<div style="font-size:12.5px;color:var(--blue);font-style:italic;margin-bottom:8px;padding:8px 10px;background:var(--blue-light);border-radius:6px;border-left:3px solid var(--blue)">💬 Réaction du recruteur : "${reaction}"</div>` : ''}
-        <div class="ideal-a"><strong>Réponse idéale :</strong> ${ideal||'<span style="color:var(--gray-400)">Non disponible</span>'}</div>
+        ${answer ? `<div style="font-size:12.5px;color:var(--gray-600);font-style:italic;margin-bottom:8px;padding:8px 10px;background:#f8fafc;border-radius:6px;border-left:3px solid var(--gray-300)">Votre réponse : "${answer.substring(0,150)}${answer.length>150?'...':''}"</div>` : ''}
+        ${feedback ? `<div style="font-size:12.5px;color:var(--gray-700);margin-bottom:8px;padding:8px 10px;background:var(--amber-l);border-radius:6px;border-left:3px solid var(--amber)">💬 ${feedback}</div>` : ''}
+        <div class="ideal-a" id="ideal-txt-${i}"><div class="dot-loader" style="justify-content:flex-start;padding:4px 0"><span></span><span></span><span></span></div></div>
       </div>`;
     }).filter(Boolean).join('');
+
+    // Generate ideals one by one (async, non-blocking)
+    (async () => {
+      for(let i = 0; i < S.itv.qs.length; i++){
+        const q = S.itv.qs[i];
+        const answer = S.itv.answers[i];
+        const el = document.getElementById('ideal-txt-'+i);
+        if(!el || !q || !answer) continue;
+        if(S.itv.phase === 'candidate_questions' && i >= S.itv.qs.length - 3) continue;
+        try {
+          const ideal = await genIdealResponse(q, answer, i);
+          if(ideal && el) {
+            el.innerHTML = `<strong style="color:var(--green);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase">✦ Réponse idéale</strong><br><span style="color:var(--gray-600);line-height:1.6">${ideal}</span>`;
+          } else if(el) {
+            el.innerHTML = '<span style="color:var(--gray-400)">Non disponible</span>';
+          }
+        } catch(e) {
+          if(el) el.innerHTML = '<span style="color:var(--gray-400)">Non disponible</span>';
+        }
+      }
+    })();
 
     if(S.accessCode){
       const avgWPM2=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
