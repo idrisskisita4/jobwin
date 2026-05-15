@@ -1043,6 +1043,474 @@ const LS_VARIANT_MAP = {
 };
 const LS_FALLBACK_INTERVIEWS = 5;
 
+/* ============================================================
+   QUESTION BANK — 700+ questions structurées
+   Utilisée pour : enrichir les prompts IA + fallback si API fail
+   ============================================================ */
+const QUESTION_BANK = {
+
+  universelles: {
+    presentation: [
+      "Présentez-vous et expliquez ce qui vous a amené à postuler pour ce poste.",
+      "Racontez-moi votre parcours professionnel — les étapes clés et ce qui vous a guidé.",
+      "Qui êtes-vous professionnellement ? Donnez-moi les grandes lignes.",
+      "Décrivez votre trajectoire depuis le début de votre carrière jusqu'à aujourd'hui.",
+      "Qu'est-ce qui vous définit en tant que professionnel ?",
+      "Comment en êtes-vous arrivé à postuler pour ce poste aujourd'hui ?",
+      "Parlez-moi de votre expérience la plus récente et de ce que vous y avez appris.",
+      "Qu'est-ce que votre dernier poste vous a apporté que vous ne pourrez pas trouver ailleurs ?",
+    ],
+    motivation: [
+      "Qu'est-ce qui vous attire spécifiquement dans ce poste ?",
+      "Pourquoi voulez-vous quitter votre poste actuel ?",
+      "Qu'est-ce qui vous a déclenché dans cette candidature — pourquoi maintenant ?",
+      "Pourquoi ce secteur plutôt qu'un autre ?",
+      "Qu'est-ce que vous cherchez dans votre prochain poste que vous n'avez pas trouvé avant ?",
+      "Qu'est-ce qui vous a convaincu de nous envoyer votre CV ?",
+      "Si vous deviez choisir entre deux offres similaires, qu'est-ce qui ferait pencher la balance ?",
+      "Qu'est-ce qui vous manque dans votre poste actuel ou votre dernière expérience ?",
+      "Qu'est-ce que vous aimez le plus dans votre métier ?",
+      "Qu'est-ce qui vous donnerait envie de vous lever le matin pour venir travailler ici ?",
+    ],
+    star_reussite: [
+      "Racontez-moi une réussite professionnelle dont vous êtes particulièrement fier.",
+      "Donnez-moi un exemple d'un projet que vous avez mené à bien malgré des obstacles.",
+      "Quelle est la décision professionnelle dont vous êtes le plus satisfait ? Contexte, choix, résultat.",
+      "Décrivez une situation où vous avez eu un impact mesurable sur votre équipe ou votre entreprise.",
+      "Parlez-moi d'une fois où vous avez dépassé les attentes de votre employeur.",
+      "Racontez-moi un défi que vous avez relevé avec des ressources limitées.",
+      "Donnez-moi un exemple concret de problème complexe que vous avez résolu.",
+      "Quelle est la réalisation dont vous seriez le plus fier d'avoir sur votre CV ?",
+    ],
+    star_echec: [
+      "Parlez-moi d'un échec professionnel et ce que vous en avez appris.",
+      "Racontez-moi une situation qui ne s'est pas passée comme prévu — qu'avez-vous fait ?",
+      "Décrivez une erreur que vous avez commise et comment vous l'avez gérée.",
+      "Qu'est-ce que vous auriez fait différemment dans votre dernier poste ?",
+      "Donnez-moi un exemple de projet qui a mal tourné et votre rôle là-dedans.",
+      "Parlez-moi d'une décision que vous regrettez et pourquoi.",
+      "Racontez-moi une fois où vous avez reçu un feedback difficile — comment avez-vous réagi ?",
+    ],
+    star_conflit: [
+      "Décrivez une situation de conflit au travail et comment vous l'avez gérée.",
+      "Racontez-moi une fois où vous n'étiez pas d'accord avec votre manager — qu'est-ce qui s'est passé ?",
+      "Comment gérez-vous les tensions dans une équipe ? Donnez-moi un exemple.",
+      "Parlez-moi d'une situation où vous avez dû convaincre quelqu'un qui résistait à votre idée.",
+      "Donnez-moi un exemple où vous avez eu à travailler avec quelqu'un de difficile.",
+      "Racontez une situation où vos valeurs ont été en conflit avec une décision de l'entreprise.",
+    ],
+    projection: [
+      "Où vous voyez-vous dans trois ans ?",
+      "Où voulez-vous être dans cinq ans professionnellement ?",
+      "Quels sont vos objectifs de carrière à moyen terme ?",
+      "En quoi ce poste s'inscrit dans votre trajectoire à long terme ?",
+      "Qu'est-ce que vous espérez apprendre dans ce poste que vous ne savez pas encore faire ?",
+      "Comment imaginez-vous votre évolution dans cette entreprise ?",
+      "Dans dix ans, qu'est-ce que vous voulez avoir accompli ?",
+      "Comment ce poste vous rapproche-t-il de vos objectifs de vie professionnelle ?",
+    ],
+    differenciation: [
+      "Pourquoi vous et pas les autres candidats ?",
+      "Qu'est-ce que vous apportez que quelqu'un d'autre n'apporterait pas ?",
+      "Qu'est-ce qui vous distingue de profils similaires au vôtre ?",
+      "Concrètement, quel serait votre impact dans ce poste dans les 6 premiers mois ?",
+      "Comment vos anciens collègues vous décriraient-ils ?",
+      "Qu'est-ce que votre dernier manager dirait de vous, franchement ?",
+      "Quel est le skill unique que vous avez développé et qui vous différencie ?",
+      "Si je demandais à votre équipe précédente de résumer votre valeur ajoutée en un mot, ce serait lequel ?",
+    ],
+    salaire: [
+      "Quelles sont vos prétentions salariales ?",
+      "Sur quelle fourchette de rémunération vous positionnez-vous ?",
+      "Quelle est votre rémunération actuelle, et quelle évolution attendez-vous ?",
+      "Vous avez un salaire en tête ? Sur quelle base vous êtes-vous positionné ?",
+      "La rémunération est-elle votre critère principal ou y a-t-il d'autres éléments importants pour vous ?",
+    ],
+    culture_fit: [
+      "Quel type d'environnement de travail vous convient le mieux ?",
+      "Préférez-vous travailler en autonomie ou en équipe ? Dans quelle proportion ?",
+      "Comment décrivez-vous votre style de management idéal ?",
+      "Qu'est-ce qui vous motive plus : la stabilité ou le défi permanent ?",
+      "Qu'attendez-vous de votre manager au quotidien ?",
+      "Comment gérez-vous les imprévus et le changement de priorités ?",
+      "Comment réagissez-vous face à une charge de travail importante sur une courte période ?",
+      "Qu'est-ce qui vous donnerait envie de rester longtemps dans une entreprise ?",
+      "Vous préférez un cadre très structuré ou une grande liberté dans votre organisation ?",
+    ],
+  },
+
+  secteurs: {
+    transport: [
+      "Quelle est votre expérience en conduite de véhicules lourds ou de transport en commun ?",
+      "Comment gérez-vous une panne ou un incident technique en pleine tournée ?",
+      "Parlez-moi de votre rapport à la sécurité routière au quotidien.",
+      "Comment vous comportez-vous avec des passagers ou clients difficiles ?",
+      "Racontez une situation d'urgence sur route que vous avez gérée.",
+      "Quelle importance accordez-vous au respect des horaires ? Donnez-moi un exemple concret.",
+      "Comment gérez-vous la fatigue sur de longs trajets ?",
+      "Que faites-vous si vous constatez un défaut mécanique avant de partir en service ?",
+      "Comment gérez-vous les retards imprévus et l'information aux passagers ?",
+      "Votre permis est à jour ? Des formations complémentaires ? FIMO/FCO ?",
+      "Comment vous organisez-vous pour respecter les temps de conduite réglementaires ?",
+      "Racontez une situation où vous avez dû adapter votre itinéraire en cours de route.",
+      "Quelle est votre expérience avec les terminaux embarqués et les outils de navigation ?",
+      "Comment abordez-vous les contrôles de conformité du véhicule avant prise de service ?",
+      "Parlez-moi de votre capacité à rester calme dans la circulation dense ou lors d'aléas.",
+      "Comment gérez-vous une situation où un passager refuse de payer ou crée un incident ?",
+      "Avez-vous une expérience de travail en horaires décalés ? Comment vous y adaptez-vous ?",
+      "Qu'est-ce qui vous attire spécifiquement dans ce métier de conducteur ?",
+      "Comment maintenez-vous votre concentration sur de longues durées ?",
+      "Quelle est votre attitude face au règlement intérieur et aux procédures de l'entreprise ?",
+    ],
+    sante: [
+      "Parlez-moi de votre expérience dans la prise en charge de patients.",
+      "Comment gérez-vous une urgence médicale ou une situation critique ?",
+      "Décrivez votre approche de la relation patient/famille.",
+      "Comment maintenez-vous vos compétences médicales à jour ?",
+      "Parlez-moi d'un cas clinique difficile et de la façon dont vous l'avez géré.",
+      "Comment gérez-vous le stress et la pression émotionnelle liés à ce métier ?",
+      "Quelle est votre expérience en travail interdisciplinaire avec d'autres professionnels de santé ?",
+      "Comment vous positionnez-vous face à l'erreur médicale ?",
+      "Parlez-moi de votre rapport à la formation continue dans votre spécialité.",
+      "Comment expliquez-vous un diagnostic complexe à un patient qui n'est pas médecin ?",
+      "Comment gérez-vous un patient agressif ou non coopératif ?",
+      "Parlez-moi de votre expérience en gestion de la douleur ou du soin palliatif.",
+      "Comment conciliez-vous les exigences administratives avec le temps consacré aux patients ?",
+      "Quelle est votre approche de la prévention par rapport au curatif ?",
+      "Donnez-moi un exemple où votre vigilance a évité une erreur grave.",
+      "Comment travaillez-vous sous pression avec des ressources limitées ?",
+      "Quelle est votre expérience en urgences, garde ou astreinte ?",
+    ],
+    commerce: [
+      "Parlez-moi de vos résultats commerciaux les plus récents — chiffres à l'appui.",
+      "Comment structurez-vous un cycle de vente de A à Z ?",
+      "Donnez-moi un exemple d'un client difficile que vous avez réussi à convaincre.",
+      "Comment gérez-vous les objections tarifaires ?",
+      "Quelle est votre méthode de prospection ? Qu'est-ce qui marche le mieux pour vous ?",
+      "Comment gérez-vous un client mécontent ou une réclamation ?",
+      "Parlez-moi de votre portefeuille client actuel — taille, secteurs, niveau de relation.",
+      "Comment fidélisez-vous vos clients sur le long terme ?",
+      "Racontez-moi un deal que vous avez perdu et ce que vous en avez appris.",
+      "Comment vous organisez-vous pour atteindre vos objectifs en fin de mois ?",
+      "Quelle est votre approche pour développer un compte dormant ou inactif ?",
+      "Comment gérez-vous la pression des objectifs et les périodes creuses ?",
+      "Parlez-moi d'une vente complexe qui a nécessité plusieurs mois de travail.",
+      "Comment vous positionnez-vous face à la concurrence dans votre argumentaire ?",
+      "Quelle est votre expérience avec les outils CRM ? Lesquels maîtrisez-vous ?",
+    ],
+    tech: [
+      "Décrivez votre stack technique actuelle et ce que vous maîtrisez le mieux.",
+      "Comment choisissez-vous entre deux solutions techniques pour un même problème ?",
+      "Parlez-moi d'un bug complexe que vous avez résolu — comment avez-vous procédé ?",
+      "Quelle est votre approche de la revue de code ?",
+      "Comment restez-vous à jour sur les nouvelles technologies ?",
+      "Parlez-moi d'un projet technique dont vous êtes particulièrement fier.",
+      "Comment gérez-vous la dette technique dans un projet existant ?",
+      "Quelle est votre expérience en méthodologie agile ou scrum ?",
+      "Comment travaillez-vous avec des équipes non techniques (product, design, business) ?",
+      "Quelle est votre approche de la sécurité dans le développement ?",
+      "Comment testez-vous votre code ? TDD, tests unitaires, d'intégration ?",
+      "Parlez-moi d'une décision d'architecture que vous avez prise et ses conséquences.",
+      "Comment gérez-vous un délai serré avec une spec incomplète ?",
+      "Quelle est votre expérience en DevOps, CI/CD ou déploiement ?",
+      "Comment documentez-vous votre travail et pourquoi est-ce important pour vous ?",
+      "Parlez-moi de votre expérience avec les bases de données.",
+      "Comment approchez-vous la scalabilité d'une application ?",
+    ],
+    finance: [
+      "Parlez-moi de votre expérience en analyse financière ou comptable.",
+      "Comment gérez-vous la clôture des comptes en fin de période ?",
+      "Décrivez votre expérience avec les outils de reporting et de BI.",
+      "Comment expliquez-vous des données financières complexes à des non-financiers ?",
+      "Parlez-moi d'une anomalie comptable que vous avez détectée et comment vous l'avez gérée.",
+      "Quelle est votre expérience en contrôle de gestion ou budgétisation ?",
+      "Comment gérez-vous les délais serrés lors des clôtures ou des audits ?",
+      "Parlez-moi de votre expérience en gestion de trésorerie ou cash flow.",
+      "Quelle est votre maîtrise des normes comptables (IFRS, PCG) ?",
+      "Comment gérez-vous la relation avec les commissaires aux comptes ?",
+      "Parlez-moi de votre expérience en fiscalité ou en optimisation fiscale.",
+      "Comment assurez-vous la fiabilité des données financières que vous produisez ?",
+      "Décrivez votre expérience sur Excel ou d'autres outils financiers.",
+    ],
+    administration: [
+      "Pourquoi souhaitez-vous intégrer la fonction publique ou ce service administratif ?",
+      "Parlez-moi de votre connaissance du cadre réglementaire et des procédures administratives.",
+      "Comment gérez-vous la relation avec les usagers, notamment les situations difficiles ?",
+      "Quelle est votre expérience dans la rédaction de documents administratifs ou réglementaires ?",
+      "Comment vous adaptez-vous aux évolutions réglementaires et aux réorganisations de service ?",
+      "Parlez-moi d'un dossier complexe que vous avez instruit de A à Z.",
+      "Comment gérez-vous la confidentialité et le traitement de données sensibles ?",
+      "Quelle est votre expérience en gestion de projet au sein d'une administration ?",
+      "Comment collaborez-vous avec d'autres services ou administrations partenaires ?",
+      "Parlez-moi de votre rapport à la hiérarchie et au cadre procédural.",
+      "Comment gérez-vous les délais légaux et les urgences administratives ?",
+      "Quelle est votre vision du service public et en quoi elle correspond à ce poste ?",
+    ],
+    btp: [
+      "Parlez-moi de votre expérience sur chantier — types de projets, taille, rôle.",
+      "Comment gérez-vous la sécurité sur un chantier ? Donnez-moi un exemple concret.",
+      "Racontez une situation où vous avez dû gérer un imprévu important sur un chantier.",
+      "Comment coordonnez-vous plusieurs corps de métier sur un même site ?",
+      "Quelle est votre expérience en lecture de plans et de documents techniques ?",
+      "Comment gérez-vous les délais et les surcoûts en cours de chantier ?",
+      "Parlez-moi de votre expérience avec les normes et réglementations du BTP.",
+      "Comment gérez-vous la relation avec les maîtres d'ouvrage et les architectes ?",
+      "Quelle est votre maîtrise des logiciels métier (AutoCAD, MS Project...) ?",
+      "Comment assurez-vous la qualité de l'exécution sur le terrain ?",
+      "Parlez-moi d'un chantier que vous avez livré en respectant délais et budget.",
+      "Comment gérez-vous les sous-traitants et les fournisseurs ?",
+    ],
+    hotellerie_restauration: [
+      "Parlez-moi de votre expérience dans l'accueil client et la gestion des plaintes.",
+      "Comment gérez-vous un service sous pression, en plein coup de feu ?",
+      "Racontez une situation client difficile et comment vous l'avez résolue.",
+      "Comment garantissez-vous une qualité de service constante dans votre équipe ?",
+      "Quelle est votre expérience en management d'équipe en hôtellerie ou restauration ?",
+      "Comment gérez-vous les pics d'activité et les plannings décalés ?",
+      "Parlez-moi de votre expérience en gestion des stocks et des commandes.",
+      "Comment vous assurez-vous du respect des normes HACCP ou d'hygiène ?",
+      "Quelle est votre expérience avec les systèmes de réservation ou PMS ?",
+      "Comment motivez-vous une équipe sur des horaires atypiques ?",
+      "Parlez-moi de votre expérience avec une clientèle internationale.",
+      "Quelle est votre approche pour fidéliser la clientèle ?",
+    ],
+    education: [
+      "Parlez-moi de votre approche pédagogique et de ce qui l'a forgée.",
+      "Comment différenciez-vous votre enseignement selon les profils d'apprenants ?",
+      "Racontez une situation difficile avec un élève ou un groupe — comment l'avez-vous gérée ?",
+      "Comment maintenez-vous l'attention et l'engagement des apprenants ?",
+      "Quelle est votre expérience avec des élèves en difficulté ou à besoins spécifiques ?",
+      "Comment évaluez-vous la progression de vos élèves ?",
+      "Parlez-moi de votre relation avec les parents d'élèves.",
+      "Comment intégrez-vous le numérique dans votre pratique pédagogique ?",
+      "Comment gérez-vous une classe difficile ou un manque de discipline ?",
+      "Parlez-moi d'une innovation pédagogique que vous avez expérimentée.",
+      "Comment collaborez-vous avec vos collègues et la direction ?",
+      "Quelle est votre vision de l'évaluation — sélection ou accompagnement ?",
+    ],
+    rh: [
+      "Parlez-moi de votre expérience en recrutement — process, volume, types de profils.",
+      "Comment définissez-vous un besoin en recrutement avec un manager opérationnel ?",
+      "Quelle est votre méthode pour évaluer les soft skills en entretien ?",
+      "Comment gérez-vous un conflit social ou une situation RH sensible ?",
+      "Parlez-moi de votre expérience en gestion de la paie ou de l'administration du personnel.",
+      "Comment développez-vous les compétences dans une organisation ?",
+      "Quelle est votre expérience avec les représentants du personnel ou les IRP ?",
+      "Comment gérez-vous une restructuration ou un plan de départs ?",
+      "Parlez-moi de votre expérience GPEC ou GEPP.",
+      "Quelle est votre approche de la marque employeur ?",
+      "Comment mesurez-vous l'efficacité de votre politique RH ?",
+      "Parlez-moi de votre expérience en conduite du changement.",
+    ],
+    marketing: [
+      "Parlez-moi d'une campagne marketing que vous avez pilotée de A à Z.",
+      "Comment définissez-vous une stratégie marketing à partir d'objectifs business ?",
+      "Quelle est votre expérience en marketing digital — canaux, outils, performances ?",
+      "Comment mesurez-vous le ROI de vos actions marketing ?",
+      "Parlez-moi de votre expérience en gestion de contenus et SEO/SEA.",
+      "Comment analysez-vous la concurrence et positionnez-vous une offre sur le marché ?",
+      "Quelle est votre expérience avec les réseaux sociaux professionnels ou B2C ?",
+      "Comment collaborez-vous avec les équipes commerciales pour aligner ventes et marketing ?",
+      "Parlez-moi d'un lancement de produit ou service que vous avez accompagné.",
+      "Comment gérez-vous un budget marketing sous contrainte ?",
+      "Quelle est votre expérience en marketing automation ou CRM ?",
+      "Comment restez-vous en veille sur les tendances de votre marché ?",
+    ],
+    logistique: [
+      "Parlez-moi de votre expérience en gestion des flux logistiques.",
+      "Comment optimisez-vous les coûts de transport ou de stockage ?",
+      "Racontez une rupture de stock ou une crise logistique que vous avez gérée.",
+      "Quelle est votre expérience avec les outils WMS ou ERP ?",
+      "Comment gérez-vous la relation avec vos transporteurs et prestataires ?",
+      "Parlez-moi de votre expérience en gestion des douanes ou export.",
+      "Comment assurez-vous la traçabilité des produits dans votre chaîne ?",
+      "Quelle est votre expérience en gestion d'entrepôt ou de plateforme ?",
+      "Comment gérez-vous les pics d'activité saisonniers ?",
+      "Parlez-moi de votre expérience en amélioration continue ou Lean.",
+      "Comment gérez-vous les litiges fournisseurs ou transporteurs ?",
+    ],
+    immobilier: [
+      "Parlez-moi de votre portefeuille actuel — types de biens, localisations, volume.",
+      "Comment prospectez-vous de nouveaux mandats ?",
+      "Décrivez votre méthode pour estimer la valeur d'un bien.",
+      "Comment gérez-vous la négociation entre acheteur et vendeur ?",
+      "Racontez une transaction complexe que vous avez menée à bien.",
+      "Comment gérez-vous les clients qui n'arrivent pas à se décider ?",
+      "Quelle est votre connaissance du cadre juridique des transactions immobilières ?",
+      "Comment vous différenciez-vous des autres agents sur votre secteur ?",
+      "Parlez-moi de votre expérience en gestion locative si applicable.",
+      "Comment gérez-vous les périodes creuses du marché ?",
+    ],
+    industrie: [
+      "Parlez-moi de votre expérience en production industrielle — secteur, process, volume.",
+      "Comment garantissez-vous la qualité sur une ligne de production ?",
+      "Quelle est votre expérience en maintenance préventive ou corrective ?",
+      "Comment gérez-vous un arrêt machine non planifié ?",
+      "Parlez-moi de votre expérience en amélioration continue, Lean ou 5S.",
+      "Comment animez-vous une équipe de production ?",
+      "Quelle est votre expérience avec les normes ISO ou les certifications qualité ?",
+      "Comment gérez-vous la sécurité dans un environnement industriel ?",
+      "Parlez-moi d'un projet d'optimisation que vous avez conduit.",
+      "Quelle est votre expérience avec les indicateurs de performance (TRS, OEE) ?",
+    ],
+    juridique: [
+      "Parlez-moi de votre expérience en droit des affaires, social ou autre spécialité.",
+      "Comment gérez-vous une situation contentieuse complexe ?",
+      "Quelle est votre expérience en rédaction de contrats ou d'actes ?",
+      "Comment vulgarisez-vous une analyse juridique pour des non-juristes ?",
+      "Parlez-moi d'un dossier difficile que vous avez défendu.",
+      "Comment gérez-vous la veille réglementaire dans votre domaine ?",
+      "Quelle est votre expérience en négociation ou médiation ?",
+      "Comment gérez-vous les délais de procédure sous pression ?",
+    ],
+  },
+
+  niveaux: {
+    junior: [
+      "C'est votre première expérience ou l'une de vos premières — qu'est-ce qui vous a le plus surpris en arrivant dans le monde du travail ?",
+      "Qu'avez-vous appris lors de votre formation ou stage que vous n'attendiez pas ?",
+      "Comment compensez-vous votre manque d'expérience ?",
+      "Qu'est-ce que vous seriez prêt à accepter pour apprendre vite dans ce poste ?",
+      "Comment voyez-vous votre montée en compétences dans les 12 premiers mois ?",
+      "Qu'est-ce que vous avez fait pour vous préparer à ce poste en dehors de vos études ?",
+      "Quel type d'encadrement et de feedback attendez-vous de votre manager ?",
+      "Quelle est votre expérience en dehors du cadre scolaire — projets perso, associatif, jobs ?",
+      "Comment vous y prenez-vous pour apprendre quelque chose de nouveau rapidement ?",
+      "Qu'est-ce qui vous a motivé à choisir cette voie plutôt qu'une autre ?",
+      "Comment réagissez-vous quand vous ne savez pas faire quelque chose qu'on vous demande ?",
+      "Qu'est-ce que vous avez accompli dont vous êtes fier, en dehors de vos études ?",
+    ],
+    confirme: [
+      "Quelles sont les compétences que vous avez développées ces deux dernières années ?",
+      "Comment votre façon de travailler a-t-elle évolué depuis vos débuts ?",
+      "Parlez-moi d'un moment charnière dans votre carrière qui vous a fait progresser.",
+      "Qu'est-ce que vous savez faire aujourd'hui que vous ne saviez pas faire il y a trois ans ?",
+      "Comment gérez-vous les situations où vous devenez la personne de référence sur un sujet ?",
+      "Parlez-moi d'un projet où vous avez eu une forte autonomie — comment avez-vous structuré votre travail ?",
+      "Comment transmettez-vous vos compétences à des collègues moins expérimentés ?",
+      "Qu'est-ce qui freine encore votre développement professionnel selon vous ?",
+      "Parlez-moi d'une fois où vous avez dû prendre une décision sans votre manager.",
+      "Comment avez-vous géré une période de transition ou de changement dans votre équipe ?",
+    ],
+    manager: [
+      "Parlez-moi de votre expérience en management — taille d'équipe, profils, durée.",
+      "Comment détectez-vous et gérez-vous un problème de performance dans votre équipe ?",
+      "Racontez-moi une situation où vous avez dû prendre une décision difficile concernant un collaborateur.",
+      "Comment développez-vous les talents au sein de votre équipe ?",
+      "Quelle est votre philosophie de management et d'où vient-elle ?",
+      "Comment gérez-vous les conflits au sein de votre équipe ?",
+      "Parlez-moi d'un recrutement réussi que vous avez réalisé — et d'un qui a moins bien fonctionné.",
+      "Comment fixez-vous les objectifs et assurez-vous leur suivi ?",
+      "Comment maintenez-vous la motivation dans les périodes difficiles ou de changement ?",
+      "Parlez-moi d'une décision stratégique que vous avez prise et ses conséquences.",
+      "Comment gérez-vous la relation avec votre propre hiérarchie tout en protégeant votre équipe ?",
+      "Quelle est votre expérience en conduite du changement ?",
+      "Comment gérez-vous un collaborateur en désaccord avec vos décisions ?",
+      "Parlez-moi de votre expérience en pilotage de KPIs ou de tableaux de bord.",
+    ],
+  },
+
+  types_entreprise: {
+    startup: [
+      "Comment gérez-vous l'ambiguïté et le manque de cadre défini ?",
+      "Donnez-moi un exemple où vous avez dû construire quelque chose from scratch sans ressources.",
+      "Comment gérez-vous plusieurs priorités changeantes en même temps ?",
+      "Qu'est-ce qui vous attire dans l'environnement startup plutôt qu'un grand groupe ?",
+      "Comment réagissez-vous quand les règles du jeu changent en cours de route ?",
+      "Parlez-moi d'une fois où vous avez pris une initiative sans en avoir eu l'autorisation formelle.",
+      "Comment gérez-vous l'échec rapide et le pivot ?",
+      "Êtes-vous à l'aise pour porter plusieurs casquettes en même temps ?",
+    ],
+    grand_groupe: [
+      "Comment naviguez-vous dans des organisations complexes avec beaucoup d'interlocuteurs ?",
+      "Comment gérez-vous les process et la bureaucratie sans perdre en efficacité ?",
+      "Parlez-moi de votre expérience en gestion de parties prenantes multiples.",
+      "Comment alignez-vous votre travail avec des objectifs stratégiques globaux ?",
+      "Parlez-moi d'une fois où vous avez dû convaincre de nombreux décideurs.",
+      "Comment gérez-vous les silos entre départements ou business units ?",
+      "Quelle est votre expérience dans la gestion de projets transversaux ?",
+      "Comment vous démarquez-vous dans une grande organisation ?",
+    ],
+    pme: [
+      "Êtes-vous à l'aise pour travailler en proximité directe avec la direction ?",
+      "Comment gérez-vous la polyvalence — dans une PME, on porte souvent plusieurs casquettes.",
+      "Parlez-moi de votre capacité à prendre des décisions rapidement avec peu d'information.",
+      "Comment vous adaptez-vous à un environnement où les process sont encore en construction ?",
+      "Qu'est-ce qui vous attire dans une structure à taille humaine ?",
+      "Comment gérez-vous la relation directe avec les clients ou fournisseurs sans intermédiaire ?",
+    ],
+    administration: [
+      "Comment conciliez-vous contraintes réglementaires et efficacité opérationnelle ?",
+      "Parlez-moi de votre expérience en gestion de dossiers soumis à des délais légaux.",
+      "Comment gérez-vous les situations où vous devez appliquer des règles avec lesquelles vous n'êtes pas d'accord ?",
+      "Quelle est votre vision du service public et comment elle se traduit dans votre travail au quotidien ?",
+      "Comment gérez-vous la relation avec des usagers mécontents ou en difficulté ?",
+      "Comment vous adaptez-vous aux réorganisations ou aux nouvelles orientations politiques ?",
+    ],
+  },
+};
+
+/* Détection automatique du secteur à partir du titre de poste */
+function detectSector(poste) {
+  if(!poste) return null;
+  const p = poste.toLowerCase();
+  if(/conducteur|chauffeur|transport|bus|camion|livreur|logisti|supply|magasin/.test(p)) return 'transport';
+  if(/infirmier|médecin|aide.soin|pharmacien|kiné|sage|soignant|santé|hôpital|clinique|psycho/.test(p)) return 'sante';
+  if(/commercial|vente|vendeur|account|business dev|sales|client|conseiller.+(vente|commercial)/.test(p)) return 'commerce';
+  if(/développeur|dev |engineer|data|cloud|devops|fullstack|backend|frontend|web|mobile|ia |ml |machine learning|software/.test(p)) return 'tech';
+  if(/comptable|contrôleur|financier|trésor|audit|daf|expert.comptable|raf|paie/.test(p)) return 'finance';
+  if(/fonctionnaire|agent|administration|prefecture|mairie|collectivité|fonction publique/.test(p)) return 'administration';
+  if(/chantier|btp|conducteur.travaux|chef.chantier|génie civil|bâtiment|électricien|plombier|maçon/.test(p)) return 'btp';
+  if(/hôtel|restaur|cuisinier|chef.rang|réceptionniste|barman|serveur/.test(p)) return 'hotellerie_restauration';
+  if(/professeur|enseignant|formateur|éducateur|instit|pédago/.test(p)) return 'education';
+  if(/rh|ressources humaines|recruteur|talent|people|drh/.test(p)) return 'rh';
+  if(/marketing|digital|seo|contenu|brand|product market/.test(p)) return 'marketing';
+  if(/logistique|entrepôt|stock|appro|achat|procurement/.test(p)) return 'logistique';
+  if(/immobilier|agent|mandataire|promoteur|gestionnaire.bien/.test(p)) return 'immobilier';
+  if(/juridique|juriste|avocat|droit|notaire|paralegal/.test(p)) return 'juridique';
+  if(/industriel|production|opérateur|technicien|maintenance|usine|atelier|qualité/.test(p)) return 'industrie';
+  return null;
+}
+
+/* Tire N questions aléatoires d'une liste */
+function sampleQuestions(arr, n) {
+  const shuffled = [...arr].sort(()=>Math.random()-0.5);
+  return shuffled.slice(0, n);
+}
+
+/* Construit un pool de questions pour l'IA selon contexte */
+function buildQuestionPool() {
+  const poste = S.config.poste || '';
+  const niveau = S.config.niveau || 'confirme';
+  const typeEnt = S.config.type_entreprise || 'grand_groupe';
+  const sector = detectSector(poste);
+
+  const pool = [];
+  const B = QUESTION_BANK;
+
+  // Universelles : toujours présentes
+  pool.push(...sampleQuestions(B.universelles.motivation, 3));
+  pool.push(...sampleQuestions(B.universelles.star_reussite, 2));
+  pool.push(...sampleQuestions(B.universelles.star_echec, 2));
+  pool.push(...sampleQuestions(B.universelles.star_conflit, 1));
+  pool.push(...sampleQuestions(B.universelles.projection, 2));
+  pool.push(...sampleQuestions(B.universelles.differenciation, 2));
+  pool.push(...sampleQuestions(B.universelles.culture_fit, 2));
+  pool.push(...sampleQuestions(B.universelles.salaire, 1));
+
+  // Secteur : si détecté
+  if(sector && B.secteurs[sector]) pool.push(...sampleQuestions(B.secteurs[sector], 6));
+
+  // Niveau
+  if(B.niveaux[niveau]) pool.push(...sampleQuestions(B.niveaux[niveau], 3));
+
+  // Type entreprise
+  if(B.types_entreprise[typeEnt]) pool.push(...sampleQuestions(B.types_entreprise[typeEnt], 3));
+
+  // Mélange final
+  return pool.sort(()=>Math.random()-0.5);
+}
+
 // Express classic questions (no API needed)
 const EXPRESS_QS = [
   'Présentez-vous en quelques mots et parlez-moi de votre parcours professionnel.',
@@ -1729,6 +2197,11 @@ Génère UNE relance ciblée (15-30 mots) qui demande un exemple concret ou une 
   ];
   const angle = angles[Math.floor(Math.random()*angles.length)];
 
+  // Build pool from bank (randomized each call)
+  const pool = buildQuestionPool();
+  const poolSample = pool.filter(q => !S.itv.qs.some(asked => asked.substring(0,30)===q.substring(0,30))).slice(0,8);
+  const poolStr = poolSample.length > 0 ? `\nExemples de questions de ta banque (adapte-les au contexte, ne les copie pas mot pour mot) :\n${poolSample.map(q=>'- '+q).join('\n')}` : '';
+
   const seed = S.itv?.sessionSeed || '';
 
   const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau candidat : ${S.config.niveau||'junior'}. Session : ${seed}.
@@ -1738,6 +2211,7 @@ ${cv || '(aucun CV fourni)'}
 
 Échanges précédents :
 ${histStr || '(c\'est la 2e question de l\'entretien)'}
+${poolStr}
 
 QUESTION ${qCount+1}. Tu dois décider entre deux options :
 
@@ -1756,8 +2230,14 @@ RÈGLES ABSOLUES :
 
 UNE seule question. 15 à 50 mots. Texte brut, pas de guillemets, pas de numérotation.`;
 
-  const res = await apiCall(prompt, 180);
-  return res.trim();
+  try {
+    const res = await apiCall(prompt, 180);
+    return res.trim();
+  } catch(e) {
+    // Fallback : pick random unused question from pool
+    const unused = pool.filter(q => !S.itv.qs.includes(q));
+    return unused.length > 0 ? unused[0] : pool[Math.floor(Math.random()*pool.length)];
+  }
 }
 
 
