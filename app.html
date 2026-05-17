@@ -1042,6 +1042,11 @@ const LS_VARIANT_MAP = {
   '02f41cba-2e6e-42e3-8312-1c82017cfca5': { name:'Intensif',   interviews:20 }
 };
 const LS_FALLBACK_INTERVIEWS = 5;
+const LS_PRODUCTS = {
+  'prod_QhZ2': { name:'Découverte', interviews:3 },
+  'prod_QhZ3': { name:'Essentiel',  interviews:8 },
+  'prod_QhZ4': { name:'Intensif',   interviews:20 },
+};
 
 /* ============================================================
    QUESTION BANK — 700+ questions structurées
@@ -2081,6 +2086,69 @@ Texte brut, naturel, comme si tu parlais. Pas de guillemets, pas de tirets, pas 
   }
 }
 
+/* ── CV GAP & PATTERN ANALYSIS ─────────────────────────────── */
+function analyzeCVGaps(cvText) {
+  if(!cvText || cvText.length < 50) return { gaps: [], shortStints: [], transitions: [], raw: '' };
+
+  const result = { gaps: [], shortStints: [], transitions: [], raw: '' };
+
+  // Extract year ranges like "2018-2020", "2021 - 2023", "jan 2019 - mars 2021"
+  const yearRanges = [];
+  const rangeRe = /(?:jan(?:vier)?|fév(?:rier)?|mar(?:s)?|avr(?:il)?|mai|juin|juil(?:let)?|août|sep(?:t)?|oct(?:obre)?|nov(?:embre)?|déc(?:embre)?)?\s*(\d{4})\s*[-–—]\s*(?:jan(?:vier)?|fév(?:rier)?|mar(?:s)?|avr(?:il)?|mai|juin|juil(?:let)?|août|sep(?:t)?|oct(?:obre)?|nov(?:embre)?|déc(?:embre)?|aujourd'hui|présent|actuel)?\s*(\d{4}|aujourd'hui|présent|actuel)?/gi;
+  let m;
+  while((m = rangeRe.exec(cvText)) !== null) {
+    const start = parseInt(m[1]);
+    const endRaw = m[2];
+    const end = (!endRaw || /aujourd|présent|actuel/i.test(endRaw)) ? new Date().getFullYear() : parseInt(endRaw);
+    if(start >= 1990 && start <= 2030 && end >= start) {
+      yearRanges.push({ start, end, duration: end - start });
+    }
+  }
+
+  // Sort by start year
+  yearRanges.sort((a,b) => a.start - b.start);
+
+  // Detect gaps > 1 year between consecutive experiences
+  for(let i = 1; i < yearRanges.length; i++) {
+    const prev = yearRanges[i-1];
+    const curr = yearRanges[i];
+    const gap = curr.start - prev.end;
+    if(gap >= 1) {
+      result.gaps.push(`${prev.end} → ${curr.start} (${gap} an${gap>1?'s':''} sans activité documentée)`);
+    }
+  }
+
+  // Detect short stints < 1 year
+  yearRanges.forEach(r => {
+    if(r.duration === 0) result.shortStints.push(`Poste de moins d'1 an (${r.start})`);
+  });
+
+  // Detect sector transitions from keywords
+  const sectors = [
+    { name: 'banque/finance', re: /banque|crédit|financ|assurance|patrimoine|agence bancaire/ },
+    { name: 'commerce/vente', re: /commercial|vente|vendeur|account/ },
+    { name: 'transport/logistique', re: /conducteur|chauffeur|transport|livraison|logistique/ },
+    { name: 'santé', re: /infirmier|médecin|soin|hôpital|clinique/ },
+    { name: 'informatique/tech', re: /développeur|informatique|logiciel|data|cloud/ },
+    { name: 'BTP/industrie', re: /chantier|bâtiment|industrie|production|usine|opérateur/ },
+    { name: 'restauration/hôtellerie', re: /restaurant|hôtel|cuisinier|serveur|chef/ },
+    { name: 'administration/fonction publique', re: /mairie|préfecture|fonctionnaire|administration/ },
+  ];
+  const detectedSectors = sectors.filter(s => s.re.test(cvText.toLowerCase())).map(s => s.name);
+  if(detectedSectors.length >= 2) {
+    result.transitions.push(`Parcours multi-secteurs détecté : ${detectedSectors.join(' → ')}`);
+  }
+
+  // Build readable summary for prompt
+  const parts = [];
+  if(result.gaps.length) parts.push(`TROUS DÉTECTÉS : ${result.gaps.join(' | ')}`);
+  if(result.shortStints.length) parts.push(`POSTES COURTS : ${result.shortStints.join(' | ')}`);
+  if(result.transitions.length) parts.push(`TRANSITIONS : ${result.transitions.join(' | ')}`);
+  result.raw = parts.join('\n');
+
+  return result;
+}
+
 async function genFirstQuestion() {
   const rec = S.recruiter || RECRUITERS.antoine;
   const cv = (S.config.cv || '').trim();
@@ -2197,10 +2265,27 @@ Génère UNE relance ciblée (15-30 mots) qui demande un exemple concret ou une 
   ];
   const angle = angles[Math.floor(Math.random()*angles.length)];
 
-  // Build pool from bank (randomized each call)
+  const cvAnalysis = analyzeCVGaps(cv);
+  const cvGapStr = cvAnalysis.raw ? `\n📋 ANALYSE DU CV :\n${cvAnalysis.raw}\nSi ces éléments n'ont pas encore été abordés dans l'entretien, tu DOIS les soulever naturellement.\n` : '';
+  const jobSector = detectSector(S.config.poste || '');
+  const cvLower = cv.toLowerCase();
+  const cvSectors = {
+    banque: /banque|crédit|financ|assurance|conseiller.+(client|patrimoine)|chargé.+clientèle|agence/.test(cvLower),
+    tech: /développeur|informatique|logiciel|data|cloud|devops/.test(cvLower),
+    commerce: /commercial|vente|vendeur|account/.test(cvLower),
+    sante: /infirmier|médecin|soin|hôpital|clinique/.test(cvLower),
+    transport: /conducteur|chauffeur|transport|logistique/.test(cvLower),
+  };
+  const cvHasBanking = cvSectors.banque;
+  const isTransition = jobSector && cv.length > 50 && !cvSectors[jobSector];
+  const transitionAlert = isTransition ? `
+⚠️ ALERTE TRANSITION DE CARRIÈRE : Le CV du candidat ne correspond PAS au poste visé (${S.config.poste}). ${cvHasBanking ? 'Son CV est orienté banque/finance.' : 'Son CV vient d\'un autre secteur.'} C'est une reconversion. Tu DOIS aborder cette transition si elle n'a pas encore été évoquée : "Votre parcours est dans [secteur CV] et vous postulez pour [poste] - qu'est-ce qui explique ce changement ?"` : '';
+
+  // Force CV mention every 3 questions
+  const mustRefCV = cv.length > 100 && qCount % 3 === 1 && !transitionAlert;
   const pool = buildQuestionPool();
   const poolSample = pool.filter(q => !S.itv.qs.some(asked => asked.substring(0,30)===q.substring(0,30))).slice(0,8);
-  const poolStr = poolSample.length > 0 ? `\nExemples de questions de ta banque (adapte-les au contexte, ne les copie pas mot pour mot) :\n${poolSample.map(q=>'- '+q).join('\n')}` : '';
+  const poolStr = poolSample.length > 0 ? `\nExemples de questions de ta banque (adapte-les au contexte) :\n${poolSample.map(q=>'- '+q).join('\n')}` : '';
 
   const seed = S.itv?.sessionSeed || '';
 
@@ -2208,26 +2293,24 @@ Génère UNE relance ciblée (15-30 mots) qui demande un exemple concret ou une 
 
 CV COMPLET du candidat :
 ${cv || '(aucun CV fourni)'}
-
+${cvGapStr}
 Échanges précédents :
 ${histStr || '(c\'est la 2e question de l\'entretien)'}
 ${poolStr}
+${transitionAlert}
+${mustRefCV ? `\n🔴 OBLIGATION : Cette question DOIT faire référence à un élément précis du CV ci-dessus (une entreprise, un poste, une date, une compétence, une formation). Cite-le explicitement.` : ''}
 
 QUESTION ${qCount+1}. Tu dois décider entre deux options :
 
-OPTION A — CREUSER LE MÊME SUJET : si la dernière réponse a abordé quelque chose d'intéressant (une entreprise, un projet, une compétence, une transition) qui mérite d'être approfondi, pose une question de relance sur CE MÊME élément.
-OPTION B — NOUVEAU SUJET : si le sujet précédent a été suffisamment exploré, passe à un nouveau thème.
+OPTION A — CREUSER LE MÊME SUJET : si la dernière réponse a abordé quelque chose d'intéressant qui mérite d'être approfondi, pose une relance sur CE MÊME élément.
+OPTION B — NOUVEAU SUJET : si le sujet précédent est épuisé, passe à un nouveau thème.
 
-Angle suggéré pour cette question : ${angle}
-${themesNonCouverts.length > 0 ? 'Thèmes pas encore abordés (à couvrir) : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts.'}
+Angle suggéré : ${angle}
+${themesNonCouverts.length > 0 ? 'Thèmes pas encore abordés : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts.'}
 
-Mix attendu sur l'entretien : 50% questions ancrées sur SON CV / SES réponses, 50% questions classiques reformulées à SON profil et contexte.
+Mix attendu : 50% ancré sur SON CV/réponses, 50% classique reformulé à SON profil.
 
-RÈGLES ABSOLUES :
-- Ta question doit être UNIQUE à ce candidat - pas une question générique type "Quelle est votre plus grande force ?"
-- Si tu utilises un thème classique, ancre-le dans son contexte : "Pour un poste de ${S.config.poste} chez nous, concrètement, qu'est-ce que vous apporteriez que quelqu'un d'autre n'apporterait pas ?"
-- Cite des éléments concrets de son CV ou de ses réponses quand tu en as
-
+RÈGLE ABSOLUE : pas de question générique. Chaque question doit être unique à CE candidat.
 UNE seule question. 15 à 50 mots. Texte brut, pas de guillemets, pas de numérotation.`;
 
   try {
@@ -2265,96 +2348,60 @@ Commence directement par ta réponse, sans préambule.`;
 }
 
 async function genOutro() {
-  const avg = S.itv.scores.length > 0 ? Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) : 0;
   const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
   const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien de 30-45 minutes pour le poste de ${S.config.poste}.
+  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise}. Tu viens de terminer un entretien pour le poste de ${S.config.poste}.
 
-Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Tu viens de passer du temps avec ce candidat - tu as une impression, même si tu ne la révèles pas. Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
+Rédige une conclusion d'entretien HUMAINE et RÉALISTE (3 à 5 phrases). Ton discours doit sonner comme un vrai recruteur qui clôt un entretien.
 
-Inclus impérativement :
-1. Un remerciement sincère pour le temps accordé
-2. Une indication concrète des prochaines étapes (délai de réponse, nombre de candidats rencontrés si pertinent, suite du process)
-3. Une invitation à poser une dernière question si besoin
-4. Une formule de congé naturelle
+Inclus :
+1. Un remerciement sincère
+2. Les prochaines étapes concrètes (délai de réponse, suite du process)
+3. Une formule de congé naturelle
 
-Adapte le registre au contexte :
-- Grand groupe -> formel, procédurier, délais précis
-- PME -> chaleureux, direct, "on vous recontacte rapidement"
-- Startup -> décontracté, transparent, "on prend une décision vite"
-- Administration -> protocole, délais administratifs, commission
-
-Commence par "Très bien" ou "Bien" ou "Voilà" - jamais directement par "Merci". Sois naturel, pas robotique.`;
+Adapte le registre : grand groupe → formel / PME → chaleureux / startup → décontracté / administration → protocole.
+Commence par "Très bien", "Bien" ou "Voilà". Naturel, pas robotique.`;
   return await apiCall(prompt, 200);
-}
-
-async function genCandidateQuestionAnswer(candidateQ) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const cvCtx2 = S.config.cv ? `CV/parcours du candidat : ${S.config.cv}` : '';
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. ${cvCtx2}
-
-Le candidat vient de te poser cette question en fin d'entretien : "${candidateQ}"
-
-Réponds de façon naturelle, humaine et réaliste - comme un vrai recruteur qui a passé 30 minutes avec ce candidat. 2 à 4 phrases. Ton vocabulaire est professionnel. Tu peux être chaleureux ou direct selon ton style.
-
-Si la question porte sur :
-- L'équipe / l'environnement -> décris-le de façon vivante et concrète
-- Les perspectives d'évolution -> sois honnête et précis
-- Le processus de recrutement -> explique les prochaines étapes clairement
-- La culture de l'entreprise -> donne des éléments concrets
-- Le poste lui-même -> développe les enjeux réels
-- Une question personnelle sur toi -> réponds de façon authentique
-
-Commence directement par ta réponse, sans préambule.`;
-  return await apiCall(prompt, 250);
-}
-
-
-
-async function genRecruiterReaction(question, answer) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant et intimidant, autoritaire':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant et professionnel';
-  const histLen = S.itv.history.length;
-
+}async function genRecruiterReaction(question, answer) {
+  const tone = S.config.personnalite==='hardcore'?'très exigeant et direct':S.config.personnalite==='exigeant'?'professionnel et direct':'naturel et humain';
   const recName = S.recruiter?.name || 'Antoine';
-  const histContext = S.itv.history.length > 1 ? `Contexte de l'entretien : ${S.itv.history.slice(-3).map(h=>`[Q: ${h.q.substring(0,60)}... / R: ${h.a.substring(0,80)}...]`).join(' | ')}` : '';
+  const cv = (S.config.cv||'').substring(0,600);
+  const cvAnalysis = analyzeCVGaps(S.config.cv||'');
+  const histContext = S.itv.history.length > 1
+    ? `Échanges précédents : ${S.itv.history.slice(-3).map(h=>`[Q: "${h.q.substring(0,50)}" / R: "${h.a.substring(0,80)}"]`).join(' | ')}`
+    : '';
 
-  const prompt = `Tu es ${recName}, recruteur ${tone}, en plein entretien pour le poste de ${S.config.poste}. Tu es un être humain, pas un robot.
+  const prompt = `Tu es ${recName}, recruteur ${tone}, en plein entretien pour le poste de ${S.config.poste}.
 ${histContext}
+${cv ? 'CV du candidat (extrait) : '+cv : ''}
+${cvAnalysis.raw ? 'Analyse CV : '+cvAnalysis.raw : ''}
 
-Question que tu venais de poser : "${question}"
-Réponse du candidat : "${answer}"
+Tu viens de poser : "${question}"
+Le candidat a répondu : "${answer}"
 
-Génère une réaction verbale HUMAINE, NATURELLE et VARIÉE. 1 à 2 phrases maximum. Tu parles à voix haute, en français courant professionnel.
+Tu dois réagir comme un VRAI recruteur humain — pas un robot. Tu n'es pas là juste pour enchaîner les questions. Tu écoutes, tu penses, tu réagis à ce que tu entends.
 
-ANALYSE et RÉAGIS selon ce qui s'est passé :
+RÈGLES :
+- 1 à 3 phrases MAX
+- Tu parles naturellement, en français courant professionnel
+- Tu RÉAGIS à quelque chose de spécifique dans la réponse (un mot, un fait, un chiffre, une entreprise citée, une durée, une contradiction, quelque chose qui t'interpelle)
+- Tu peux exprimer de la curiosité, de la surprise, du scepticisme, de la satisfaction — selon ton ton
+- Tu NE POSES PAS DE QUESTION (la question suivante sera générée séparément)
+- Tu peux occasionnellement (1 fois sur 5 environ) partager un mot de contexte sur le poste ou l'entreprise : "Ça tombe bien, c'est exactement le profil qu'on cherche.", "Intéressant, parce que chez nous la situation est différente.", "C'est un point important pour nous."
 
-1) Le candidat POSE UNE QUESTION (sur le poste, l'équipe, l'entreprise, le salaire, le processus...) :
--> Réponds directement et naturellement. Sois utile. "Tout à fait, je peux vous répondre là-dessus -", "Bonne question -", "Je suis content que vous abordiez ce point -"
+SITUATIONS SPÉCIALES :
+- Réponse vague/trop courte (< 20 mots) : exprime ton attente de plus : "C'est un peu succinct pour moi.", "J'aurais besoin de plus de concret.", "Je vous sens hésitant — développez."
+- Refus de répondre : recadre fermement : "Dans un vrai entretien, ce silence serait disqualifiant. Je vous repose la question.", "Je comprends que ce soit inconfortable, mais c'est justement ce type de situation que je veux explorer."
+- Incohérence avec le CV ou une réponse précédente : pointe-la : "Vous m'avez dit tout à l'heure que... et là vous dites... — aidez-moi à comprendre.", "Votre CV indique [X] mais là vous parlez de [Y] — il y a quelque chose à m'expliquer ?"
+- Réponse forte et précise : réagis avec une phrase courte et sincère : "C'est concret, j'apprécie.", "Bien, ça c'est une réponse.", "Je prends note."
+- Réponse correcte, standard : accusé de réception simple et varié : "D'accord.", "Je vois.", "C'est noté.", "Bien.", "Je comprends."
 
-2) COMPORTEMENT INAPPROPRIÉ, agressif, irrespectueux, résigné ("j'en ai marre", "peu importe", ironie négative...) :
--> Recadre avec calme et fermeté professionnelle. Ton sang-froid est total. Exemples de registre : "Je vous invite à maintenir une posture professionnelle - dans un contexte réel, cette attitude serait rédhibitoire.", "Je comprends que l'exercice soit exigeant, mais je vous repose ma question car elle est déterminante pour votre candidature.", "Je me permets d'être direct : ce type de réponse sonnerait comme une disqualification immédiate en entretien réel."
+Texte brut uniquement. Naturel. Jamais de guillemets.`;
 
-3) RÉPONSE VAGUE, ÉVASIVE, TROP COURTE (moins de 20 mots, pas de contenu concret) :
--> Relance avec insistance professionnelle. "Je ne suis pas certain d'avoir une réponse à ma question - pouvez-vous illustrer par un exemple précis ?", "Vous effleurez le sujet. Ce qui m'intéresse c'est la situation concrète, le contexte, ce que vous avez fait.", "C'est un peu général. Pouvez-vous ancrer ça dans une expérience réelle ?"
-
-4) CONTRADICTION ou INCOHÉRENCE avec l'historique ou le CV :
--> Pointe-la calmement. "Vous m'aviez indiqué tout à l'heure que... et là vous dites... - pouvez-vous m'aider à réconcilier ces deux éléments ?", "Ce que vous décrivez là me semble en décalage avec ce que j'ai lu dans votre parcours."
-
-5) RÉPONSE CORRECTE et bien construite :
--> Transition d'écoute active courte et variée selon l'ambiance. Ne répète jamais la même formule. Exemples : "Je vois, c'est clair.", "D'accord, j'entends ça.", "C'est cohérent avec ce que vous m'avez décrit.", "Bien, merci pour cette précision.", "Tout à fait, c'est pertinent.", "Intéressant."
--> Si la réponse est excellente, structurée, convaincante -> renvoie exactement : SKIP
-
-6) PRÉSENTATION initiale (toute première réponse) :
--> Réaction d'écoute active, chaleureuse selon le ton. "Bien, merci pour cette introduction - votre parcours est effectivement assez varié.", "D'accord, j'ai une meilleure vision de votre profil.", "Votre trajectoire est atypique, c'est ce qui m'a attiré dans votre candidature."
-
-Renvoie UNIQUEMENT la réaction en texte brut, naturelle, comme tu la dirais. Jamais de guillemets, jamais d'explication méta. Si aucune réaction n'est nécessaire : SKIP`;
-
-  const res = await apiCall(prompt, 150);
+  const res = await apiCall(prompt, 180);
   const txt = res.trim();
-  if(txt === 'SKIP' || txt.length < 3) return null;
+  if(txt.length < 2) return 'Je vois.';
   return txt;
 }
 
@@ -2620,8 +2667,9 @@ async function nextQ() {
   const currentAnswer = S.itv.answers[S.itv.currentQ] || '';
   const currentQuestion = S.itv.qs[S.itv.currentQ] || '';
 
-  // Push to history
-  if(currentQuestion && currentAnswer) {
+  // Push to history (guard against duplicates if user clicks + auto-flow both trigger)
+  const alreadyInHistory = S.itv.history.some(h => h.q === currentQuestion && h.a === currentAnswer);
+  if(currentQuestion && currentAnswer && !alreadyInHistory) {
     S.itv.history.push({q: currentQuestion, a: currentAnswer});
   }
 
@@ -2712,7 +2760,6 @@ async function nextQ() {
     return;
   }
 
-  // Generate next question dynamically
   document.getElementById('int-actions').style.display='none';
   document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
   document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
@@ -2720,6 +2767,7 @@ async function nextQ() {
   document.getElementById('feedback-wrap').style.display='none';
   document.getElementById('filler-wrap').style.display='none';
   document.getElementById('wpm-display').style.display='none';
+  const _rr = document.getElementById('recruiter-reaction'); if(_rr) _rr.style.display='none';
   document.getElementById('mic-hint').textContent='Maintenir pour parler';
   document.getElementById('mic-btn').className='mic-btn';
   document.getElementById('mic-area').style.display='flex';
