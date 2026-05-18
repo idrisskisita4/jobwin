@@ -2239,7 +2239,27 @@ Génère UNE relance ciblée (15-30 mots) qui demande un exemple concret ou une 
     }
   }
 
-  // === COVERAGE TRACKING (soft suggestion only) ===
+  // === MANDATORY SECTOR QUESTIONS (forcées si pas encore posées) ===
+  const allQsLower = S.itv.qs.join(' ').toLowerCase();
+  const sectorMandatory = {
+    transport: [
+      { check: /permis|catégorie|carte conducteur|fimo|fco/, q: `Parlez-moi de votre permis de conduire — quelle catégorie, est-il à jour ? Avez-vous votre FIMO ou FCO ?` },
+      { check: /accident|incident|infraction|contravention/, q: `Avez-vous eu des accidents ou des infractions au code de la route dans les 5 dernières années ?` },
+    ],
+    sante: [
+      { check: /diplôme|formation|infirmier|aide.soignant|bac.pro/, q: `Quel est votre diplôme exact et depuis combien de temps l'exercez-vous ?` },
+    ],
+    btp: [
+      { check: /habilitation|caces|échafaudage|sécurité/, q: `Quelles habilitations ou certifications avez-vous — CACES, travaux en hauteur, autres ?` },
+    ],
+  };
+  if(jobSector && sectorMandatory[jobSector]) {
+    for(const mandatory of sectorMandatory[jobSector]) {
+      if(!mandatory.check.test(allQsLower) && qCount >= 3 && qCount <= 7) {
+        return mandatory.q;
+      }
+    }
+  }
   const allQs = S.itv.qs.join(' ').toLowerCase();
   const themesNonCouverts = [];
   if(!(allQs.includes('pourquoi') || allQs.includes('motiv'))) themesNonCouverts.push('motivations spécifiques');
@@ -2572,60 +2592,64 @@ async function stopRec(e) {
   }
 
   // ============== COMPLET MODE - conversational auto-flow ==============
-  // No inline feedback shown - everything goes to results
   document.getElementById('feedback-wrap').style.display='none';
   document.getElementById('mic-area').style.display='none';
   document.getElementById('mic-btn').className='mic-btn analyzing';
   document.getElementById('mic-hint').textContent='Le recruteur réfléchit...';
 
-  // Show both buttons - user can skip at any time
+  // Show buttons so user can skip
   const _ia = document.getElementById('int-actions');
   const _nb = document.getElementById('next-btn');
-  if(_ia){ _ia.style.display = 'flex'; if(_nb){ _nb.style.display=''; _nb.textContent='Question suivante ->'; } }
+  if(_ia){ _ia.style.display='flex'; if(_nb){ _nb.style.display=''; _nb.textContent='Question suivante ->'; } }
 
-  // Reaction + Eval in PARALLEL - reaction works even if eval fails
-  let reaction = null, ev = null;
-  const [rRes, eRes] = await Promise.allSettled([
-    genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer),
-    evalAnswer(S.itv.qs[S.itv.currentQ], answer)
-  ]);
-  if(rRes.status === 'fulfilled') reaction = rRes.value;
-  if(eRes.status === 'fulfilled') ev = eRes.value;
+  // REACTION FIRST (fast, ~1s) - eval runs silently in background
+  let reaction = null;
+  try {
+    reaction = await genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer);
+  } catch(e) {
+    reaction = 'Je vois.';
+  }
 
-  // Store eval (with fallback if it failed)
-  if(!ev) ev = {score:55, structure:55, confiance:55, pertinence:55, vocabulaire:55, feedback:'Réponse enregistrée.', ideal:''};
-  S.itv.scores.push(ev.score);
-  S.itv.criteria.push({structure:ev.structure, confiance:ev.confiance, pertinence:ev.pertinence, vocabulaire:ev.vocabulaire});
-  S.itv.feedbacks.push(ev.feedback);
-  S.itv.ideals.push(ev.ideal);
+  // Store reaction
   S.itv.reactions = S.itv.reactions || [];
   if(reaction) S.itv.reactions[S.itv.currentQ] = reaction;
 
-  const avg = Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
-  document.getElementById('apt-text').textContent = avg + '%';
-
-  // Display reaction visually + speak it (awaited)
-  if(reaction){
-    const _re = document.getElementById('recruiter-reaction');
-    if(_re){
-      _re.style.display = 'block';
-      _re.innerHTML = `<div style="margin:12px 20px 4px;display:flex;align-items:flex-start;gap:10px">
-        <div style="width:32px;height:32px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid rgba(255,255,255,.15)">${S.recruiter?.emoji||'🎙️'}</div>
-        <div style="background:var(--navy);color:rgba(255,255,255,.9);border-radius:4px 14px 14px 14px;padding:11px 15px;font-size:14.5px;line-height:1.55;max-width:calc(100% - 48px)">${reaction}</div>
-      </div>`;
-      setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},100);
-    }
+  // Display + speak reaction
+  const _re = document.getElementById('recruiter-reaction');
+  if(_re && reaction){
+    _re.style.display='block';
+    _re.innerHTML=`<div style="margin:12px 20px 4px;display:flex;align-items:flex-start;gap:10px">
+      <div style="width:32px;height:32px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid rgba(255,255,255,.15)">${S.recruiter?.emoji||'🎙️'}</div>
+      <div style="background:var(--navy);color:rgba(255,255,255,.9);border-radius:4px 14px 14px 14px;padding:11px 15px;font-size:14.5px;line-height:1.55;max-width:calc(100% - 48px)">${reaction}</div>
+    </div>`;
+    setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
     if(S.config.voix) await speakTextAsync(reaction);
-    else await new Promise(r=>setTimeout(r, Math.min(reaction.length*55, 2500)));
-  } else {
-    await new Promise(r=>setTimeout(r, 400));
+    else await new Promise(r=>setTimeout(r, Math.min(reaction.length*50, 2000)));
   }
 
-  // Auto-flow: enchaîne directement (sauf si le candidat a déjà cliqué manuellement)
-  document.getElementById('mic-btn').className = 'mic-btn';
+  // Eval in background - don't await, store when done
+  evalAnswer(S.itv.qs[S.itv.currentQ], answer).then(ev=>{
+    if(!ev) return;
+    const idx = S.itv.scores.length - 1;
+    if(idx >= 0){
+      S.itv.scores[idx] = ev.score;
+      S.itv.criteria[idx] = {structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire};
+      S.itv.feedbacks[idx] = ev.feedback;
+    }
+    const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
+    document.getElementById('apt-text').textContent=avg+'%';
+  }).catch(()=>{});
+
+  // Push placeholder score now (will be updated by eval above)
+  S.itv.scores.push(55);
+  S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55});
+  S.itv.feedbacks.push('');
+  S.itv.ideals.push('');
+
+  // Auto-flow to next question
+  document.getElementById('mic-btn').className='mic-btn';
   const autoFlowQ = S.itv.currentQ;
   setTimeout(()=>{
-    // Guard: only auto-advance if still on the same question (user didn't click manually)
     if(S.itv.currentQ === autoFlowQ && S.itv.phase !== 'done') nextQ();
   }, 300);
 }
@@ -2702,12 +2726,18 @@ async function nextQ() {
     }
 
     // Recruiter answers the candidate's question
+    let recruiterAnswer = '';
     try {
-      const recruiterAnswer = await genCandidateQuestionAnswer(currentAnswer);
+      recruiterAnswer = await genCandidateQuestionAnswer(currentAnswer);
       document.getElementById('q-text').textContent = recruiterAnswer;
+      const _rre = document.getElementById('recruiter-reaction');
+      if(_rre){ _rre.style.display='none'; }
       if(S.config.voix) await speakTextAsync(recruiterAnswer);
-      else await new Promise(r=>setTimeout(r,1200));
-    } catch(e) {}
+      else await new Promise(r=>setTimeout(r, Math.min(recruiterAnswer.length*55, 3000)));
+    } catch(e) {
+      document.getElementById('q-text').textContent = "Bonne question. Je reviendrai vers vous là-dessus.";
+      await new Promise(r=>setTimeout(r,1000));
+    }
 
     // Ask if candidate has another question
     const followUps = [
