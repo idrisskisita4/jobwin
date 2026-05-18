@@ -2193,155 +2193,94 @@ UNE question. 25 à 50 mots. Texte brut. Pas de guillemets, pas de préambule, p
 }
 
 async function genNextQuestion() {
-  const baseStyle = S.config.personnalite==='hardcore'?'très exigeant et intimidant':S.config.personnalite==='exigeant'?'professionnel et exigeant':'bienveillant et attentif';
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
-  const recStyle = {
-    antoine: 'rigoureux et structuré',
-    laurent: 'analytique et précis',
-    guillaume: 'direct et efficace',
-    manon: 'empathique mais exigeante',
-    jeanne: 'méthodique et attentive',
-    victoria: 'dynamique et incisive'
-  }[recKey] || 'professionnel';
-  const tone = baseStyle + ', ' + recStyle;
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup tech',administration:'administration publique'};
+  const recName = S.recruiter?.name || 'Antoine';
+  const recPersonality = {
+    antoine: 'rigoureux, structuré, il va droit au but',
+    laurent: 'analytique, il creuse les chiffres et les faits',
+    guillaume: "direct, efficace, il ne s'encombre pas des formules",
+    manon: 'empathique mais exigeante, elle lit entre les lignes',
+    jeanne: 'méthodique, elle suit un fil précis et ne lâche pas',
+    victoria: 'dynamique, incisive, elle challenge chaque réponse'
+  }[recKey] || 'professionnel et attentif';
+
+  const difficulte = S.config.personnalite==='hardcore'?'très exigeant et intimidant, il ne laisse rien passer':
+                     S.config.personnalite==='exigeant'?'professionnel et exigeant, il attend des réponses précises':
+                     "bienveillant mais attentif, il met à l'aise tout en creusant";
+
+  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const rec = S.recruiter || RECRUITERS.antoine;
-  const cv = (S.config.cv || '').substring(0, 1800);
+  const cv = (S.config.cv||'').substring(0,1800);
   const qCount = S.itv.qs.length;
-  const hist = S.itv.history.slice(-5);
-  const histStr = hist.map(h=>'Q: '+h.q.substring(0,90)+'\nR: '+h.a.substring(0,180)).join('\n---\n');
-  const lastEntry = hist.length > 0 ? hist[hist.length-1] : null;
 
-  // === FOLLOW-UP DETECTION ===
-  if(lastEntry) {
-    const lastAnswer = lastEntry.a.trim();
-    const wordCount = lastAnswer.split(/\s+/).filter(Boolean).length;
-    const isRefusal = /\b(je (ne |n')?(sais|veux|peux|souhaite)|pas envie|aucune idée|sans réponse|je refuse|peu importe|c'est personnel)\b/i.test(lastAnswer);
-    const isVague = wordCount < 18 && !isRefusal;
-
-    if(isRefusal) {
-      const recadrage = [
-        `Je comprends que ce soit délicat, mais cette question est importante pour moi. Pouvez-vous m'en dire un peu plus, même de façon générale ?`,
-        `C'est votre droit, mais dans un entretien réel, ce silence serait interprété. Que puis-je vous dire pour vous mettre plus à l'aise sur ce point ?`,
-        `Je vous invite à tenter une réponse - je ne cherche pas la perfection, je cherche à comprendre comment vous pensez.`,
-        `D'accord, mais permettez-moi d'insister - ce que vous évitez me dit autant que ce que vous me racontez. Essayez.`
-      ];
-      return recadrage[Math.floor(Math.random()*recadrage.length)];
-    }
-
-    if(isVague) {
-      const prompt = `Tu es ${rec.name}, recruteur ${tone}. Tu venais de poser : "${lastEntry.q}"
-Le candidat a répondu de façon trop courte/vague (${wordCount} mots) : "${lastAnswer}"
-Génère UNE relance ciblée (15-30 mots) qui demande un exemple concret ou une précision. Commence par une observation naturelle. Texte brut uniquement.`;
-      const res = await apiCall(prompt, 100);
-      return res.trim();
-    }
-  }
-
-  // === MANDATORY SECTOR QUESTIONS (forcées si pas encore posées) ===
+  // === MANDATORY SECTOR QUESTIONS ===
   const allQsLower = S.itv.qs.join(' ').toLowerCase();
+  const jobSectorCheck = detectSector(S.config.poste||'');
   const sectorMandatory = {
     transport: [
-      { check: /permis|catégorie|carte conducteur|fimo|fco/, q: `Parlez-moi de votre permis de conduire — quelle catégorie, est-il à jour ? Avez-vous votre FIMO ou FCO ?` },
-      { check: /accident|incident|infraction|contravention/, q: `Avez-vous eu des accidents ou des infractions au code de la route dans les 5 dernières années ?` },
+      {check:/permis|catégorie|fimo|fco|carte conducteur/, q:'Parlez-moi de votre permis de conduire — quelle catégorie, est-il à jour ? Avez-vous le permis D et la FIMO/FCO ?'},
+      {check:/accident|infraction|contravention/, q:'Avez-vous eu des accidents ou des infractions au code de la route ces 5 dernières années ?'},
     ],
-    sante: [
-      { check: /diplôme|formation|infirmier|aide.soignant|bac.pro/, q: `Quel est votre diplôme exact et depuis combien de temps l'exercez-vous ?` },
-    ],
-    btp: [
-      { check: /habilitation|caces|échafaudage|sécurité/, q: `Quelles habilitations ou certifications avez-vous — CACES, travaux en hauteur, autres ?` },
-    ],
+    sante: [{check:/diplôme|formation/, q:'Quel est votre diplôme exact et depuis combien de temps exercez-vous ?'}],
+    btp: [{check:/habilitation|caces/, q:'Quelles habilitations avez-vous — CACES, travaux en hauteur ?'}],
   };
-  if(jobSector && sectorMandatory[jobSector]) {
-    for(const mandatory of sectorMandatory[jobSector]) {
-      if(!mandatory.check.test(allQsLower) && qCount >= 3 && qCount <= 7) {
-        return mandatory.q;
-      }
+  if(jobSectorCheck && sectorMandatory[jobSectorCheck]) {
+    for(const m of sectorMandatory[jobSectorCheck]) {
+      if(!m.check.test(allQsLower) && qCount >= 3 && qCount <= 7) return m.q;
     }
   }
-  const allQs = S.itv.qs.join(' ').toLowerCase();
-  const themesNonCouverts = [];
-  if(!(allQs.includes('pourquoi') || allQs.includes('motiv'))) themesNonCouverts.push('motivations spécifiques');
-  if(!(allQs.includes('situation') || allQs.includes('exemple concret') || allQs.includes('racontez'))) themesNonCouverts.push('exemple STAR concret');
-  if(!(allQs.includes('voyez-vous') || allQs.includes('trois ans') || allQs.includes('5 ans'))) themesNonCouverts.push('projection');
-  if(!(allQs.includes('distingue') || allQs.includes('pas un autre') || allQs.includes('apportez'))) themesNonCouverts.push('différenciation');
-  if(!(allQs.includes('salaire') || allQs.includes('prétention') || allQs.includes('rémunération')) && qCount >= 5) themesNonCouverts.push('prétentions salariales');
 
-  // === ANGLES VARIÉS (pour éviter la répétition entre entretiens) ===
-  const angles = [
-    "creuse une transition ou une période courte dans son CV",
-    "interroge la cohérence du parcours vers ce poste",
-    "fais-le raconter une réussite très concrète avec des chiffres ou un résultat mesurable",
-    "fais-le raconter un échec, un conflit ou une situation mal gérée",
-    "challenge sa motivation : pourquoi maintenant, pourquoi nous, qu'est-ce qui a déclenché",
-    "explore son rapport au collectif, à la hiérarchie, au feedback",
-    "teste sa capacité d'adaptation face au changement ou à l'imprévu",
-    "interroge une compétence revendiquée sur le CV - sur quel projet, avec quel résultat",
-    "explore son rapport à l'autonomie, à la décision, à la responsabilité",
-    "fais-lui imaginer une situation concrète typique du poste et demande sa réaction",
-    "demande-lui comment ses anciens collègues ou managers le décriraient",
-    "creuse une période non documentée dans son CV ou un changement non expliqué"
-  ];
-  const angle = angles[Math.floor(Math.random()*angles.length)];
+  // === THEMES COVERAGE ===
+  const themesNonCouverts = [];
+  if(!(allQsLower.includes('pourquoi')||allQsLower.includes('motiv'))) themesNonCouverts.push('motivations réelles');
+  if(!(allQsLower.includes('situation')||allQsLower.includes('exemple')||allQsLower.includes('racontez'))) themesNonCouverts.push('exemple STAR concret');
+  if(!(allQsLower.includes('voyez-vous')||allQsLower.includes('trois ans'))) themesNonCouverts.push('projection carrière');
+  if(!(allQsLower.includes('distingue')||allQsLower.includes('apportez'))) themesNonCouverts.push('différenciation');
+  if(!(allQsLower.includes('salaire')||allQsLower.includes('prétention')) && qCount>=6) themesNonCouverts.push('prétentions salariales');
 
   const cvAnalysis = analyzeCVGaps(cv);
-  const cvGapStr = cvAnalysis.raw ? `\n📋 ANALYSE DU CV :\n${cvAnalysis.raw}\nSi ces éléments n'ont pas encore été abordés dans l'entretien, tu DOIS les soulever naturellement.\n` : '';
-  const jobSector = detectSector(S.config.poste || '');
-  const cvLower = cv.toLowerCase();
-  const cvSectors = {
-    banque: /banque|crédit|financ|assurance|conseiller.+(client|patrimoine)|chargé.+clientèle|agence/.test(cvLower),
-    tech: /développeur|informatique|logiciel|data|cloud|devops/.test(cvLower),
-    commerce: /commercial|vente|vendeur|account/.test(cvLower),
-    sante: /infirmier|médecin|soin|hôpital|clinique/.test(cvLower),
-    transport: /conducteur|chauffeur|transport|logistique/.test(cvLower),
-  };
-  const cvHasBanking = cvSectors.banque;
-  const isTransition = jobSector && cv.length > 50 && !cvSectors[jobSector];
-  const transitionAlert = isTransition ? `
-⚠️ ALERTE TRANSITION DE CARRIÈRE : Le CV du candidat ne correspond PAS au poste visé (${S.config.poste}). ${cvHasBanking ? 'Son CV est orienté banque/finance.' : 'Son CV vient d\'un autre secteur.'} C'est une reconversion. Tu DOIS aborder cette transition si elle n'a pas encore été évoquée : "Votre parcours est dans [secteur CV] et vous postulez pour [poste] - qu'est-ce qui explique ce changement ?"` : '';
 
-  // Force CV mention every 3 questions
-  const mustRefCV = cv.length > 100 && qCount % 3 === 1 && !transitionAlert;
-  const pool = buildQuestionPool();
-  const poolSample = pool.filter(q => !S.itv.qs.some(asked => asked.substring(0,30)===q.substring(0,30))).slice(0,8);
-  const poolStr = poolSample.length > 0 ? `\nExemples de questions de ta banque (adapte-les au contexte) :\n${poolSample.map(q=>'- '+q).join('\n')}` : '';
+  // === SYSTEM PROMPT — fort, comme Claude ===
+  const systemPrompt = `Tu es ${recName}, recruteur ${recPersonality}, ${difficulte}. Tu recrutes pour le poste de ${S.config.poste} dans un ${typeEntreprise}.
 
-  const seed = S.itv?.sessionSeed || '';
-
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Poste : ${S.config.poste}. Niveau candidat : ${S.config.niveau||'junior'}. Session : ${seed}.
-
-CV COMPLET du candidat :
+CV du candidat :
 ${cv || '(aucun CV fourni)'}
-${cvGapStr}
-Échanges précédents :
-${histStr || '(c\'est la 2e question de l\'entretien)'}
-${poolStr}
-${transitionAlert}
-${mustRefCV ? `\n🔴 OBLIGATION : Cette question DOIT faire référence à un élément précis du CV ci-dessus (une entreprise, un poste, une date, une compétence, une formation). Cite-le explicitement.` : ''}
 
-QUESTION ${qCount+1}. Tu dois décider entre deux options :
+${cvAnalysis.raw ? 'Observations CV : '+cvAnalysis.raw : ''}
 
-OPTION A — CREUSER LE MÊME SUJET : si la dernière réponse a abordé quelque chose d'intéressant qui mérite d'être approfondi, pose une relance sur CE MÊME élément.
-OPTION B — NOUVEAU SUJET : si le sujet précédent est épuisé, passe à un nouveau thème.
+${themesNonCouverts.length>0 ? 'Thèmes à couvrir avant la fin : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts.'}
 
-Angle suggéré : ${angle}
-${themesNonCouverts.length > 0 ? 'Thèmes pas encore abordés : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts.'}
+COMMENT TU FONCTIONNES :
+- Tu lis toute la conversation avant de répondre
+- Tu rebondis sur UN élément précis de la dernière réponse (un mot, un chiffre, une entreprise, une date, une contradiction)
+- Tu cites le CV naturellement quand c'est pertinent
+- Tu challenges sans être agressif - tu pousses le candidat à aller plus loin
+- Tu gardes un fil conducteur : chaque question fait avancer l'entretien
+- Tu poses UNE seule question à la fin, jamais deux
+- Si la réponse était vague, tu restes sur le même sujet et tu insistes
+- Si la réponse était complète, tu passes au prochain thème important non couvert
 
-Mix attendu : 50% ancré sur SON CV/réponses, 50% classique reformulé à SON profil.
+FORMAT : question naturelle parlée, 15 à 40 mots. Pas de guillemets, pas de numéro, pas de préambule.`;
 
-RÈGLE ABSOLUE : pas de question générique. Chaque question doit être unique à CE candidat.
-UNE seule question. 15 à 50 mots. Texte brut, pas de guillemets, pas de numérotation.`;
+  // === MESSAGES multi-turn ===
+  const messages = [];
+  for(const h of (S.itv.history||[]).slice(-8)){
+    messages.push({role:'assistant', content: h.q});
+    messages.push({role:'user', content: h.a});
+  }
+  messages.push({role:'user', content: '[Question suivante svp - respecte ton rôle et le format]'});
+
+  const pool = buildQuestionPool();
+  const unused = pool.filter(q => !S.itv.qs.some(asked=>asked.substring(0,25)===q.substring(0,25)));
 
   try {
-    const res = await apiCall(prompt, 180);
+    const res = await apiCallConversational(systemPrompt, messages, 150);
     return res.trim();
   } catch(e) {
-    // Fallback : pick random unused question from pool
-    const unused = pool.filter(q => !S.itv.qs.includes(q));
-    return unused.length > 0 ? unused[0] : pool[Math.floor(Math.random()*pool.length)];
+    return unused.length>0 ? unused[0] : pool[Math.floor(Math.random()*pool.length)];
   }
 }
+
 
 
 async function genCandidateQuestionAnswer(candidateQ) {
@@ -2384,45 +2323,81 @@ Adapte le registre : grand groupe → formel / PME → chaleureux / startup → 
 Commence par "Très bien", "Bien" ou "Voilà". Naturel, pas robotique.`;
   return await apiCall(prompt, 200);
 }async function genRecruiterReaction(question, answer) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant et direct':S.config.personnalite==='exigeant'?'professionnel et direct':'naturel et humain';
+  const tone = S.config.personnalite==='hardcore'?'hardcore':S.config.personnalite==='exigeant'?'exigeant':'standard';
   const recName = S.recruiter?.name || 'Antoine';
-  const cv = (S.config.cv||'').substring(0,600);
-  const cvAnalysis = analyzeCVGaps(S.config.cv||'');
-  const histContext = S.itv.history.length > 1
-    ? `Échanges précédents : ${S.itv.history.slice(-3).map(h=>`[Q: "${h.q.substring(0,50)}" / R: "${h.a.substring(0,80)}"]`).join(' | ')}`
-    : '';
+  const trimmed = answer.trim();
+  const words = trimmed.split(/\s+/).filter(Boolean);
 
-  const prompt = `Tu es ${recName}, recruteur ${tone}, en plein entretien pour le poste de ${S.config.poste}.
-${histContext}
-${cv ? 'CV du candidat (extrait) : '+cv : ''}
-${cvAnalysis.raw ? 'Analyse CV : '+cvAnalysis.raw : ''}
+  // ── CAS 1 : REFUS / NON-RÉPONSE (pas d'API, instantané) ──
+  const isRefusal = /^(sais?\s*pas|je\s*(ne\s*)?sais?\s*pas|aucune?\s*idée|rien|sans\s*réponse|je\s*(ne\s*)?veux?\s*pas|peu\s*importe|j'?en\s*sais?\s*rien|nsp|\.+|aucun|jamais?|non)$/i.test(trimmed) || words.length < 3;
+  if(isRefusal){
+    const recadrages = {
+      hardcore: [
+        `"${trimmed}" — c'est exactement ce genre de réponse qui disqualifie un candidat en 5 secondes. Faites un effort.`,
+        `Dans un vrai entretien, cette réponse vous coûterait le poste. Je vous repose la question.`,
+        `Inacceptable. Même une ébauche de réponse vaut mieux que ça.`,
+      ],
+      exigeant: [
+        `Ce n'est pas une réponse. En entretien réel, ce silence serait rédhibitoire — prenez 3 secondes et reformulez.`,
+        `J'ai besoin d'une vraie réponse, pas de ça. Qu'est-ce qui vous retient de répondre ?`,
+        `Cette réponse ne me donne rien sur vous. Faites un effort de formulation.`,
+      ],
+      standard: [
+        `Je vous sens hésitant — c'est normal, mais j'ai besoin d'un peu plus. Même une piste, même une ébauche.`,
+        `Je comprends que ce soit difficile à formuler, mais "je ne sais pas" ne me permet pas d'avancer. Qu'est-ce qui vous vient naturellement ?`,
+        `On ne cherche pas la perfection — je veux juste comprendre comment vous pensez. Réessayez.`,
+      ]
+    };
+    const arr = recadrages[tone] || recadrages.standard;
+    return arr[Math.floor(Math.random()*arr.length)];
+  }
 
-Tu viens de poser : "${question}"
-Le candidat a répondu : "${answer}"
+  // ── CAS 2 : RÉPONSE TROP COURTE (pas d'API) ──
+  if(words.length < 15){
+    const relances = {
+      hardcore: [
+        `Trop court. Développez avec un exemple concret, des chiffres, du contexte.`,
+        `C'est la version résumée. J'ai besoin de la version complète.`,
+      ],
+      exigeant: [
+        `C'est insuffisant — donnez-moi un exemple précis qui illustre ça.`,
+        `Intéressant, mais trop vague. Ancrez ça dans une situation réelle.`,
+      ],
+      standard: [
+        `Pouvez-vous développer ? J'aimerais un exemple concret.`,
+        `C'est un début — appuyez-le sur une expérience réelle.`,
+      ]
+    };
+    const arr2 = (relances[tone]||relances.standard);
+    return arr2[Math.floor(Math.random()*arr2.length)];
+  }
 
-Tu dois réagir comme un VRAI recruteur humain — pas un robot. Tu n'es pas là juste pour enchaîner les questions. Tu écoutes, tu penses, tu réagis à ce que tu entends.
+  // ── CAS 3 : RÉPONSE NORMALE → multi-turn conversational ──
+  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
+  const systemPrompt = `Tu es ${recName}, recruteur en entretien d'embauche pour le poste de ${S.config.poste} dans un ${typeLabels[S.config.type_entreprise||'grand_groupe']}.
+Ton style : ${tone==='hardcore'?'très exigeant, intimidant, tu ne laisses rien passer':tone==='exigeant'?'professionnel, direct, tu attends des réponses précises':'naturel, humain, bienveillant mais attentif'}.
+Tu réagis à ce que dit le candidat. Tu parles en français naturel. Tu NE poses PAS de question. Max 2 phrases.`;
 
-RÈGLES :
-- 1 à 3 phrases MAX
-- Tu parles naturellement, en français courant professionnel
-- Tu RÉAGIS à quelque chose de spécifique dans la réponse (un mot, un fait, un chiffre, une entreprise citée, une durée, une contradiction, quelque chose qui t'interpelle)
-- Tu peux exprimer de la curiosité, de la surprise, du scepticisme, de la satisfaction — selon ton ton
-- Tu NE POSES PAS DE QUESTION (la question suivante sera générée séparément)
-- Tu peux occasionnellement (1 fois sur 5 environ) partager un mot de contexte sur le poste ou l'entreprise : "Ça tombe bien, c'est exactement le profil qu'on cherche.", "Intéressant, parce que chez nous la situation est différente.", "C'est un point important pour nous."
+  // Build full conversation history as messages
+  const messages = [];
+  for(const h of (S.itv.history||[]).slice(-6)){
+    messages.push({role:'assistant', content: h.q});
+    messages.push({role:'user', content: h.a});
+  }
+  // Add current exchange
+  messages.push({role:'assistant', content: question});
+  messages.push({role:'user', content: trimmed});
+  // Ask for reaction
+  messages.push({role:'user', content: '[Maintenant réagis à ma dernière réponse en 1-2 phrases. Réagis à un élément précis. Ne pose pas de question.]'});
 
-SITUATIONS SPÉCIALES :
-- Réponse vague/trop courte (< 20 mots) : exprime ton attente de plus : "C'est un peu succinct pour moi.", "J'aurais besoin de plus de concret.", "Je vous sens hésitant — développez."
-- Refus de répondre : recadre fermement : "Dans un vrai entretien, ce silence serait disqualifiant. Je vous repose la question.", "Je comprends que ce soit inconfortable, mais c'est justement ce type de situation que je veux explorer."
-- Incohérence avec le CV ou une réponse précédente : pointe-la : "Vous m'avez dit tout à l'heure que... et là vous dites... — aidez-moi à comprendre.", "Votre CV indique [X] mais là vous parlez de [Y] — il y a quelque chose à m'expliquer ?"
-- Réponse forte et précise : réagis avec une phrase courte et sincère : "C'est concret, j'apprécie.", "Bien, ça c'est une réponse.", "Je prends note."
-- Réponse correcte, standard : accusé de réception simple et varié : "D'accord.", "Je vois.", "C'est noté.", "Bien.", "Je comprends."
-
-Texte brut uniquement. Naturel. Jamais de guillemets.`;
-
-  const res = await apiCall(prompt, 180);
-  const txt = res.trim();
-  if(txt.length < 2) return 'Je vois.';
-  return txt;
+  try {
+    const res = await apiCallConversational(systemPrompt, messages, 100);
+    const txt = res.trim();
+    return txt.length > 3 ? txt : 'Je vois, c\'est noté.';
+  } catch(e) {
+    const fallbacks = ['D\'accord.', 'Je vois.', 'C\'est noté.', 'Bien.', 'Compris.', 'Intéressant.'];
+    return fallbacks[Math.floor(Math.random()*fallbacks.length)];
+  }
 }
 
 async function genQuestions(n) {
@@ -2614,17 +2589,23 @@ async function stopRec(e) {
   S.itv.reactions = S.itv.reactions || [];
   if(reaction) S.itv.reactions[S.itv.currentQ] = reaction;
 
-  // Display + speak reaction
+  // Display + speak reaction — stays visible until next question
   const _re = document.getElementById('recruiter-reaction');
   if(_re && reaction){
     _re.style.display='block';
-    _re.innerHTML=`<div style="margin:12px 20px 4px;display:flex;align-items:flex-start;gap:10px">
-      <div style="width:32px;height:32px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid rgba(255,255,255,.15)">${S.recruiter?.emoji||'🎙️'}</div>
-      <div style="background:var(--navy);color:rgba(255,255,255,.9);border-radius:4px 14px 14px 14px;padding:11px 15px;font-size:14.5px;line-height:1.55;max-width:calc(100% - 48px)">${reaction}</div>
+    _re.innerHTML=`<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
+      <div style="width:34px;height:34px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(255,255,255,.2)">${S.recruiter?.emoji||'🎙️'}</div>
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} DIT</div>
+        <div style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.95);border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid var(--blue)">${reaction}</div>
+      </div>
     </div>`;
     setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
     if(S.config.voix) await speakTextAsync(reaction);
-    else await new Promise(r=>setTimeout(r, Math.min(reaction.length*50, 2000)));
+    else {
+      // Wait proportional to length so user can read it
+      await new Promise(r=>setTimeout(r, Math.max(1500, reaction.length * 60)));
+    }
   }
 
   // Eval in background - don't await, store when done
@@ -2864,6 +2845,7 @@ function abandon() {
 }
 
 /* ========== API CALLS ========== */
+// Multi-turn API call - sends full conversation history like a real chat
 async function apiCall(prompt, maxTokens=600) {
   const res=await fetch('/.netlify/functions/chat',{
     method:'POST',
@@ -2872,6 +2854,23 @@ async function apiCall(prompt, maxTokens=600) {
   });
   if(!res.ok) throw new Error('API '+res.status);
   const d=await res.json(); return d.text;
+}
+
+// Conversational multi-turn call - uses full interview history as messages
+async function apiCallConversational(systemPrompt, messages, maxTokens=200) {
+  const res = await fetch('/.netlify/functions/chat', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      systemPrompt,
+      messages,   // [{role:'user'|'assistant', content:'...'}]
+      maxTokens,
+      conversational: true
+    })
+  });
+  if(!res.ok) throw new Error('API '+res.status);
+  const d = await res.json();
+  return d.text;
 }
 
 async function evalAnswer(q, answer) {
