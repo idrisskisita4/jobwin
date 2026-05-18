@@ -2741,7 +2741,6 @@ async function nextQ() {
      Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length) >= 60);
 
   if(shouldEnd){
-    // Ask "Avez-vous des questions ?"
     S.itv.phase = 'candidate_questions';
     const transitionQ = "Nous avons presque terminé. Avez-vous des questions à me poser sur le poste, l'entreprise ou la suite du processus de recrutement ?";
     S.itv.qs.push(transitionQ);
@@ -2751,11 +2750,18 @@ async function nextQ() {
     document.getElementById('answer-box').textContent='Ta réponse apparaîtra ici...';
     document.getElementById('answer-box').className='answer-box';
     document.getElementById('feedback-wrap').style.display='none';
-    document.getElementById('int-actions').style.display='none';
     document.getElementById('filler-wrap').style.display='none';
     document.getElementById('wpm-display').style.display='none';
+    const _rr2 = document.getElementById('recruiter-reaction'); if(_rr2) _rr2.style.display='none';
     document.getElementById('mic-hint').textContent='Maintenir pour parler';
     document.getElementById('mic-btn').className='mic-btn';
+    // Show mic so candidate can answer
+    document.getElementById('mic-area').style.display='flex';
+    // Show skip button to go directly to results
+    const _ia2 = document.getElementById('int-actions');
+    const _nb2 = document.getElementById('next-btn');
+    if(_ia2){ _ia2.style.display='flex'; }
+    if(_nb2){ _nb2.style.display=''; _nb2.textContent='Passer aux résultats →'; _nb2.onclick = ()=>{ S.itv.phase='done'; doOutro(); }; }
     if(S.config.voix) setTimeout(()=>speakText(transitionQ),80);
     return;
   }
