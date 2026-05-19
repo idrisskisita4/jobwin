@@ -2280,7 +2280,38 @@ async function genNextQuestion() {
   if(!(allQsLower.includes('salaire')||allQsLower.includes('prétention')) && qCount>=6) themesNonCouverts.push('prétentions salariales');
 
   const cvAnalysis = analyzeCVGaps(cv);
+  // === TOPIC TRACKING par thème (pas par numéro de question) ===
+  S.itv.topicHistory = S.itv.topicHistory || [];
+  const allHistory = (S.itv.history||[]).slice(-10);
+
+  // Detect current dominant theme from last exchanges
+  const lastAnswers = allHistory.slice(-4).map(h=>h.q+' '+h.a).join(' ').toLowerCase();
+  const themes = {
+    reconversion: /reconvers|quitter|banque|changer|pourquoi maintenant|rêve|enfant|avant/,
+    motivation: /motiv|envie|passion|attire|aime|plait/,
+    permis: /permis|fimo|fco|qualification|carte/,
+    salaire: /salaire|prétention|rémunérat|paye/,
+    experience: /expérience|parcours|travaillé|poste|emploi/,
+    projection: /ans|avenir|futur|objectif|voyez-vous/,
+  };
+
+  // Count exchanges per theme
+  const themeCounts = {};
+  for(const [theme, re] of Object.entries(themes)) {
+    themeCounts[theme] = allHistory.filter(h => re.test((h.q+' '+h.a).toLowerCase())).length;
+  }
+
+  // Find saturated themes (3+ exchanges)
+  const saturatedThemes = Object.entries(themeCounts)
+    .filter(([t, count]) => count >= 3)
+    .map(([t]) => t);
+
   const topicExchanges = (S.itv.topicExchanges && S.itv.topicExchanges[S.itv.currentQ]) || 0;
+  const forceNext = topicExchanges >= 2 || saturatedThemes.some(t => themes[t].test(lastAnswers));
+
+  const saturatedNote = saturatedThemes.length > 0
+    ? `\nSujets ÉPUISÉS — ne plus y revenir : ${saturatedThemes.join(', ')}. Passe à un autre thème.`
+    : '';
   const isQ2 = qCount === 1;
   const hasCv = cv.length > 50;
 
@@ -2297,7 +2328,8 @@ ${isQ2 ?
 "COMMENT TU FONCTIONNES :\n- Tu lis toute la conversation.\n- Tu rebondis sur UN élément précis de la dernière réponse.\n- Tu cites le CV quand c'est pertinent.\n- Tu restes sur un sujet tant que tu n'es pas satisfait.\n- Quand satisfait : dis-le naturellement et passe à la suite."
 }
 
-${topicExchanges >= 2 ? `Tu as déjà eu ${topicExchanges} échanges sur ce sujet. Si tu as eu ce qu'il te fallait, passe à la suite naturellement.` : ''}
+${forceNext ? '⚠️ ORDRE IMPÉRATIF : Tu as déjà assez creusé ce point. Commence par ##NEXT## et passe à un thème complètement différent.' : topicExchanges === 1 ? 'Tu as eu 1 échange sur ce sujet. Si suffisant → ##NEXT##. Sinon une dernière relance → ##STAY##.' : ''}
+${saturatedNote}
 
 FORMAT : naturel, parlé, 15 à 50 mots. Pas de guillemets, pas de numéro. ${S.config.type_entreprise === 'startup' ? 'Tu tutoies le candidat.' : 'Tu vouvoies le candidat — utilise "vous" et jamais "tu".'}`;
 
@@ -2308,7 +2340,10 @@ FORMAT : naturel, parlé, 15 à 50 mots. Pas de guillemets, pas de numéro. ${S.
     messages.push({role:'assistant', content: h.q});
     messages.push({role:'user', content: h.a});
   }
-  messages.push({role:'user', content: `[Génère ta prochaine intervention. Si tu n'es pas encore satisfait sur le sujet actuel, commence par "##STAY##" puis ta relance. Si tu passes à un nouveau sujet, commence par "##NEXT##" puis ta question. Respecte strictement ton rôle et le format.]`});
+  messages.push({role:'user', content: forceNext
+    ? '[ORDRE : commence OBLIGATOIREMENT par ##NEXT## et pose une question sur un nouveau sujet. Tu as déjà assez creusé ce point.]'
+    : '[Génère ta prochaine intervention. Si tu n\'es pas encore satisfait sur le sujet actuel, commence par "##STAY##" puis ta relance. Si tu passes à un nouveau sujet, commence par "##NEXT##" puis ta question. Respecte strictement ton rôle et le format.]'
+  });
 
   const pool = buildQuestionPool();
   const unused = pool.filter(q => !S.itv.qs.some(asked=>asked.substring(0,25)===q.substring(0,25)));
