@@ -1965,9 +1965,11 @@ async function speakTextAsync(txt) {
         delete audioBuffer[chunk];
         const a = new Audio(url);
         currentAudio = a;
-        a.play();
+        a.play().catch(()=>resolve());
         a.onended = () => { URL.revokeObjectURL(url); currentAudio=null; resolve(); };
-        a.onerror = () => resolve();
+        a.onerror = () => { currentAudio=null; resolve(); };
+        // Safety timeout - never block more than 30s per chunk
+        setTimeout(resolve, 30000);
         return;
       }
       fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
@@ -1977,12 +1979,17 @@ async function speakTextAsync(txt) {
         if(!blob){ resolve(); return; }
         const url=URL.createObjectURL(blob);
         currentAudio=new Audio(url);
-        currentAudio.play();
+        currentAudio.play().catch(()=>resolve());
         currentAudio.onended=()=>{ URL.revokeObjectURL(url); currentAudio=null; resolve(); };
-        currentAudio.onerror=()=>resolve();
+        currentAudio.onerror=()=>{ currentAudio=null; resolve(); };
+        setTimeout(resolve, 30000);
       }).catch(()=>resolve());
     });
   }
+  // Always release audio lock after speaking
+  isAudioPlaying = false;
+  const mb = document.getElementById('mic-btn');
+  if(mb){ mb.style.opacity=''; mb.style.pointerEvents=''; }
 }
 async function initInterview() {
   const sessionSeed = Math.random().toString(36).substring(2,8);
@@ -2362,22 +2369,23 @@ async function genCandidateQuestionAnswer(candidateQ) {
   const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
   const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const cvCtx2 = S.config.cv ? `CV/parcours du candidat : ${S.config.cv}` : '';
-  const prompt = `Tu es ${S.recruiter?.name||'Antoine'}, recruteur ${tone} dans un ${typeEntreprise} pour le poste de ${S.config.poste}. ${cvCtx2}
 
-Le candidat vient de te poser cette question en fin d'entretien : "${candidateQ}"
+  // Clean the candidate question - remove transcription artifacts
+  const cleanQ = candidateQ
+    .replace(/\bvotre\s+votre\b/gi, 'votre')
+    .replace(/\bje\s+je\b/gi, 'je')
+    .replace(/\bon\s+entend\s+plus\s+(le\s+)?son\b/gi, '')
+    .trim();
 
-Réponds de façon naturelle, humaine et réaliste - comme un vrai recruteur qui a passé 30 minutes avec ce candidat. 2 à 4 phrases. Ton vocabulaire est professionnel. Tu peux être chaleureux ou direct selon ton style.
+  const prompt = `Tu es ${S.recruiter?.name||'le recruteur'}, ${tone}, dans un ${typeEntreprise}. Poste recruté : ${S.config.poste}.
 
-Si la question porte sur :
-- L'équipe / l'environnement -> décris-le de façon vivante et concrète
-- Les perspectives d'évolution -> sois honnête et précis
-- Le processus de recrutement -> explique les prochaines étapes clairement
-- La culture de l'entreprise -> donne des éléments concrets
-- Le poste lui-même -> développe les enjeux réels
-- Une question personnelle sur toi -> réponds de façon authentique
+Le candidat vient de te poser cette question en fin d'entretien :
+"${cleanQ}"
 
-Commence directement par ta réponse, sans préambule.`;
+Réponds directement et naturellement à SA QUESTION — uniquement à ce qu'il demande.
+${S.config.type_entreprise === 'startup' ? 'Tu tutoies.' : 'Tu vouvoies.'}
+2 à 4 phrases. Commence directement par ta réponse.`;
+
   return await apiCall(prompt, 250);
 }
 
@@ -2855,7 +2863,13 @@ async function nextQ() {
     ];
     const followUp = followUps[Math.min(S.itv.candidateQCount - 1, followUps.length - 1)];
 
-    await new Promise(r=>setTimeout(r, 400));
+    // Show results button always visible during candidate questions phase
+    const _ia3 = document.getElementById('int-actions');
+    const _nb3 = document.getElementById('next-btn');
+    if(_ia3){ _ia3.style.display='flex'; }
+    if(_nb3){ _nb3.style.display=''; _nb3.textContent='Voir les résultats →'; _nb3.onclick = ()=>{ S.itv.phase='done'; doOutro(); }; }
+
+    await new Promise(r=>setTimeout(r,400));
     S.itv.qs.push(followUp);
     S.itv.currentQ++;
     document.getElementById('q-text').textContent = followUp;
