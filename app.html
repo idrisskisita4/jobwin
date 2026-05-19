@@ -2371,46 +2371,64 @@ Commence par "Très bien", "Bien" ou "Voilà". Naturel, pas robotique.`;
   const words = trimmed.split(/\s+/).filter(Boolean);
 
   // ── CAS 1 : REFUS / NON-RÉPONSE (pas d'API, instantané) ──
-  const isRefusal = /^(sais?\s*pas|je\s*(ne\s*)?sais?\s*pas|aucune?\s*idée|rien|sans\s*réponse|je\s*(ne\s*)?veux?\s*pas|peu\s*importe|j'?en\s*sais?\s*rien|nsp|\.+|aucun|jamais?|non)$/i.test(trimmed) || words.length < 3;
+  const isRefusal = /^(sais?\s*pas|je\s*(ne\s*)?sais?\s*pas|aucune?\s*idée|rien|sans\s*réponse|je\s*(ne\s*)?veux?\s*pas|peu\s*importe|j'?en\s*sais?\s*rien|nsp|\.+|aucun|jamais?|non)$/i.test(trimmed)
+    || words.length < 3
+    || /\b(c'est personnel|c'est privé|ça ne vous regarde|je préfère pas|je veux pas répondre|pas envie|je refuse|ça me regarde|c'est intime|question suivante|passez|skip|next)\b/i.test(trimmed)
+    || /\b(lorsque je (te|vous) dis|c'est un début|début lorsque)\b/i.test(trimmed);
   if(isRefusal){
     const recadrages = {
       hardcore: [
-        `"${trimmed}" — c'est exactement ce genre de réponse qui disqualifie un candidat en 5 secondes. Faites un effort.`,
-        `Dans un vrai entretien, cette réponse vous coûterait le poste. Je vous repose la question.`,
-        `Inacceptable. Même une ébauche de réponse vaut mieux que ça.`,
+        `Non. "C'est personnel" n'est pas une réponse en entretien. Tout peut se formuler professionnellement. Je vous repose la question.`,
+        `Ce type de réponse vous disqualifierait immédiatement. Faites un effort de formulation.`,
+        `Je ne travaille pas avec les non-réponses. Soit vous répondez, soit vous perdez votre chance.`,
+        `Dans ce bureau, "c'est personnel" n'existe pas. Reformulez.`,
+        `Ce silence m'en dit beaucoup — et rien de positif. Je vous redonne une chance.`,
       ],
       exigeant: [
-        `Ce n'est pas une réponse. En entretien réel, ce silence serait rédhibitoire — prenez 3 secondes et reformulez.`,
-        `J'ai besoin d'une vraie réponse, pas de ça. Qu'est-ce qui vous retient de répondre ?`,
-        `Cette réponse ne me donne rien sur vous. Faites un effort de formulation.`,
+        `"C'est personnel" n'existe pas en entretien. Tout peut être dit professionnellement. Reformulez.`,
+        `Ce n'est pas une réponse. En entretien réel, ce silence vous coûterait le poste.`,
+        `Je comprends que ce soit délicat, mais j'ai besoin d'une vraie réponse. Prenez 5 secondes et reformulez.`,
+        `Vous évitez le sujet — c'est exactement ce que je remarque. Qu'est-ce qui vous retient de répondre ?`,
+        `Ce type de réponse interroge tout recruteur. Voulez-vous reformuler différemment ?`,
       ],
       standard: [
-        `Je vous sens hésitant — c'est normal, mais j'ai besoin d'un peu plus. Même une piste, même une ébauche.`,
-        `Je comprends que ce soit difficile à formuler, mais "je ne sais pas" ne me permet pas d'avancer. Qu'est-ce qui vous vient naturellement ?`,
-        `On ne cherche pas la perfection — je veux juste comprendre comment vous pensez. Réessayez.`,
+        `Je vous entends, mais en entretien tout peut être dit avec les bons mots. Qu'est-ce qui vous retient ?`,
+        `"C'est personnel" — je comprends. Mais essayez de formuler quelque chose, même imparfait.`,
+        `Ce n'est pas une réponse qui m'aide à vous évaluer. Voulez-vous réessayer ?`,
+        `Je ne cherche pas à vous mettre mal à l'aise — mais j'ai besoin d'un minimum. Qu'est-ce qui vous vient spontanément ?`,
+        `Sachez qu'en vrai entretien, ce type de réponse laisse une impression négative. Voulez-vous reformuler ?`,
       ]
     };
     const arr = recadrages[tone] || recadrages.standard;
     return arr[Math.floor(Math.random()*arr.length)];
   }
 
-  // ── CAS 2 : RÉPONSE TROP COURTE (pas d'API) ──
+  // ── CAS RÉPONSE TROP COURTE ──
   if(words.length < 15){
     const relances = {
       hardcore: [
-        `Trop court. Développez avec un exemple concret, des chiffres, du contexte.`,
         `C'est la version résumée. J'ai besoin de la version complète.`,
+        `Deux mots. Développez — concrètement.`,
+        `Vous pouvez faire mieux que ça. Qu'est-ce qui s'est passé précisément ?`,
+        `Ce n'est pas suffisant. Donnez-moi des faits, des chiffres, une situation réelle.`,
+        `Je n'évalue pas des intentions, j'évalue des actes. Donnez-moi un exemple concret.`,
       ],
       exigeant: [
         `C'est insuffisant — donnez-moi un exemple précis qui illustre ça.`,
-        `Intéressant, mais trop vague. Ancrez ça dans une situation réelle.`,
+        `Trop vague. Ancrez ça dans une expérience réelle.`,
+        `Je vous sens hésitant. Ce qui m'intéresse c'est le contexte, ce que vous avez fait, le résultat.`,
+        `"${trimmed.substring(0,30)}..." — c'est un début. Développez avec une situation concrète.`,
+        `80% des candidats disent la même chose. Qu'est-ce qui vous différencie, concrètement ?`,
       ],
       standard: [
         `Pouvez-vous développer ? J'aimerais un exemple concret.`,
         `C'est un début — appuyez-le sur une expérience réelle.`,
+        `Je vous entends, mais j'ai besoin de plus. Quelle situation vous vient en tête ?`,
+        `Intéressant — mais pouvez-vous illustrer avec un exemple précis de votre parcours ?`,
+        `Vous effleurez le sujet. Qu'est-ce qui s'est passé concrètement dans votre expérience ?`,
       ]
     };
-    const arr2 = (relances[tone]||relances.standard);
+    const arr2 = relances[tone] || relances.standard;
     return arr2[Math.floor(Math.random()*arr2.length)];
   }
 
@@ -2418,7 +2436,16 @@ Commence par "Très bien", "Bien" ou "Voilà". Naturel, pas robotique.`;
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
   const systemPrompt = `Tu es ${recName}, recruteur en entretien d'embauche pour le poste de ${S.config.poste} dans un ${typeLabels[S.config.type_entreprise||'grand_groupe']}.
 Ton style : ${tone==='hardcore'?'très exigeant, intimidant, tu ne laisses rien passer':tone==='exigeant'?'professionnel, direct, tu attends des réponses précises':'naturel, humain, bienveillant mais attentif'}.
-Tu réagis à ce que dit le candidat. Tu parles en français naturel. Tu NE poses PAS de question. Max 2 phrases.`;
+Tu réagis à ce que dit le candidat. Tu parles en français naturel. Tu NE poses PAS de question. Max 2 phrases.
+
+Exemples de réactions variées selon le contexte :
+- Réponse générique/bateau → "Ce que vous dites, 80% des candidats le disent. Qu'est-ce qui vous différencie ?" / "C'est générique, j'ai besoin de quelque chose de plus personnel." / "Je cherche ce qui vous définit VOUS."
+- Contradiction avec le CV ou ce qui a été dit → "Vous m'avez dit tout à l'heure X — là vous dites autre chose. Aidez-moi à comprendre." / "Il y a quelque chose qui ne colle pas." / "Lequel des deux est vrai ?"
+- Réponse forte et concrète → "C'est concret, j'apprécie." / "Bien, ça c'est une réponse." / "Je prends note." / "C'est exactement ce que je cherche." / "Très bien."
+- Réponse correcte standard → "D'accord." / "Je vois." / "C'est noté." / "Bien." / "Compris." / "Je vous entends." / "Intéressant."
+- Hésitation visible → "Vous cherchez vos mots — prenez le temps." / "Je sens une hésitation — qu'est-ce qui vous retient ?"
+
+Varie les formulations à chaque fois. Ne répète jamais la même réaction deux fois de suite.`;
 
   // Build full conversation history as messages
   const messages = [];
@@ -2749,38 +2776,48 @@ async function nextQ() {
     document.getElementById('mic-area').style.display='none';
     document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
 
-    // Detect if candidate has no more questions
     const noMoreQ = /\b(non|pas (d'autres?|de)|c'est tout|rien d'autre|ça ira|c'est bon|je n'en ai pas|aucune autre|pas pour l'instant)\b/i.test(currentAnswer) || currentAnswer.trim().length < 6;
 
+    // Helper — affiche la réponse dans la bulle recruteur
+    const showRecruiterAnswer = async (text) => {
+      const _re = document.getElementById('recruiter-reaction');
+      if(_re){
+        _re.style.display = 'block';
+        _re.innerHTML = `<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
+          <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
+          <div style="flex:1">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} RÉPOND</div>
+            <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${text}</div>
+          </div>
+        </div>`;
+        setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
+      }
+      if(S.config.voix) await speakTextAsync(text);
+      else await new Promise(r=>setTimeout(r, Math.max(2000, text.length*55)));
+    };
+
     if(noMoreQ || S.itv.candidateQCount >= maxCandidateQs){
-      // Recruiter closes gracefully if candidate had a last question
       if(!noMoreQ){
         try {
-          const recruiterAnswer = await genCandidateQuestionAnswer(currentAnswer);
-          document.getElementById('q-text').textContent = recruiterAnswer;
-          if(S.config.voix) await speakTextAsync(recruiterAnswer);
-          else await new Promise(r=>setTimeout(r,1200));
+          const ans = await genCandidateQuestionAnswer(currentAnswer);
+          await showRecruiterAnswer(ans);
         } catch(e){}
       }
+      document.getElementById('q-text').textContent = '';
       await doOutro();
       return;
     }
 
-    // Recruiter answers the candidate's question
-    let recruiterAnswer = '';
+    // Recruiter answers in the reaction bubble
     try {
-      recruiterAnswer = await genCandidateQuestionAnswer(currentAnswer);
-      document.getElementById('q-text').textContent = recruiterAnswer;
-      const _rre = document.getElementById('recruiter-reaction');
-      if(_rre){ _rre.style.display='none'; }
-      if(S.config.voix) await speakTextAsync(recruiterAnswer);
-      else await new Promise(r=>setTimeout(r, Math.min(recruiterAnswer.length*55, 3000)));
+      const ans = await genCandidateQuestionAnswer(currentAnswer);
+      document.getElementById('q-text').textContent = '';
+      await showRecruiterAnswer(ans);
     } catch(e) {
-      document.getElementById('q-text').textContent = "Bonne question. Je reviendrai vers vous là-dessus.";
-      await new Promise(r=>setTimeout(r,1000));
+      await showRecruiterAnswer("Bonne question. Je reviendrai vers vous là-dessus.");
     }
 
-    // Ask if candidate has another question
+    // Follow-up question in q-text
     const followUps = [
       "Avez-vous d'autres questions ?",
       "Autre chose que vous souhaiteriez me demander ?",
@@ -2788,7 +2825,7 @@ async function nextQ() {
     ];
     const followUp = followUps[Math.min(S.itv.candidateQCount - 1, followUps.length - 1)];
 
-    await new Promise(r=>setTimeout(r,400));
+    await new Promise(r=>setTimeout(r, 400));
     S.itv.qs.push(followUp);
     S.itv.currentQ++;
     document.getElementById('q-text').textContent = followUp;
@@ -2796,7 +2833,6 @@ async function nextQ() {
     document.getElementById('answer-box').className = 'answer-box';
     document.getElementById('filler-wrap').style.display='none';
     document.getElementById('wpm-display').style.display='none';
-    document.getElementById('recruiter-reaction') && (document.getElementById('recruiter-reaction').style.display='none');
     document.getElementById('mic-hint').textContent = 'Maintenir pour parler';
     document.getElementById('mic-btn').className = 'mic-btn';
     document.getElementById('mic-area').style.display = 'flex';
