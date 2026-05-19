@@ -3203,29 +3203,88 @@ async function handleCvUpload(input) {
   if(file.size > 5 * 1024 * 1024) { alert('Fichier trop volumineux (max 5 Mo).'); return; }
   const nameEl = document.getElementById('cv-file-name');
   const dropEl = document.getElementById('cv-drop-label');
-  nameEl.textContent = 'Lecture en cours...';
+  nameEl.textContent = 'Analyse du CV en cours...';
   dropEl.style.borderColor = 'var(--blue)';
   dropEl.style.background = 'var(--blue-light)';
+
   try {
+    // Convert PDF to base64
     const arrayBuffer = await file.arrayBuffer();
-    if(typeof pdfjsLib !== 'undefined') {
-      const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-      let fullText = '';
-      for(let p = 1; p <= Math.min(pdf.numPages, 6); p++) {
-        const page = await pdf.getPage(p);
-        const tc = await page.getTextContent();
-        fullText += tc.items.map(item => item.str).join(' ') + ' ';
+    const bytes = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for(let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    const pdfBase64 = btoa(binary);
+
+    // Send PDF directly to Claude for native reading
+    const res = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ pdfBase64, maxTokens: 1500 })
+    });
+
+    if(!res.ok) throw new Error('API error');
+    const data = await res.json();
+
+    // Parse structured CV data
+    let cvData = null;
+    try {
+      const cleaned = data.text.replace(/```json?|```/g, '').trim();
+      cvData = JSON.parse(cleaned);
+    } catch(e) {}
+
+    if(cvData) {
+      // Store full structured CV
+      S.config.cvData = cvData;
+
+      // Build readable CV text for prompts
+      let cvText = '';
+      if(cvData.nom) cvText += `Candidat : ${cvData.nom}\n`;
+      if(cvData.postes?.length) {
+        cvText += `Expériences :\n`;
+        cvData.postes.forEach(p => { cvText += `- ${p.titre} chez ${p.entreprise} (${p.periode}) ${p.type||''}\n`; });
       }
-      fullText = fullText.replace(/\s+/g, ' ').trim().substring(0, 2000);
-      if(fullText.length > 50) {
-        document.getElementById('cfg-cv').value = fullText;
-        nameEl.textContent = '✓ ' + file.name + ' (' + fullText.length + ' car.)';
-        return;
+      if(cvData.formation?.length) {
+        cvText += `Formation :\n`;
+        cvData.formation.forEach(f => { cvText += `- ${f.diplome} — ${f.etablissement} (${f.annee})\n`; });
       }
+      if(cvData.competences?.length) cvText += `Compétences : ${cvData.competences.join(', ')}\n`;
+      if(cvData.langues?.length) cvText += `Langues : ${cvData.langues.join(', ')}\n`;
+      if(cvData.trous?.length) cvText += `⚠️ Trous : ${cvData.trous.join(' | ')}\n`;
+      if(cvData.transitions?.length) cvText += `⚠️ Transitions : ${cvData.transitions.join(' | ')}\n`;
+      if(cvData.postes_courts?.length) cvText += `⚠️ Postes courts : ${cvData.postes_courts.join(' | ')}\n`;
+      if(cvData.resume_recruteur) cvText += `\nNote recruteur : ${cvData.resume_recruteur}`;
+
+      S.config.cv = cvText;
+      document.getElementById('cfg-cv').value = cvText;
+
+      nameEl.textContent = '✓ ' + file.name + ' — CV analysé par Claude';
+      dropEl.style.borderColor = 'var(--green)';
+    } else {
+      throw new Error('Parse failed');
     }
-    nameEl.textContent = '⚠️ ' + file.name + ' — colle ton parcours manuellement';
+
   } catch(err) {
-    nameEl.textContent = '❌ Erreur — colle ton parcours manuellement';
+    // Fallback to PDF.js
+    try {
+      const arrayBuffer2 = await file.arrayBuffer();
+      if(typeof pdfjsLib !== 'undefined') {
+        const pdf = await pdfjsLib.getDocument({data: arrayBuffer2}).promise;
+        let fullText = '';
+        for(let p = 1; p <= Math.min(pdf.numPages, 6); p++) {
+          const page = await pdf.getPage(p);
+          const tc = await page.getTextContent();
+          fullText += tc.items.map(item => item.str).join(' ') + ' ';
+        }
+        fullText = fullText.replace(/\s+/g, ' ').trim().substring(0, 2000);
+        if(fullText.length > 50) {
+          S.config.cv = fullText;
+          document.getElementById('cfg-cv').value = fullText;
+          nameEl.textContent = '✓ ' + file.name;
+          return;
+        }
+      }
+    } catch(e2) {}
+    nameEl.textContent = '⚠️ ' + file.name + ' — colle ton parcours manuellement';
     dropEl.style.borderColor = 'var(--red)';
   }
 }
