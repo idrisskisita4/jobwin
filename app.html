@@ -2070,40 +2070,73 @@ function updateTimerDisplay() {
 }
 
 async function genRecruiterIntro(rec) {
-  const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
-  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
-  const tone = S.config.personnalite==='hardcore'?'exigeant et direct':S.config.personnalite==='exigeant'?'professionnel':S.config.personnalite==='standard'?'bienveillant et chaleureux':'professionnel';
-  const cv = (S.config.cv||'').substring(0,300);
+  const typeEntreprise = S.config.type_entreprise || 'grand_groupe';
+  const poste = S.config.poste || 'ce poste';
   const seed = S.itv?.sessionSeed || Math.random().toString(36).substring(2,6);
+  const niveau = S.config.personnalite || 'standard';
 
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} dans un ${typeEntreprise}. Tu reçois un candidat pour le poste de ${S.config.poste}.
-${cv ? 'Tu as lu son CV : '+cv : 'Tu n\'as pas de CV sous la main.'}
+  // Tone rules per company type — strict and realistic
+  const toneRules = {
+    grand_groupe: {
+      salutation: 'Bonjour',
+      register: 'formel et professionnel',
+      role: `responsable RH${niveau === 'hardcore' ? ', directeur du recrutement' : ''}`,
+      style: 'Tu vouvoies systématiquement. Tu mentionnes le service RH. Tu annonces un déroulé structuré.',
+      example: `Bonjour ${rec.genre==='femme'?'Madame':'Monsieur'}, je suis ${rec.name}, responsable RH. Je reçois les candidats pour le poste de ${poste}.`
+    },
+    pme: {
+      salutation: 'Bonjour',
+      register: 'chaleureux et direct',
+      role: 'responsable du recrutement',
+      style: 'Tu vouvoies mais avec chaleur. Pas de "service RH" — tu pilotes directement. Ton intro est courte et franche.',
+      example: `Bonjour, je suis ${rec.name}, je pilote les recrutements ici. On se voit pour le poste de ${poste}.`
+    },
+    startup: {
+      salutation: niveau === 'standard' ? 'Salut' : 'Bonjour',
+      register: 'décontracté et transparent',
+      role: 'en charge du recrutement',
+      style: 'Tu tutoies naturellement. Pas de protocole. Tu parles vite, direct, comme entre collègues.',
+      example: `Salut ${rec.genre==='femme'?'':''}je suis ${rec.name}, je gère le recrutement. On se voit pour le poste de ${poste}.`
+    },
+    administration: {
+      salutation: 'Bonjour',
+      register: 'protocolaire et rigoureux',
+      role: 'chargé' + (rec.genre==='femme'?'e':'') + ' de recrutement',
+      style: 'Tu vouvoies formellement, tu utilises le nom de famille du candidat (si connu). Tu annonces un cadre précis.',
+      example: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement au sein de notre direction. Vous candidatez pour le poste de ${poste}.`
+    }
+  };
 
-Rédige ton DISCOURS D'OUVERTURE de l'entretien. C'est ce que tu dis au candidat pour lancer l'échange.
+  const t = toneRules[typeEntreprise];
 
-Contraintes :
-- 3 à 5 phrases naturelles, parlées (pas écrites)
-- Présente-toi rapidement (prénom + rôle)
-- Mentionne le poste
-- Annonce le déroulé de façon naturelle (pas formelle)
-- Ajoute UNE petite remarque personnelle ou une touche spécifique à ton style (curiosité, franchise, bienveillance, rigueur...)
-- Termine par une invitation à commencer
-- Varie : ne commence pas forcément par "Bonjour"
-- Seed de variation : ${seed}
+  const prompt = `Tu es ${rec.name}, ${t.role}, en entretien pour le poste de ${poste} dans un ${typeEntreprise}.
+Ton registre : ${t.register}.
+Règle de ton : ${t.style}
 
-Texte brut, naturel, comme si tu parlais. Pas de guillemets, pas de tirets, pas de listes.`;
+IMPORTANT : Tu NE mentionnes PAS le CV du candidat dans l'intro — tu gardes la surprise pour les questions.
+Tu NE parles PAS des horaires décalés ou des conditions du poste dans l'intro.
+
+Génère ton discours d'ouverture. 3 à 4 phrases max :
+1. Salutation + te présenter (prénom + rôle)
+2. Mentionner le poste
+3. Annoncer le déroulé naturellement
+4. Inviter à commencer
+
+Variation seed : ${seed}
+Texte brut, naturel, comme si tu parlais.`;
 
   try {
-    const res = await apiCall(prompt, 250);
+    const res = await apiCall(prompt, 200);
     return res.trim();
   } catch(e) {
+    // Fallback par type
     const fallbacks = {
-      grand_groupe: `Bonjour, je suis ${rec.name}, Responsable RH. Je suis ravi de vous recevoir pour ce poste de ${S.config.poste}. J'ai pris le temps de regarder votre dossier et j'ai quelques questions précises. On va avoir un échange d'environ quarante minutes. Prêt à commencer ?`,
-      pme: `Bonjour ! ${rec.name}, je pilote les recrutements ici. On va avoir une discussion franche - je préfère qu'on se parle vraiment plutôt que de réciter des formules. Le poste de ${S.config.poste||'ce poste'} nous est important en ce moment. On y va ?`,
-      startup: `Salut, ${rec.name} ! Je gère le recrutement. Pas de prise de tête - on va juste avoir une vraie conversation sur vous et ce que vous pouvez apporter. Le poste de ${S.config.poste||'ce poste'} est stratégique pour nous. Lancez-vous.`,
-      administration: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement. Cet entretien portera sur votre parcours et votre motivation pour le poste de ${S.config.poste||'ce poste'}. Prenez le temps de formuler des réponses précises. Nous pouvons commencer.`
+      grand_groupe: `Bonjour, je suis ${rec.name}, responsable RH. Je vous reçois aujourd'hui pour le poste de ${poste}. On va prendre le temps d'échanger sur votre parcours, vos motivations, et voir si votre profil correspond à ce qu'on recherche. On peut commencer ?`,
+      pme: `Bonjour, je suis ${rec.name}, je pilote les recrutements ici. On se voit pour le poste de ${poste}. Je préfère les échanges directs — pas de langue de bois. On y va ?`,
+      startup: `Salut, moi c'est ${rec.name}, je gère le recrutement. On se retrouve pour le poste de ${poste}. On va avoir une vraie conversation, pas un interrogatoire. Prêt ?`,
+      administration: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${poste}. Cet entretien portera sur votre parcours et vos motivations. Nous pouvons commencer.`
     };
-    return fallbacks[S.config.type_entreprise||'grand_groupe'];
+    return fallbacks[typeEntreprise] || fallbacks.grand_groupe;
   }
 }
 
@@ -2173,41 +2206,33 @@ function analyzeCVGaps(cvText) {
 async function genFirstQuestion() {
   const rec = S.recruiter || RECRUITERS.antoine;
   const cv = (S.config.cv || '').trim();
-
-  // The intro already introduced the recruiter and invited the candidate to speak
-  // Q1 must be a direct question anchored in the CV - NOT another presentation request
   const tone = S.config.personnalite==='hardcore'?'exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
 
-  if(cv.length < 50){
-    const openers = [
-      "Quel poste occupez-vous actuellement, et qu'est-ce qui vous a amené à postuler ici ?",
-      "Parlez-moi de votre parcours — les étapes clés et ce qui vous a conduit à cette candidature.",
-      "Qu'est-ce qui vous a déclenché dans cette candidature pour ce poste précisément ?",
-      "Racontez-moi votre trajectoire professionnelle et ce qui vous amène aujourd'hui.",
-    ];
-    return openers[Math.floor(Math.random()*openers.length)];
-  }
+  // Q1 toujours = invitation à se présenter, naturelle et variée
+  // Le CV sera utilisé à partir de Q2 pour rebondir sur ce que le candidat a dit
+  const prompt = `Tu es ${rec.name}, recruteur ${tone} pour le poste de ${S.config.poste}.
+Tu viens de te présenter. Tu invites maintenant le candidat à se présenter.
 
-  const prompt = `Tu es ${rec.name}, recruteur ${tone}, recrutant pour le poste de ${S.config.poste}.
-Tu viens de te présenter et d'inviter le candidat à commencer. Tu NE demandes PAS au candidat de se présenter — tu as déjà lancé l'échange.
+Génère UNE phrase naturelle et variée pour inviter le candidat à se présenter.
+- Court : 10 à 25 mots max
+- Naturel et parlé, pas formel
+- Varie la formulation : pas toujours "présentez-vous"
 
-CV du candidat :
-${cv.substring(0, 1500)}
+Exemples : "Dis-moi qui tu es et ce qui t'amène ici." / "Commence par te présenter." / "Raconte-moi ton parcours." / "Qui es-tu professionnellement ?"
 
-Pose ta PREMIÈRE question d'entretien. Elle doit :
-- Faire référence à UN élément précis et concret du CV (une entreprise, une transition, une période, une compétence)
-- Être directe et personnalisée
-- NE PAS demander "présentez-vous" ou "parlez-moi de vous" de façon générique
-
-Exemples : "Votre passage de conseiller en agence à conseiller en ligne en 2020 — qu'est-ce qui a motivé ce changement ?" / "Je vois 9 ans dans la banque et maintenant ce poste — qu'est-ce qui s'est passé ?"
-
-UNE question. 15-40 mots. Texte brut.`;
+Texte brut uniquement.`;
 
   try {
-    const res = await apiCall(prompt, 150);
+    const res = await apiCall(prompt, 80);
     return res.trim();
   } catch(e) {
-    return `Je vois votre parcours dans la banque — qu'est-ce qui vous a amené à vouloir changer de secteur pour ce poste ?`;
+    const fallbacks = [
+      "Commencez par vous présenter — votre parcours et ce qui vous amène ici.",
+      "Dites-moi qui vous êtes et ce qui vous a conduit à cette candidature.",
+      "Racontez-moi votre parcours en quelques mots.",
+      "Présentez-vous — qui vous êtes, d'où vous venez professionnellement.",
+    ];
+    return fallbacks[Math.floor(Math.random()*fallbacks.length)];
   }
 }
 
@@ -2258,32 +2283,26 @@ async function genNextQuestion() {
   if(!(allQsLower.includes('salaire')||allQsLower.includes('prétention')) && qCount>=6) themesNonCouverts.push('prétentions salariales');
 
   const cvAnalysis = analyzeCVGaps(cv);
-
   const topicExchanges = (S.itv.topicExchanges && S.itv.topicExchanges[S.itv.currentQ]) || 0;
+  const isQ2 = qCount === 1;
+  const hasCv = cv.length > 50;
 
-  // === SYSTEM PROMPT — fort, comme Claude ===
+  // === SYSTEM PROMPT ===
   const systemPrompt = `Tu es ${recName}, recruteur ${recPersonality}, ${difficulte}. Tu recrutes pour le poste de ${S.config.poste} dans un ${typeEntreprise}.
 
-CV du candidat :
-${cv || '(aucun CV fourni)'}
-
-${cvAnalysis.raw ? 'Observations CV : '+cvAnalysis.raw : ''}
+${hasCv ? `CV du candidat :\n${cv}\n${cvAnalysis.raw ? '\nObservations CV : '+cvAnalysis.raw : ''}` : '(Aucun CV fourni — tu travailles uniquement sur ce que le candidat dit)'}
 
 ${themesNonCouverts.length>0 ? 'Thèmes à couvrir avant la fin : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts.'}
 
-COMMENT TU FONCTIONNES — exactement comme un recruteur humain en vrai entretien :
-- Tu lis toute la conversation depuis le début avant de répondre
-- Tu as une mémoire parfaite de tout ce qui a été dit
-- Tu rebondis sur UN élément précis de la dernière réponse
-- Tu cites le CV naturellement quand c'est pertinent
-- Tu restes sur un sujet TANT QUE tu n'es pas satisfait — pas de limite d'échanges
-- Quand tu es satisfait sur un sujet, tu l'annonces naturellement : "Bien, je comprends mieux votre situation. Passons à autre chose —" puis tu poses ta prochaine question
-- Si la réponse était insuffisante, reste sur le même sujet et creuse encore
-- Si la réponse était complète et convaincante, passe au prochain thème important
+${isQ2 ?
+"PHASE PRÉSENTATION — Le candidat vient de se présenter. Tu réagis à ce qu'il vient de dire.\n1. Rebondis sur UN élément précis de sa présentation.\n2. " + (hasCv ? "Croise avec le CV si pertinent." : "Creuse ce qu'il vient de dire.") + "\n3. Une question naturelle. Tu n'abordes pas encore les questions techniques."
+:
+"COMMENT TU FONCTIONNES :\n- Tu lis toute la conversation.\n- Tu rebondis sur UN élément précis de la dernière réponse.\n- Tu cites le CV quand c'est pertinent.\n- Tu restes sur un sujet tant que tu n'es pas satisfait.\n- Quand satisfait : dis-le naturellement et passe à la suite."
+}
 
-${topicExchanges >= 2 ? `NOTE : Tu as déjà eu ${topicExchanges} échanges sur ce sujet. Si tu as eu ce qu'il te fallait, c'est le bon moment pour passer à la suite en le disant naturellement.` : ''}
+${topicExchanges >= 2 ? `Tu as déjà eu ${topicExchanges} échanges sur ce sujet. Si tu as eu ce qu'il te fallait, passe à la suite naturellement.` : ''}
 
-FORMAT : parle naturellement, 15 à 50 mots. Pas de guillemets, pas de numéro.`;
+FORMAT : naturel, parlé, 15 à 50 mots. Pas de guillemets, pas de numéro.`;
 
   // === MESSAGES multi-turn ===
   const messages = [];
