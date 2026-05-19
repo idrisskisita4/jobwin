@@ -1901,11 +1901,28 @@ function clearAudioBuffer() {
   audioBuffer = {};
 }
 
+function splitForSpeech(txt) {
+  // Split long text into chunks at sentence boundaries to avoid TTS cutoff
+  if(!txt || txt.length <= 200) return [txt];
+  const sentences = txt.match(/[^.!?]+[.!?]+/g) || [txt];
+  const chunks = [];
+  let current = '';
+  for(const s of sentences) {
+    if((current + s).length > 200 && current.length > 0) {
+      chunks.push(current.trim());
+      current = s;
+    } else {
+      current += s;
+    }
+  }
+  if(current.trim()) chunks.push(current.trim());
+  return chunks.length > 0 ? chunks : [txt];
+}
+
 function speakText(txt) {
   if(!txt) return;
   stopAudio();
   isAudioPlaying = true;
-  // Disable mic button while recruiter speaks
   const mbtn = document.getElementById('mic-btn');
   if(mbtn) { mbtn.style.opacity = '0.4'; mbtn.style.pointerEvents = 'none'; }
   const rec = S.recruiter || EXPRESS_RECRUITER;
@@ -1915,54 +1932,58 @@ function speakText(txt) {
     delete audioBuffer[txt];
     currentAudio = new Audio(url);
     currentAudio.play();
-    currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; };
+    currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; isAudioPlaying=false; const mb=document.getElementById('mic-btn'); if(mb){mb.style.opacity='';mb.style.pointerEvents='';} };
     return;
   }
-  fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
-    method:'POST',
-    headers:{'content-Type':'application/json'},
-    body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
-  }).then(r=>r.ok?r.blob():null).then(blob=>{
-    if(!blob) return;
-    const url=URL.createObjectURL(blob);
-    currentAudio=new Audio(url);
-    currentAudio.play();
-    currentAudio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;stopAudio();};
-  }).catch(()=>{stopAudio();});
+  // Split long text
+  const chunks = splitForSpeech(txt);
+  const speakChunk = (i) => {
+    if(i >= chunks.length){ isAudioPlaying=false; const mb=document.getElementById('mic-btn'); if(mb){mb.style.opacity='';mb.style.pointerEvents='';} return; }
+    fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
+      method:'POST', headers:{'content-Type':'application/json'},
+      body:JSON.stringify({text:chunks[i],model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+    }).then(r=>r.ok?r.blob():null).then(blob=>{
+      if(!blob){ speakChunk(i+1); return; }
+      const url=URL.createObjectURL(blob);
+      currentAudio=new Audio(url);
+      currentAudio.play();
+      currentAudio.onended=()=>{ URL.revokeObjectURL(url); currentAudio=null; speakChunk(i+1); };
+    }).catch(()=>speakChunk(i+1));
+  };
+  speakChunk(0);
 }
 
 async function speakTextAsync(txt) {
   if(!txt) return;
   stopAudio();
   const rec = S.recruiter || EXPRESS_RECRUITER;
-  return new Promise(resolve=>{
-    // Use pre-buffered URL if available
-    if(audioBuffer[txt]) {
-      const url = audioBuffer[txt];
-      delete audioBuffer[txt];
-      currentAudio = new Audio(url);
-      const timeout = setTimeout(resolve, 20000);
-      currentAudio.onended = () => { clearTimeout(timeout); URL.revokeObjectURL(url); currentAudio=null; resolve(); };
-      currentAudio.onerror = () => { clearTimeout(timeout); resolve(); };
-      currentAudio.play();
-      return;
-    }
-    fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
-      method:'POST',
-      headers:{'content-Type':'application/json'},
-      body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
-    }).then(r=>r.ok?r.blob():null).then(blob=>{
-      if(!blob){resolve();return;}
-      const url=URL.createObjectURL(blob);
-      currentAudio=new Audio(url);
-      const timeout=setTimeout(resolve,35000);
-      currentAudio.onended=()=>{clearTimeout(timeout);URL.revokeObjectURL(url);currentAudio=null;resolve();};
-      currentAudio.onerror=()=>{clearTimeout(timeout);resolve();};
-      currentAudio.play();
-    }).catch(()=>resolve());
-  });
+  const chunks = splitForSpeech(txt);
+  for(const chunk of chunks) {
+    await new Promise(resolve=>{
+      if(audioBuffer[chunk]) {
+        const url = audioBuffer[chunk];
+        delete audioBuffer[chunk];
+        const a = new Audio(url);
+        currentAudio = a;
+        a.play();
+        a.onended = () => { URL.revokeObjectURL(url); currentAudio=null; resolve(); };
+        a.onerror = () => resolve();
+        return;
+      }
+      fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
+        method:'POST', headers:{'content-Type':'application/json'},
+        body:JSON.stringify({text:chunk,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+      }).then(r=>r.ok?r.blob():null).then(blob=>{
+        if(!blob){ resolve(); return; }
+        const url=URL.createObjectURL(blob);
+        currentAudio=new Audio(url);
+        currentAudio.play();
+        currentAudio.onended=()=>{ URL.revokeObjectURL(url); currentAudio=null; resolve(); };
+        currentAudio.onerror=()=>resolve();
+      }).catch(()=>resolve());
+    });
+  }
 }
-
 async function initInterview() {
   const sessionSeed = Math.random().toString(36).substring(2,8);
   S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],reactions:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12,candidateQCount:0,sessionSeed};
@@ -2153,42 +2174,40 @@ async function genFirstQuestion() {
   const rec = S.recruiter || RECRUITERS.antoine;
   const cv = (S.config.cv || '').trim();
 
-  // No CV → varied generic openers (random)
+  // The intro already introduced the recruiter and invited the candidate to speak
+  // Q1 must be a direct question anchored in the CV - NOT another presentation request
+  const tone = S.config.personnalite==='hardcore'?'exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
+
   if(cv.length < 50){
     const openers = [
-      "Pour commencer, présentez-vous - votre parcours, votre situation actuelle, et ce qui vous a amené à postuler.",
-      "Avant d'entrer dans le détail, racontez-moi en quelques minutes votre trajectoire et où vous en êtes aujourd'hui.",
-      "Commençons simplement : qui êtes-vous professionnellement, et comment en êtes-vous arrivé à postuler pour ce poste ?",
-      "Pour ouvrir notre échange, dites-moi ce qui vous définit dans votre parcours professionnel.",
-      "Présentez-vous - allez à l'essentiel : qui vous êtes, ce que vous avez fait, ce qui vous anime."
+      "Quel poste occupez-vous actuellement, et qu'est-ce qui vous a amené à postuler ici ?",
+      "Parlez-moi de votre parcours — les étapes clés et ce qui vous a conduit à cette candidature.",
+      "Qu'est-ce qui vous a déclenché dans cette candidature pour ce poste précisément ?",
+      "Racontez-moi votre trajectoire professionnelle et ce qui vous amène aujourd'hui.",
     ];
     return openers[Math.floor(Math.random()*openers.length)];
   }
 
-  // CV present → personalized opener anchored on CV
-  const tone = S.config.personnalite==='hardcore'?'exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
   const prompt = `Tu es ${rec.name}, recruteur ${tone}, recrutant pour le poste de ${S.config.poste}.
+Tu viens de te présenter et d'inviter le candidat à commencer. Tu NE demandes PAS au candidat de se présenter — tu as déjà lancé l'échange.
 
 CV du candidat :
-${cv.substring(0, 2000)}
+${cv.substring(0, 1500)}
 
-Tu viens de saluer le candidat. Tu poses ta PREMIÈRE question d'entretien.
+Pose ta PREMIÈRE question d'entretien. Elle doit :
+- Faire référence à UN élément précis et concret du CV (une entreprise, une transition, une période, une compétence)
+- Être directe et personnalisée
+- NE PAS demander "présentez-vous" ou "parlez-moi de vous" de façon générique
 
-Cette question invite le candidat à se présenter ET fait référence à UN élément précis et concret de SON CV (une entreprise, une expérience, une transition, une formation, un projet, une compétence, une durée, une période) que tu trouves intéressant ou que tu veux creuser. Sois SPÉCIFIQUE - cite l'élément du CV.
+Exemples : "Votre passage de conseiller en agence à conseiller en ligne en 2020 — qu'est-ce qui a motivé ce changement ?" / "Je vois 9 ans dans la banque et maintenant ce poste — qu'est-ce qui s'est passé ?"
 
-Exemples du registre attendu :
-- "Avant qu'on entre dans le détail, présentez-vous - je vois notamment votre passage chez [Entreprise], ça m'intrigue."
-- "Commencez par vous présenter, et insistez sur [élément précis] qui m'a interpellé."
-- "Présentez-vous, et expliquez-moi cette transition entre [poste A] et [poste B]."
-- "Racontez-moi votre parcours - et notamment ce que vous avez fait pendant [période] chez [X]."
-
-UNE question. 25 à 50 mots. Texte brut. Pas de guillemets, pas de préambule, pas de numérotation.`;
+UNE question. 15-40 mots. Texte brut.`;
 
   try {
-    const res = await apiCall(prompt, 200);
+    const res = await apiCall(prompt, 150);
     return res.trim();
   } catch(e) {
-    return "Pour commencer, présentez-vous - votre parcours, votre situation actuelle, et ce qui vous a amené à postuler pour ce poste.";
+    return `Je vois votre parcours dans la banque — qu'est-ce qui vous a amené à vouloir changer de secteur pour ce poste ?`;
   }
 }
 
@@ -2602,10 +2621,10 @@ async function stopRec(e) {
   if(_re){
     _re.style.display='block';
     _re.innerHTML=`<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
-      <div style="width:34px;height:34px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(255,255,255,.2)">${S.recruiter?.emoji||'🎙️'}</div>
+      <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
       <div style="flex:1">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} DIT</div>
-        <div style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.95);border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid var(--blue)">${reaction}</div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} DIT</div>
+        <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${reaction}</div>
       </div>
     </div>`;
     setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
