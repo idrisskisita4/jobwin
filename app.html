@@ -2095,8 +2095,8 @@ async function genRecruiterIntro(rec) {
       salutation: niveau === 'standard' ? 'Salut' : 'Bonjour',
       register: 'décontracté et transparent',
       role: 'en charge du recrutement',
-      style: 'Tu tutoies naturellement. Pas de protocole. Tu parles vite, direct, comme entre collègues.',
-      example: `Salut ${rec.genre==='femme'?'':''}je suis ${rec.name}, je gère le recrutement. On se voit pour le poste de ${poste}.`
+      style: 'Tu tutoies naturellement. Pas de protocole. Tu parles vite, direct, comme entre collègues. Tu dis "tu" et jamais "vous".',
+      example: `Salut, moi c'est ${rec.name}, je gère le recrutement. On se voit pour le poste de ${poste}.`
     },
     administration: {
       salutation: 'Bonjour',
@@ -2204,37 +2204,34 @@ function analyzeCVGaps(cvText) {
 }
 
 async function genFirstQuestion() {
-  const rec = S.recruiter || RECRUITERS.antoine;
-  const cv = (S.config.cv || '').trim();
-  const tone = S.config.personnalite==='hardcore'?'exigeant':S.config.personnalite==='exigeant'?'professionnel':'bienveillant';
+  const typeEntreprise = S.config.type_entreprise || 'grand_groupe';
+  const tutoie = typeEntreprise === 'startup';
 
-  // Q1 toujours = invitation à se présenter, naturelle et variée
-  // Le CV sera utilisé à partir de Q2 pour rebondir sur ce que le candidat a dit
-  const prompt = `Tu es ${rec.name}, recruteur ${tone} pour le poste de ${S.config.poste}.
-Tu viens de te présenter. Tu invites maintenant le candidat à se présenter.
+  // Q1 = invitation simple à se présenter
+  // RÈGLES : pas de CV, pas de présupposé, vouvoiement sauf startup, court et varié
+  const vouvoiement = [
+    "Présentez-vous — votre parcours et ce qui vous amène ici.",
+    "Parlez-moi de vous et de votre parcours professionnel.",
+    "Racontez-moi votre trajectoire — les étapes clés.",
+    "Dites-moi qui vous êtes et ce qui vous a conduit à cette candidature.",
+    "Commencez par vous présenter.",
+    "Qui êtes-vous professionnellement ?",
+    "Parlez-moi de votre parcours.",
+  ];
 
-Génère UNE phrase naturelle et variée pour inviter le candidat à se présenter.
-- Court : 10 à 25 mots max
-- Naturel et parlé, pas formel
-- Varie la formulation : pas toujours "présentez-vous"
+  const tutoiement = [
+    "Présente-toi — ton parcours et ce qui t'amène ici.",
+    "Raconte-moi ta trajectoire professionnelle.",
+    "Dis-moi qui tu es et ce qui t'a conduit à postuler.",
+    "Parle-moi de toi et de ton parcours.",
+    "Qui es-tu professionnellement ?",
+    "Commence par te présenter.",
+  ];
 
-Exemples : "Dis-moi qui tu es et ce qui t'amène ici." / "Commence par te présenter." / "Raconte-moi ton parcours." / "Qui es-tu professionnellement ?"
-
-Texte brut uniquement.`;
-
-  try {
-    const res = await apiCall(prompt, 80);
-    return res.trim();
-  } catch(e) {
-    const fallbacks = [
-      "Commencez par vous présenter — votre parcours et ce qui vous amène ici.",
-      "Dites-moi qui vous êtes et ce qui vous a conduit à cette candidature.",
-      "Racontez-moi votre parcours en quelques mots.",
-      "Présentez-vous — qui vous êtes, d'où vous venez professionnellement.",
-    ];
-    return fallbacks[Math.floor(Math.random()*fallbacks.length)];
-  }
+  const options = tutoie ? tutoiement : vouvoiement;
+  return options[Math.floor(Math.random() * options.length)];
 }
+
 
 async function genNextQuestion() {
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
@@ -2302,7 +2299,8 @@ ${isQ2 ?
 
 ${topicExchanges >= 2 ? `Tu as déjà eu ${topicExchanges} échanges sur ce sujet. Si tu as eu ce qu'il te fallait, passe à la suite naturellement.` : ''}
 
-FORMAT : naturel, parlé, 15 à 50 mots. Pas de guillemets, pas de numéro.`;
+FORMAT : naturel, parlé, 15 à 50 mots. Pas de guillemets, pas de numéro. ${S.config.type_entreprise === 'startup' ? 'Tu tutoies le candidat.' : 'Tu vouvoies le candidat — utilise "vous" et jamais "tu".'}`;
+
 
   // === MESSAGES multi-turn ===
   const messages = [];
@@ -2434,18 +2432,15 @@ Commence par "Très bien", "Bien" ou "Voilà". Naturel, pas robotique.`;
 
   // ── CAS 3 : RÉPONSE NORMALE → multi-turn conversational ──
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
-  const systemPrompt = `Tu es ${recName}, recruteur en entretien d'embauche pour le poste de ${S.config.poste} dans un ${typeLabels[S.config.type_entreprise||'grand_groupe']}.
-Ton style : ${tone==='hardcore'?'très exigeant, intimidant, tu ne laisses rien passer':tone==='exigeant'?'professionnel, direct, tu attends des réponses précises':'naturel, humain, bienveillant mais attentif'}.
-Tu réagis à ce que dit le candidat. Tu parles en français naturel. Tu NE poses PAS de question. Max 2 phrases.
+  const systemPrompt = `Tu es ${recName}. Tu ES en train de parler au candidat maintenant. Tu ne décris pas ce que tu vas faire — tu le fais.
+Poste : ${S.config.poste}. Ton : ${tone==='hardcore'?'très exigeant':tone==='exigeant'?'professionnel et direct':'naturel et bienveillant'}.
+${S.config.type_entreprise === 'startup' ? 'Tu tutoies.' : 'Tu vouvoies — jamais de "tu".'}
+Tu parles directement au candidat. 1 à 2 phrases max. Tu NE poses PAS de question. Tu NE décris PAS ce que tu fais.
 
-Exemples de réactions variées selon le contexte :
-- Réponse générique/bateau → "Ce que vous dites, 80% des candidats le disent. Qu'est-ce qui vous différencie ?" / "C'est générique, j'ai besoin de quelque chose de plus personnel." / "Je cherche ce qui vous définit VOUS."
-- Contradiction avec le CV ou ce qui a été dit → "Vous m'avez dit tout à l'heure X — là vous dites autre chose. Aidez-moi à comprendre." / "Il y a quelque chose qui ne colle pas." / "Lequel des deux est vrai ?"
-- Réponse forte et concrète → "C'est concret, j'apprécie." / "Bien, ça c'est une réponse." / "Je prends note." / "C'est exactement ce que je cherche." / "Très bien."
-- Réponse correcte standard → "D'accord." / "Je vois." / "C'est noté." / "Bien." / "Compris." / "Je vous entends." / "Intéressant."
-- Hésitation visible → "Vous cherchez vos mots — prenez le temps." / "Je sens une hésitation — qu'est-ce qui vous retient ?"
-
-Varie les formulations à chaque fois. Ne répète jamais la même réaction deux fois de suite.`;
+Si la réponse est vague ou courte : exprime ton attente de plus. Ex : "C'est un début, mais j'ai besoin de plus de concret."
+Si la réponse est bonne : réagis avec une phrase courte. Ex : "C'est clair, merci." / "Je prends note."
+Si contradiction : pointe-la. Ex : "Ce que vous dites ne correspond pas à ce que j'ai lu."
+JAMAIS de méta-commentaire. JAMAIS de "En attente de..." ou "Je vais réagir à...". Tu RÉAGIS, tu ne décris pas.`;
 
   // Build full conversation history as messages
   const messages = [];
@@ -2457,7 +2452,7 @@ Varie les formulations à chaque fois. Ne répète jamais la même réaction deu
   messages.push({role:'assistant', content: question});
   messages.push({role:'user', content: trimmed});
   // Ask for reaction
-  messages.push({role:'user', content: '[Maintenant réagis à ma dernière réponse en 1-2 phrases. Réagis à un élément précis. Ne pose pas de question.]'});
+  messages.push({role:'user', content: '[DIS ta réaction maintenant en 1-2 phrases. Parle directement. Pas de méta-commentaire.]'});
 
   try {
     const res = await apiCallConversational(systemPrompt, messages, 100);
