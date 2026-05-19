@@ -2240,6 +2240,8 @@ async function genNextQuestion() {
 
   const cvAnalysis = analyzeCVGaps(cv);
 
+  const topicExchanges = (S.itv.topicExchanges && S.itv.topicExchanges[S.itv.currentQ]) || 0;
+
   // === SYSTEM PROMPT — fort, comme Claude ===
   const systemPrompt = `Tu es ${recName}, recruteur ${recPersonality}, ${difficulte}. Tu recrutes pour le poste de ${S.config.poste} dans un ${typeEntreprise}.
 
@@ -2250,25 +2252,27 @@ ${cvAnalysis.raw ? 'Observations CV : '+cvAnalysis.raw : ''}
 
 ${themesNonCouverts.length>0 ? 'Thèmes à couvrir avant la fin : '+themesNonCouverts.join(', ') : 'Tous les grands thèmes sont couverts.'}
 
-COMMENT TU FONCTIONNES :
-- Tu lis toute la conversation avant de répondre
-- Tu rebondis sur UN élément précis de la dernière réponse (un mot, un chiffre, une entreprise, une date, une contradiction)
+COMMENT TU FONCTIONNES — exactement comme un recruteur humain en vrai entretien :
+- Tu lis toute la conversation depuis le début avant de répondre
+- Tu as une mémoire parfaite de tout ce qui a été dit
+- Tu rebondis sur UN élément précis de la dernière réponse
 - Tu cites le CV naturellement quand c'est pertinent
-- Tu challenges sans être agressif - tu pousses le candidat à aller plus loin
-- Tu gardes un fil conducteur : chaque question fait avancer l'entretien
-- Tu poses UNE seule question à la fin, jamais deux
-- Si la réponse était vague, tu restes sur le même sujet et tu insistes
-- Si la réponse était complète, tu passes au prochain thème important non couvert
+- Tu restes sur un sujet TANT QUE tu n'es pas satisfait — pas de limite d'échanges
+- Quand tu es satisfait sur un sujet, tu l'annonces naturellement : "Bien, je comprends mieux votre situation. Passons à autre chose —" puis tu poses ta prochaine question
+- Si la réponse était insuffisante, reste sur le même sujet et creuse encore
+- Si la réponse était complète et convaincante, passe au prochain thème important
 
-FORMAT : question naturelle parlée, 15 à 40 mots. Pas de guillemets, pas de numéro, pas de préambule.`;
+${topicExchanges >= 2 ? `NOTE : Tu as déjà eu ${topicExchanges} échanges sur ce sujet. Si tu as eu ce qu'il te fallait, c'est le bon moment pour passer à la suite en le disant naturellement.` : ''}
+
+FORMAT : parle naturellement, 15 à 50 mots. Pas de guillemets, pas de numéro.`;
 
   // === MESSAGES multi-turn ===
   const messages = [];
-  for(const h of (S.itv.history||[]).slice(-8)){
+  for(const h of (S.itv.history||[]).slice(-10)){
     messages.push({role:'assistant', content: h.q});
     messages.push({role:'user', content: h.a});
   }
-  messages.push({role:'user', content: '[Question suivante svp - respecte ton rôle et le format]'});
+  messages.push({role:'user', content: `[Génère ta prochaine intervention. Si tu n'es pas encore satisfait sur le sujet actuel, commence par "##STAY##" puis ta relance. Si tu passes à un nouveau sujet, commence par "##NEXT##" puis ta question. Respecte strictement ton rôle et le format.]`});
 
   const pool = buildQuestionPool();
   const unused = pool.filter(q => !S.itv.qs.some(asked=>asked.substring(0,25)===q.substring(0,25)));
@@ -2581,8 +2585,12 @@ async function stopRec(e) {
   let reaction = null;
   try {
     reaction = await genRecruiterReaction(S.itv.qs[S.itv.currentQ], answer);
-  } catch(e) {
-    reaction = 'Je vois.';
+  } catch(e) {}
+
+  // Guarantee a reaction is always shown
+  if(!reaction || reaction.trim().length < 2) {
+    const fallbacks = ['Je vois.', 'D\'accord.', 'C\'est noté.', 'Bien.', 'Compris.', 'Intéressant.', 'Je prends note.'];
+    reaction = fallbacks[Math.floor(Math.random()*fallbacks.length)];
   }
 
   // Store reaction
@@ -2591,7 +2599,7 @@ async function stopRec(e) {
 
   // Display + speak reaction — stays visible until next question
   const _re = document.getElementById('recruiter-reaction');
-  if(_re && reaction){
+  if(_re){
     _re.style.display='block';
     _re.innerHTML=`<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
       <div style="width:34px;height:34px;background:var(--navy-3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(255,255,255,.2)">${S.recruiter?.emoji||'🎙️'}</div>
@@ -2601,10 +2609,15 @@ async function stopRec(e) {
       </div>
     </div>`;
     setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
-    if(S.config.voix) await speakTextAsync(reaction);
-    else {
-      // Wait proportional to length so user can read it
-      await new Promise(r=>setTimeout(r, Math.max(1500, reaction.length * 60)));
+
+    if(S.config.voix) {
+      await speakTextAsync(reaction);
+      // Extra pause after speech so it feels natural
+      await new Promise(r=>setTimeout(r, 600));
+    } else {
+      // Wait long enough to read — minimum 2s, then proportional to length
+      const readTime = Math.max(2000, reaction.length * 70);
+      await new Promise(r=>setTimeout(r, readTime));
     }
   }
 
@@ -2627,12 +2640,21 @@ async function stopRec(e) {
   S.itv.feedbacks.push('');
   S.itv.ideals.push('');
 
-  // Auto-flow to next question
-  document.getElementById('mic-btn').className='mic-btn';
-  const autoFlowQ = S.itv.currentQ;
-  setTimeout(()=>{
-    if(S.itv.currentQ === autoFlowQ && S.itv.phase !== 'done') nextQ();
-  }, 300);
+  // ── VRAI DIALOGUE : le recruteur décide quand passer au sujet suivant ──
+  // Pas de limite d'échanges — il reste sur le sujet tant qu'il veut creuser
+  document.getElementById('mic-btn').className = 'mic-btn';
+  document.getElementById('mic-hint').textContent = 'Répondez au recruteur...';
+  document.getElementById('mic-area').style.display = 'flex';
+
+  // Bouton manuel si le candidat veut avancer
+  const _nb2 = document.getElementById('next-btn');
+  if(_nb2){ _nb2.textContent = 'Passer à la suite →'; _nb2.style.display = ''; }
+
+  // Track exchanges on this topic
+  S.itv.topicExchanges = S.itv.topicExchanges || {};
+  S.itv.topicExchanges[S.itv.currentQ] = (S.itv.topicExchanges[S.itv.currentQ] || 0) + 1;
+
+  // Don't auto-flow — recruiter will decide via genNextQuestion whether to stay or move on
 }
 
 function wpmClass(wpm){
@@ -2792,13 +2814,25 @@ async function nextQ() {
 
   try {
     const nextQuestion = await genNextQuestion();
-    S.itv.qs.push(nextQuestion);
-    S.itv.currentQ++;
-    const pct = Math.min(90, Math.round((qAsked / S.itv.maxQ) * 90));
-    document.getElementById('prog-fill').style.width = pct + '%';
-    document.getElementById('q-text').textContent = nextQuestion;
-    // Start audio immediately - no delay
-    if(S.config.voix) speakText(nextQuestion);
+    const isStay = nextQuestion.startsWith('##STAY##');
+    const cleanQ = nextQuestion.replace(/^##(STAY|NEXT)##\s*/, '').trim();
+
+    if(isStay) {
+      // Recruiter stays on same topic - don't increment currentQ
+      // Just show the follow-up as a reaction/follow-up bubble
+      document.getElementById('q-text').textContent = cleanQ;
+      document.getElementById('mic-hint').textContent = 'Maintenir pour parler';
+      document.getElementById('mic-area').style.display = 'flex';
+      if(S.config.voix) speakText(cleanQ);
+    } else {
+      // Recruiter moves to new topic - increment currentQ
+      S.itv.qs.push(cleanQ);
+      S.itv.currentQ++;
+      const pct = Math.min(90, Math.round((qAsked / S.itv.maxQ) * 90));
+      document.getElementById('prog-fill').style.width = pct + '%';
+      document.getElementById('q-text').textContent = cleanQ;
+      if(S.config.voix) speakText(cleanQ);
+    }
   } catch(e) {
     // Fallback: use a pre-defined question rather than showing error
     const fallbacks = [
@@ -3012,8 +3046,13 @@ async function showResults() {
         const q = S.itv.qs[i];
         const answer = S.itv.answers[i];
         const el = document.getElementById('ideal-txt-'+i);
-        if(!el || !q || !answer) continue;
-        if(S.itv.phase === 'candidate_questions' && i >= S.itv.qs.length - 3) continue;
+        if(!el || !q) continue;
+        // Skip candidate questions phase and empty answers
+        if(i >= S.itv.qs.length - 3 && S.itv.candidateQCount > 0) continue;
+        if(!answer || answer.trim().length < 3) {
+          if(el) el.innerHTML = '<span style="color:var(--gray-400)">Aucune réponse</span>';
+          continue;
+        }
         try {
           const ideal = await genIdealResponse(q, answer, i);
           if(ideal && el) {
@@ -3021,6 +3060,8 @@ async function showResults() {
           } else if(el) {
             el.innerHTML = '<span style="color:var(--gray-400)">Non disponible</span>';
           }
+          // Small delay between calls to avoid API saturation
+          await new Promise(r=>setTimeout(r, 300));
         } catch(e) {
           if(el) el.innerHTML = '<span style="color:var(--gray-400)">Non disponible</span>';
         }
