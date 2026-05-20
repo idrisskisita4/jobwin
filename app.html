@@ -202,6 +202,11 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 .q-text{font-size:15.5px;line-height:1.6;color:var(--gray-800)}
 .answer-wrap{padding:12px 20px 0}
 .answer-box{background:var(--white);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);min-height:72px;font-size:14.5px;line-height:1.6;color:var(--gray-400);font-style:italic;border:1.5px solid var(--gray-100);transition:border-color var(--t)}
+.sms-recruiter{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.sms-recruiter .sms-bubble{background:#1B2E4A;color:rgba(255,255,255,.9);border-radius:4px 14px 14px 14px;padding:10px 14px;font-size:13px;line-height:1.55;max-width:82%;border-left:3px solid #2563EB}
+.sms-recruiter .sms-av{width:26px;height:26px;background:#0F1E35;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px}
+.sms-candidate{display:flex;justify-content:flex-end;margin-bottom:6px}
+.sms-candidate .sms-bubble{background:#2563EB;color:white;border-radius:14px 4px 14px 14px;padding:10px 14px;font-size:13px;line-height:1.55;max-width:82%}
 .answer-box.has-answer{color:var(--gray-800);font-style:normal;border-color:var(--blue-mid)}
 .answer-box.recording{border-color:var(--red);background:#fff8f8}
 
@@ -819,6 +824,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
   </div>
 
   <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;" id="interview-scroll">
+    <!-- SMS conversation thread -->
+    <div id="sms-thread" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px"></div>
+    <!-- Current question bubble -->
     <div class="q-bubble-wrap">
       <div class="q-bubble">
         <div class="q-from" id="q-from">Thomas dit</div>
@@ -2107,10 +2115,15 @@ async function genRecruiterIntro(rec) {
   }[typeEntreprise];
 
   const entLabel = entreprise ? ' chez '+entreprise : '';
-  const prompt = `Tu es ${rec.name}, recruteur. Poste : ${poste}${entLabel}.
-Style : ${style} ${entreprise ? 'Cite "'+entreprise+'" naturellement dans lintro.' : ''}
-2 a 3 phrases max. Salutation + prenom + role${entreprise ? ' + entreprise' : ''} + poste + invitation a commencer.
-Variation : ${seed}. Texte brut naturel.`;
+  const prompt = `Tu es ${rec.name}, recruteur qui REÇOIT un candidat en entretien pour le poste de ${poste}${entreprise ? ' chez '+entreprise : ''}.
+Style : ${style}
+
+Tu ouvres l entretien. Tu parles AU candidat qui est en face de toi — pas dans un email, pas dans une offre d emploi.
+2 phrases maximum :
+1. Bonjour + prenom + role${entreprise ? ' chez '+entreprise : ''}
+2. On peut commencer ?
+
+Variation : ${seed}. Texte brut, oral, naturel. Jamais "Cordialement". Jamais "Nous recherchons".`;
 
   try {
     const res = await apiCall(prompt, 120);
@@ -2226,6 +2239,23 @@ async function genFirstQuestion() {
 // Un seul appel par tour - le recruteur décide tout seul
 // ============================================================
 
+function addToSMSThread(who, text) {
+  const thread = document.getElementById('sms-thread');
+  if(!thread || !text || text.trim().length < 2) return;
+  const clean = text.trim();
+  const div = document.createElement('div');
+  if(who === 'recruiter') {
+    div.className = 'sms-recruiter';
+    div.innerHTML = `<div class="sms-av">${S.recruiter?.emoji||'🎙️'}</div><div class="sms-bubble">${clean}</div>`;
+  } else {
+    div.className = 'sms-candidate';
+    div.innerHTML = `<div class="sms-bubble">${clean}</div>`;
+  }
+  thread.appendChild(div);
+  const sc = document.getElementById('interview-scroll');
+  if(sc) setTimeout(()=>sc.scrollTop=sc.scrollHeight, 80);
+}
+
 async function genRecruiterTurn(history, cv, phase) {
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
   const recName = S.recruiter?.name || 'Antoine';
@@ -2270,6 +2300,29 @@ async function genRecruiterTurn(history, cv, phase) {
     .filter(([t,re]) => (history.filter(h=>re.test((h.q+' '+h.a).toLowerCase())).length >= 3))
     .map(([t])=>t);
 
+  // === ZONES COUVERTES (boussole du recruteur) ===
+  const zones = {
+    presentation: /présen|parcours|trajectoire|qui êtes|racontez-moi/,
+    formation: /formation|diplôme|études|école|université|bac|bts|master/,
+    experiences: /expérience|poste|entreprise|mission|travaillé|chez/,
+    motivations: /pourquoi|motiv|envie|attire|intéresse|passion/,
+    star: /exemple|situation|racontez|moment où|fois où|réussite|échec|difficulté/,
+    projection: /avenir|futur|ans|voyez-vous|objectif|évoluer/,
+    differenciation: /distingue|apportez|pas un autre|valeur ajoutée|atout/,
+    salaire: /salaire|prétention|rémunération|package/,
+  };
+  const covered = Object.entries(zones)
+    .filter(([z,re]) => re.test(allText))
+    .map(([z])=>z);
+  const notCovered = Object.keys(zones).filter(z => !covered.includes(z));
+
+  // Adapter les zones obligatoires selon le niveau d'avancement
+  const priorityMissing = notCovered.filter(z => {
+    if(z === 'salaire' && exchangeCount < 8) return false;
+    if(z === 'differenciation' && exchangeCount < 6) return false;
+    return true;
+  });
+
   const systemPrompt = `Tu es ${recName}, recruteur ${recPersonality}, ${difficulte}. Tu recrutes pour le poste de ${S.config.poste} dans un ${typeEntreprise}.
 ${tutoie ? 'Tu tutoies le candidat.' : 'Tu vouvoies le candidat — jamais de "tu".'}
 
@@ -2277,17 +2330,27 @@ CV du candidat :
 ${cv || '(aucun CV fourni)'}
 ${cvAnalysis.raw ? 'Observations CV : '+cvAnalysis.raw : ''}
 
-COMMENT TU FONCTIONNES — exactement comme un humain en conversation :
-Tu lis tout l historique de la conversation. Tu remarques UN element precis dans la derniere reponse du candidat. Tu reagis a cet element ET tu poses ta prochaine intervention naturellement.
+TA BOUSSOLE — 8 zones à couvrir avant de conclure (dans un ordre naturel, pas rigide) :
+1. Présentation du parcours
+2. Formation et diplômes
+3. Expériences clés (creuser 1-2 expériences précises du CV)
+4. Motivations réelles (pourquoi ce poste, pourquoi maintenant)
+5. Compétences comportementales STAR (exemples concrets de situations réelles)
+6. Projection à 3 ans
+7. Différenciation (pourquoi toi et pas un autre)
+8. Prétentions salariales
 
-Tu NE decides PAS d avance si tu restes ou passes. Tu lis, tu remarques, tu reagis. C est tout.
+Zones déjà bien couvertes : ${covered.length > 0 ? covered.join(', ') : 'aucune encore'}
+Zones pas encore abordées : ${priorityMissing.length > 0 ? priorityMissing.join(', ') : 'toutes couvertes — tu peux conclure'}
+${saturated.length > 0 ? 'Sujets saturés, ne plus y revenir : '+saturated.join(', ') : ''}
 
-${missing.length > 0 ? 'Points importants pas encore abordes : '+missing.join(', ')+'. Trouve le bon moment pour les aborder naturellement.' : ''}
-${saturated.length > 0 ? 'Sujets deja bien explores, ne plus y revenir : '+saturated.join(', ') : ''}
-${exchangeCount >= 15 ? 'Entretien bien avance ('+exchangeCount+' echanges). Commence a preparer ta conclusion naturellement.' : ''}
-${exchangeCount >= 18 ? 'Il est temps de conclure. Dis au candidat que tu as eu toutes tes reponses.' : ''}
+COMMENT TU FONCTIONNES :
+Tu lis tout l historique. Tu remarques UN element precis dans la derniere reponse. Tu y reagis naturellement ET tu guides vers la prochaine zone non couverte quand c est le bon moment. Pas de transition forcee — tu trouves le lien naturel entre ce que le candidat vient de dire et la zone suivante.
 
-FORMAT : naturel, parlé, 1 à 3 phrases. Pas de guillemets, pas de numéro. Tu peux réagir ET poser une question dans la même intervention — comme en vrai conversation.`;
+${exchangeCount >= 15 ? 'Entretien bien avance. Commence a orienter vers les zones finales.' : ''}
+${exchangeCount >= 18 ? 'Il est temps de conclure.' : ''}
+
+FORMAT : naturel, parle, 1 a 3 phrases. Pas de guillemets, pas de numero.`;
 
   // Build full conversation as messages
   const messages = [];
@@ -2485,6 +2548,10 @@ async function stopRec(e) {
   if(_ia){ _ia.style.display='flex'; }
   if(_nb){ _nb.style.display=''; _nb.textContent='Voir les résultats →'; _nb.onclick=()=>{ S.itv.phase='done'; doOutro(); }; }
 
+  // Ajouter l'échange au fil SMS
+  if(S.itv.lastQ) addToSMSThread('recruiter', S.itv.lastQ);
+  if(answer) addToSMSThread('candidate', answer);
+
   // Ajouter l'échange à l'historique
   const alreadyInHistory = S.itv.history.some(h => h.q === (S.itv.lastQ||'') && h.a === answer);
   if(S.itv.lastQ && answer && !alreadyInHistory) {
@@ -2515,16 +2582,41 @@ async function stopRec(e) {
   if(exchangeCount >= 18 || S.itv.phase === 'ending') {
     S.itv.phase = 'candidate_questions';
     S.itv.candidateQCount = 0;
-    const transitionQ = "Nous avons presque terminé. Avez-vous des questions à me poser sur le poste, l'entreprise ou la suite du processus de recrutement ?";
+
+    // Recruiter concludes naturally before asking for questions
+    let conclusion = '';
+    try {
+      const conclusionPrompt = `Tu es ${S.recruiter?.name||'le recruteur'}, tu viens de terminer l entretien pour le poste de ${S.config.poste}. En 1 phrase naturelle, dis que tu as eu toutes les informations dont tu avais besoin et que tu passes la parole au candidat pour ses questions. Texte brut, naturel.`;
+      conclusion = await apiCall(conclusionPrompt, 80);
+    } catch(e) {
+      conclusion = `Très bien, j'ai toutes les informations dont j'avais besoin.`;
+    }
+
+    const transitionQ = "Avez-vous des questions à me poser sur le poste, l'entreprise ou la suite du processus ?";
+
+    // Show conclusion in reaction bubble
+    const _re2 = document.getElementById('recruiter-reaction');
+    if(_re2 && conclusion){
+      _re2.style.display='block';
+      _re2.innerHTML=`<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
+        <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} DIT</div>
+          <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${conclusion}</div>
+        </div>
+      </div>`;
+      if(S.config.voix) await speakTextAsync(conclusion);
+      else await new Promise(r=>setTimeout(r,2000));
+    }
+
     S.itv.lastQ = transitionQ;
-    document.getElementById('recruiter-reaction').style.display='none';
     document.getElementById('q-text').textContent = transitionQ;
     document.getElementById('answer-box').textContent = 'Ta réponse apparaîtra ici...';
     document.getElementById('answer-box').className = 'answer-box';
     document.getElementById('mic-hint').textContent = 'Maintenir pour parler';
     document.getElementById('mic-btn').className = 'mic-btn';
     document.getElementById('mic-area').style.display = 'flex';
-    if(S.config.voix) setTimeout(()=>speakText(transitionQ), 80);
+    if(S.config.voix) setTimeout(()=>speakText(transitionQ), S.config.voix ? 500 : 0);
     return;
   }
 
@@ -2593,6 +2685,52 @@ function showNextBtn() {
   _nb.textContent=nextLabel;
   setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},200);
 }
+async function genCandidateQuestionAnswer(candidateQ) {
+  const recName = S.recruiter?.name || 'le recruteur';
+  const tutoie = S.config.type_entreprise === 'startup';
+  const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
+  const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+  const cleanQ = (candidateQ||'').replace(/\bvotre\s+votre\b/gi,'votre').replace(/\bje\s+je\b/gi,'je').trim().toLowerCase();
+
+  if(/combien.*(candidat|postul|dossier)/i.test(cleanQ)){
+    const r=['Je ne communique pas les chiffres exacts. Ce que je peux dire c est que vous faites partie des profils retenus pour un entretien.','Nous avons reçu un volume important de candidatures. La selection a ete rigoureuse.','C est une information que je garde confidentielle. Ce qui compte c est que vous soyez la aujourd hui.'];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+  if(/attende|cherchez|recherchez|profil idéal|attendez|quoi pour ce poste|critère/i.test(cleanQ)){
+    const r=['Nous cherchons quelqu un de rigoureux, autonome, capable de s adapter rapidement. L etat d esprit compte autant que les competences techniques.','Le profil ideal combine les competences techniques avec une vraie envie de s impliquer sur le long terme. Quelqu un qui prend des initiatives.','On recherche avant tout quelqu un de fiable et motive. Les competences s acquierent, l attitude non.'];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+  if(/prochaine.*(étape|suite)|après.*(entretien|sélection)|process|comment.*(se pass|déroule)/i.test(cleanQ)){
+    const r=['Vous aurez un retour de ma part sous 5 a 7 jours ouvrés. Si votre profil est retenu, un second entretien avec le manager direct sera organise.','Je reviens vers vous d ici une semaine. L etape suivante serait une mise en situation avec l equipe operationnelle.','Nous consolidons les retours d ici fin de semaine. Vous recevrez un email de ma part dans tous les cas.'];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+  if(/quand|délai|combien de temps|réponse|retour/i.test(cleanQ)){
+    const r=['Comptez 5 a 7 jours ouvrés maximum. Nous prenons le temps de comparer serieusement les profils.','D ici la fin de la semaine prochaine. Je vous contacterai directement par email.','Nous finalisons les entretiens cette semaine. Vous aurez notre retour avant la fin du mois.'];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+  if(/évolution|perspective|progresser|carrière/i.test(cleanQ)){
+    const r=['Nous favorisons la mobilite interne. Des evolutions sont possibles selon les resultats apres 2 ans.','Les perspectives dependent de votre engagement. Plusieurs managers ont commence sur ce type de poste.','Nous investissons beaucoup en formation. L evolution est reelle pour ceux qui s impliquent.'];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+  if(/ambiance|équipe|culture|collègue|manager/i.test(cleanQ)){
+    const r=['C est une equipe soudee, exigeante mais bienveillante. On travaille beaucoup mais dans un bon esprit.','L equipe est dynamique. Le manager direct est accessible et donne beaucoup de feedback.','C est un environnement qui demande de l autonomie. Ceux qui s epanouissent ici aiment prendre des initiatives.'];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+  if(/salaire|rémunér|paye|package/i.test(cleanQ)){
+    const r=['La remuneration est competitive. Nous en parlerons en detail si votre candidature est retenue.','Nous avons une grille salariale structuree. Le package inclut fixe, variable et avantages. On en discutera a l etape suivante.','Je prefere ne pas avancer de chiffre maintenant. Ce sera l objet d une discussion dediee si vous etes retenu.'];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+  if(/prise de poste|quand.*(commenc|démarr)|disponib|préavis/i.test(cleanQ)){
+    const r=['Idealement nous visons une prise de poste dans les 4 a 6 semaines. Votre preavis sera pris en compte.','Nous sommes flexibles sur la date de demarrage selon votre situation.','Si votre candidature est retenue, nous organisons la prise de poste selon votre disponibilite, en general sous 1 a 2 mois.'];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Fallback API
+  const prompt = `Tu es ${recName}, recruteur dans un ${typeEntreprise} pour le poste de ${S.config.poste}. Le candidat te pose cette question : "${candidateQ}". ${tutoie?'Tu tutoies.':'Tu vouvoies.'} Reponds directement en 2-3 phrases concretes et professionnelles.`;
+  try { return await apiCall(prompt, 180); }
+  catch(e) { return `C est une bonne question. Je reviendrai vers vous avec une reponse precise lors de notre prochain echange.`; }
+}
+
 async function nextQ() {
   // ── EXPRESS mode ──
   if(S.mode==='express'){
