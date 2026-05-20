@@ -1887,7 +1887,7 @@ async function prefetchAudio(txt) {
   try {
     const r = await fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
       method:'POST',
-      headers:{'content-Type':'application/json'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
     });
     if(!r.ok) return;
@@ -1940,7 +1940,7 @@ function speakText(txt) {
   const speakChunk = (i) => {
     if(i >= chunks.length){ isAudioPlaying=false; const mb=document.getElementById('mic-btn'); if(mb){mb.style.opacity='';mb.style.pointerEvents='';} return; }
     fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
-      method:'POST', headers:{'content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({text:chunks[i],model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
     }).then(r=>r.ok?r.blob():null).then(blob=>{
       if(!blob){ speakChunk(i+1); return; }
@@ -1973,7 +1973,7 @@ async function speakTextAsync(txt) {
         return;
       }
       fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
-        method:'POST', headers:{'content-Type':'application/json'},
+        method:'POST', headers:{'Content-Type':'application/json'},
         body:JSON.stringify({text:chunk,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
       }).then(r=>r.ok?r.blob():null).then(blob=>{
         if(!blob){ resolve(); return; }
