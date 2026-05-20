@@ -2502,11 +2502,11 @@ async function stopRec(e) {
   document.getElementById('answer-box').className='answer-box has-answer';
   S.itv.answers.push(answer);
 
-  // SKIP eval for candidate questions phase
+  // CANDIDATE QUESTIONS PHASE — traiter directement, jamais passer par le flow complet
   if(S.mode==='complet' && S.itv.phase==='candidate_questions'){
-    S.itv.scores.push(0); S.itv.criteria.push({structure:0,confiance:0,pertinence:0,vocabulaire:0}); S.itv.feedbacks.push(''); S.itv.ideals.push('');
+    // Go directly to candidate questions handler in nextQ
     document.getElementById('mic-btn').className='mic-btn';
-    setTimeout(()=>nextQ(), 300);
+    await handleCandidateQuestion(answer);
     return;
   }
 
@@ -2731,6 +2731,82 @@ async function genCandidateQuestionAnswer(candidateQ) {
   catch(e) { return `C est une bonne question. Je reviendrai vers vous avec une reponse precise lors de notre prochain echange.`; }
 }
 
+async function handleCandidateQuestion(currentAnswer) {
+  S.itv.candidateQCount = (S.itv.candidateQCount || 0) + 1;
+  const maxCandidateQs = 20;
+
+  document.getElementById('int-actions').style.display='none';
+  document.getElementById('mic-area').style.display='none';
+  document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+
+  const noMoreQ = /\b(non|pas (d'autres?|de)|c'est tout|rien d'autre|ça ira|c'est bon|je n'en ai pas|aucune autre|pas pour l'instant)\b/i.test(currentAnswer) || currentAnswer.trim().length < 6;
+
+  // Helper — affiche la réponse dans la bulle recruteur
+  const showRecruiterAnswer = async (text) => {
+    const _re = document.getElementById('recruiter-reaction');
+    if(_re){
+      _re.style.display = 'block';
+      _re.innerHTML = `<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
+        <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} RÉPOND</div>
+          <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${text}</div>
+        </div>
+      </div>`;
+      setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
+    }
+    if(S.config.voix) await speakTextAsync(text);
+    else await new Promise(r=>setTimeout(r, Math.max(2000, text.length*55)));
+  };
+
+  if(noMoreQ || S.itv.candidateQCount >= maxCandidateQs){
+    if(!noMoreQ){
+      try {
+        const ans = await genCandidateQuestionAnswer(currentAnswer);
+        await showRecruiterAnswer(ans);
+      } catch(e){}
+    }
+    document.getElementById('q-text').textContent = '';
+    await doOutro();
+    return;
+  }
+
+  // Recruiter answers in the reaction bubble
+  try {
+    const ans = await genCandidateQuestionAnswer(currentAnswer);
+    document.getElementById('q-text').textContent = '';
+    await showRecruiterAnswer(ans);
+  } catch(e) {
+    await showRecruiterAnswer("Bonne question. Je reviendrai vers vous là-dessus.");
+  }
+
+  // Follow-up question
+  const followUps = [
+    "Avez-vous d'autres questions ?",
+    "Autre chose que vous souhaiteriez me demander ?",
+    "Y a-t-il autre chose qui vous intéresse sur le poste ou l'entreprise ?"
+  ];
+  const followUp = followUps[Math.min(S.itv.candidateQCount - 1, followUps.length - 1)];
+
+  const _ia3 = document.getElementById('int-actions');
+  const _nb3 = document.getElementById('next-btn');
+  if(_ia3){ _ia3.style.display='flex'; }
+  if(_nb3){ _nb3.style.display=''; _nb3.textContent='Voir les résultats →'; _nb3.onclick = ()=>{ S.itv.phase='done'; doOutro(); }; }
+
+  await new Promise(r=>setTimeout(r,400));
+  S.itv.qs.push(followUp);
+  S.itv.currentQ++;
+  document.getElementById('q-text').textContent = followUp;
+  document.getElementById('answer-box').textContent = 'Ta réponse apparaîtra ici...';
+  document.getElementById('answer-box').className = 'answer-box';
+  document.getElementById('filler-wrap').style.display='none';
+  document.getElementById('wpm-display').style.display='none';
+  document.getElementById('mic-hint').textContent = 'Maintenir pour parler';
+  document.getElementById('mic-btn').className = 'mic-btn';
+  document.getElementById('mic-area').style.display = 'flex';
+  if(S.config.voix) setTimeout(()=>speakText(followUp), 80);
+}
+
 async function nextQ() {
   // ── EXPRESS mode ──
   if(S.mode==='express'){
@@ -2760,84 +2836,10 @@ async function nextQ() {
 
   const qAsked = S.itv.history.length;
 
-  // Phase: candidate questions (multi-tour, max 3)
-  if(S.itv.phase === 'candidate_questions'){
-    S.itv.candidateQCount = (S.itv.candidateQCount || 0) + 1;
-    const maxCandidateQs = 20;
 
-    document.getElementById('int-actions').style.display='none';
-    document.getElementById('mic-area').style.display='none';
-    document.getElementById('q-text').innerHTML='<div class="dot-loader"><span></span><span></span><span></span></div>';
+  // candidate_questions handled by handleCandidateQuestion() called from stopRec
+  if(S.itv.phase === 'candidate_questions') return;
 
-    const noMoreQ = /\b(non|pas (d'autres?|de)|c'est tout|rien d'autre|ça ira|c'est bon|je n'en ai pas|aucune autre|pas pour l'instant)\b/i.test(currentAnswer) || currentAnswer.trim().length < 6;
-
-    // Helper — affiche la réponse dans la bulle recruteur
-    const showRecruiterAnswer = async (text) => {
-      const _re = document.getElementById('recruiter-reaction');
-      if(_re){
-        _re.style.display = 'block';
-        _re.innerHTML = `<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
-          <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
-          <div style="flex:1">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} RÉPOND</div>
-            <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${text}</div>
-          </div>
-        </div>`;
-        setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
-      }
-      if(S.config.voix) await speakTextAsync(text);
-      else await new Promise(r=>setTimeout(r, Math.max(2000, text.length*55)));
-    };
-
-    if(noMoreQ || S.itv.candidateQCount >= maxCandidateQs){
-      if(!noMoreQ){
-        try {
-          const ans = await genCandidateQuestionAnswer(currentAnswer);
-          await showRecruiterAnswer(ans);
-        } catch(e){}
-      }
-      document.getElementById('q-text').textContent = '';
-      await doOutro();
-      return;
-    }
-
-    // Recruiter answers in the reaction bubble
-    try {
-      const ans = await genCandidateQuestionAnswer(currentAnswer);
-      document.getElementById('q-text').textContent = '';
-      await showRecruiterAnswer(ans);
-    } catch(e) {
-      await showRecruiterAnswer("Bonne question. Je reviendrai vers vous là-dessus.");
-    }
-
-    // Follow-up question in q-text
-    const followUps = [
-      "Avez-vous d'autres questions ?",
-      "Autre chose que vous souhaiteriez me demander ?",
-      "Y a-t-il autre chose qui vous intéresse sur le poste ou l'entreprise ?"
-    ];
-    const followUp = followUps[Math.min(S.itv.candidateQCount - 1, followUps.length - 1)];
-
-    // Show results button always visible during candidate questions phase
-    const _ia3 = document.getElementById('int-actions');
-    const _nb3 = document.getElementById('next-btn');
-    if(_ia3){ _ia3.style.display='flex'; }
-    if(_nb3){ _nb3.style.display=''; _nb3.textContent='Voir les résultats →'; _nb3.onclick = ()=>{ S.itv.phase='done'; doOutro(); }; }
-
-    await new Promise(r=>setTimeout(r,400));
-    S.itv.qs.push(followUp);
-    S.itv.currentQ++;
-    document.getElementById('q-text').textContent = followUp;
-    document.getElementById('answer-box').textContent = 'Ta réponse apparaîtra ici...';
-    document.getElementById('answer-box').className = 'answer-box';
-    document.getElementById('filler-wrap').style.display='none';
-    document.getElementById('wpm-display').style.display='none';
-    document.getElementById('mic-hint').textContent = 'Maintenir pour parler';
-    document.getElementById('mic-btn').className = 'mic-btn';
-    document.getElementById('mic-area').style.display = 'flex';
-    if(S.config.voix) setTimeout(()=>speakText(followUp), 80);
-    return;
-  }
 
   // Decide: enough questions asked? -> candidate questions phase
   // Use qs.length as hard stop (more reliable than history count)
