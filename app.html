@@ -620,8 +620,8 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="divider"></div>
     <div class="slabel">Personnalité du recruteur</div>
     <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Standard - Bienveillant</div><div class="p-card-desc">Chaleureux, encourageant. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
-    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Exigeant - Professionnel</div><div class="p-card-desc">Neutre, précis, challengeant. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
-    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Hardcore - Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Style CAC40.</div></div><div class="p-check"></div></div>
+    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Neutre – Professionnel</div><div class="p-card-desc">Neutre, précis, à l'écoute. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
+    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Exigeant – Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Challenge tout.</div></div><div class="p-check"></div></div>
     <div class="divider"></div>
     <div class="slabel">Choisir votre recruteur</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px" id="recruiter-grid">
@@ -792,8 +792,8 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
   <div class="interview-top">
     <div class="interview-bar">
       <div>
-        <div class="q-label">Question</div>
-        <div class="q-num" id="q-counter">1 / 8</div>
+        <div class="q-label" id="q-label-top">Progression</div>
+        <div class="q-num" id="q-counter" style="font-size:11px;color:rgba(255,255,255,.5)">En cours</div>
       </div>
       <!-- Timer (Express) or Recruiter name (Complet) -->
       <div id="center-display">
@@ -1767,7 +1767,7 @@ function initBrief() {
   const rec = S.recruiter || S.express_recruiter || {name:'Antoine', emoji:'🎙️'};
   const isExpress = S.mode === 'express';
   const level = S.config.personnalite || 'exigeant';
-  const levelLabels = {standard:'😊 Standard', exigeant:'💼 Exigeant', hardcore:'🔥 Hardcore'};
+  const levelLabels = {standard:'😊 Bienveillant', exigeant:'💼 Neutre', hardcore:'🔥 Exigeant'};
   const modeLabel = isExpress ? '⚡ Express' : '🎯 Complet';
   const nbQ = isExpress ? 8 : 10;
   const duree = isExpress ? '25 min' : '40 min';
@@ -2005,7 +2005,7 @@ async function initInterview() {
   safe('r-meta-name', el=>el.textContent=rec.name);
   safe('q-from', el=>el.textContent=rec.name+' dit');
   safe('r-avatar', el=>el.textContent=rec.avatar);
-  safe('apt-text', el=>el.textContent='-%');
+  safe('apt-text', el=>el.textContent='...');
   safe('int-actions', el=>el.style.display='none');
   safe('feedback-wrap', el=>el.style.display='none');
   safe('filler-wrap', el=>el.style.display='none');
@@ -2081,73 +2081,37 @@ function updateTimerDisplay() {
 async function genRecruiterIntro(rec) {
   const typeEntreprise = S.config.type_entreprise || 'grand_groupe';
   const poste = S.config.poste || 'ce poste';
+  const entreprise = (S.config.entreprise || '').trim();
   const seed = S.itv?.sessionSeed || Math.random().toString(36).substring(2,6);
-  const niveau = S.config.personnalite || 'standard';
 
-  // Tone rules per company type — strict and realistic
-  const toneRules = {
-    grand_groupe: {
-      salutation: 'Bonjour',
-      register: 'formel et professionnel',
-      role: `responsable RH${niveau === 'hardcore' ? ', directeur du recrutement' : ''}`,
-      style: 'Tu vouvoies systématiquement. Tu mentionnes le service RH. Tu annonces un déroulé structuré.',
-      example: `Bonjour ${rec.genre==='femme'?'Madame':'Monsieur'}, je suis ${rec.name}, responsable RH. Je reçois les candidats pour le poste de ${poste}.`
-    },
-    pme: {
-      salutation: 'Bonjour',
-      register: 'chaleureux et direct',
-      role: 'responsable du recrutement',
-      style: 'Tu vouvoies mais avec chaleur. Pas de "service RH" — tu pilotes directement. Ton intro est courte et franche.',
-      example: `Bonjour, je suis ${rec.name}, je pilote les recrutements ici. On se voit pour le poste de ${poste}.`
-    },
-    startup: {
-      salutation: niveau === 'standard' ? 'Salut' : 'Bonjour',
-      register: 'décontracté et transparent',
-      role: 'en charge du recrutement',
-      style: 'Tu tutoies naturellement. Pas de protocole. Tu parles vite, direct, comme entre collègues. Tu dis "tu" et jamais "vous".',
-      example: `Salut, moi c'est ${rec.name}, je gère le recrutement. On se voit pour le poste de ${poste}.`
-    },
-    administration: {
-      salutation: 'Bonjour',
-      register: 'protocolaire et rigoureux',
-      role: 'chargé' + (rec.genre==='femme'?'e':'') + ' de recrutement',
-      style: 'Tu vouvoies formellement, tu utilises le nom de famille du candidat (si connu). Tu annonces un cadre précis.',
-      example: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement au sein de notre direction. Vous candidatez pour le poste de ${poste}.`
-    }
-  };
+  const style = {
+    grand_groupe: "Formel, vouvoiement. Mentionne le service RH.",
+    pme: "Chaleureux, vouvoiement. Court et direct.",
+    startup: "Tutoiement. Tres court, comme entre collegues.",
+    administration: "Protocolaire, vouvoiement formel."
+  }[typeEntreprise];
 
-  const t = toneRules[typeEntreprise];
-
-  const prompt = `Tu es ${rec.name}, ${t.role}, en entretien pour le poste de ${poste} dans un ${typeEntreprise}.
-Ton registre : ${t.register}.
-Règle de ton : ${t.style}
-
-IMPORTANT : Tu NE mentionnes PAS le CV du candidat dans l'intro — tu gardes la surprise pour les questions.
-Tu NE parles PAS des horaires décalés ou des conditions du poste dans l'intro.
-
-Génère ton discours d'ouverture. 3 à 4 phrases max :
-1. Salutation + te présenter (prénom + rôle)
-2. Mentionner le poste
-3. Annoncer le déroulé naturellement
-4. Inviter à commencer
-
-Variation seed : ${seed}
-Texte brut, naturel, comme si tu parlais.`;
+  const entLabel = entreprise ? ' chez '+entreprise : '';
+  const prompt = `Tu es ${rec.name}, recruteur. Poste : ${poste}${entLabel}.
+Style : ${style} ${entreprise ? 'Cite "'+entreprise+'" naturellement dans lintro.' : ''}
+2 a 3 phrases max. Salutation + prenom + role${entreprise ? ' + entreprise' : ''} + poste + invitation a commencer.
+Variation : ${seed}. Texte brut naturel.`;
 
   try {
-    const res = await apiCall(prompt, 200);
+    const res = await apiCall(prompt, 120);
     return res.trim();
   } catch(e) {
-    // Fallback par type
+    const ent = entreprise ? ' chez '+entreprise : '';
     const fallbacks = {
-      grand_groupe: `Bonjour, je suis ${rec.name}, responsable RH. Je vous reçois aujourd'hui pour le poste de ${poste}. On va prendre le temps d'échanger sur votre parcours, vos motivations, et voir si votre profil correspond à ce qu'on recherche. On peut commencer ?`,
-      pme: `Bonjour, je suis ${rec.name}, je pilote les recrutements ici. On se voit pour le poste de ${poste}. Je préfère les échanges directs — pas de langue de bois. On y va ?`,
-      startup: `Salut, moi c'est ${rec.name}, je gère le recrutement. On se retrouve pour le poste de ${poste}. On va avoir une vraie conversation, pas un interrogatoire. Prêt ?`,
-      administration: `Bonjour, je suis ${rec.name}, chargé${rec.genre==='femme'?'e':''} de recrutement. Vous candidatez pour le poste de ${poste}. Cet entretien portera sur votre parcours et vos motivations. Nous pouvons commencer.`
+      grand_groupe: `Bonjour, je suis ${rec.name}, responsable RH${ent}. Je vous recois pour le poste de ${poste}. On peut commencer ?`,
+      pme: `Bonjour, je suis ${rec.name}${ent ? ent : ', je pilote les recrutements ici'}. On se voit pour le poste de ${poste}. On y va ?`,
+      startup: `Salut, moi c est ${rec.name}${ent}. On se retrouve pour le poste de ${poste}. Pret ?`,
+      administration: `Bonjour, je suis ${rec.name}, charge${rec.genre==='femme'?'e':''} de recrutement${ent}. Vous candidatez pour le poste de ${poste}. Nous pouvons commencer.`
     };
     return fallbacks[typeEntreprise] || fallbacks.grand_groupe;
   }
 }
+
 
 /* ── CV GAP & PATTERN ANALYSIS ─────────────────────────────── */
 function analyzeCVGaps(cvText) {
@@ -2260,10 +2224,10 @@ async function genRecruiterTurn(history, cv, phase) {
   }[recKey] || 'professionnel';
 
   const difficulte = S.config.personnalite==='hardcore'
-    ? 'très exigeant et intimidant'
+    ? `exigeant et intimidant. Tu challenges chaque réponse, tu cherches les contradictions, tu crées de la pression. Tu n'es jamais facilement satisfait. Froid, direct.`
     : S.config.personnalite==='exigeant'
-    ? 'professionnel et direct'
-    : 'bienveillant mais attentif';
+    ? `neutre et professionnel. Tu écoutes attentivement. Tu poses des questions claires et précises quand tu as besoin de comprendre quelque chose. Ni chaud ni froid. Pas de pression, pas de flatterie. Tu veux juste comprendre.`
+    : `bienveillant. Tu écoutes vraiment. Tu accompagnes le candidat. Quand il donne un exemple, tu dis "racontez-moi" pas "prouvez-moi". Tu valides ce qui mérite d'être validé. Tu ne challenges que si la réponse est vraiment vague ou fausse. Le candidat doit se sentir guidé et à l'aise.`;
 
   const tutoie = S.config.type_entreprise === 'startup';
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
@@ -2804,7 +2768,16 @@ async function nextQ() {
     S.itv.qs.push(fallback);
     S.itv.currentQ++;
     document.getElementById('q-text').textContent = fallback;
-    document.getElementById('prog-fill').style.width = Math.min(90, Math.round((S.itv.history.length / S.itv.maxQ) * 90)) + '%';
+    document.getElementById('prog-fill').style.width = Math.min(90, Math.round((S.itv.history.length / 18) * 90)) + '%';
+    // Update counter with phase indicator
+    const exchCount = S.itv.history.length;
+    const qLabel = document.getElementById('q-counter');
+    if(qLabel){
+      if(exchCount < 6) qLabel.textContent = 'Début';
+      else if(exchCount < 12) qLabel.textContent = 'En cours';
+      else if(exchCount < 16) qLabel.textContent = 'Bientôt terminé';
+      else qLabel.textContent = 'Fin proche';
+    }
     if(S.config.voix) speakText(fallback);
   }
 }
@@ -2864,7 +2837,7 @@ async function apiCallConversational(systemPrompt, messages, maxTokens=200) {
 }
 
 async function evalAnswer(q, answer) {
-  const tone=S.config.personnalite==='hardcore'?'très exigeant, froid':S.config.personnalite==='exigeant'?'professionnel, exigeant':'bienveillant';
+  const tone=S.config.personnalite==='hardcore'?'exigeant et intimidant':S.config.personnalite==='exigeant'?'neutre et professionnel':'bienveillant';
   const prompt=`Tu es un recruteur ${tone} expert.
 POSTE : ${S.config.poste}
 QUESTION : "${q}"
@@ -2887,7 +2860,7 @@ JSON uniquement (sans markdown) :
 }
 
 async function genIdealResponse(q, answer, i) {
-  const tone=S.config.personnalite==='hardcore'?'très exigeant':'professionnel';
+  const tone=S.config.personnalite==='hardcore'?'exigeant et intimidant':S.config.personnalite==='exigeant'?'neutre':'bienveillant';
   const prompt=`Recruteur ${tone}. Poste : ${S.config.poste}.
 Question posée : "${q}"
 Réponse du candidat : "${answer||'(silence)'}"
