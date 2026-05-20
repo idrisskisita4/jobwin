@@ -2366,27 +2366,145 @@ FORMAT : naturel, parlé, 15 à 50 mots. Pas de guillemets, pas de numéro. ${S.
 
 
 async function genCandidateQuestionAnswer(candidateQ) {
-  const tone = S.config.personnalite==='hardcore'?'très exigeant':S.config.personnalite==='exigeant'?'professionnel et direct':'bienveillant';
+  const recName = S.recruiter?.name || 'le recruteur';
+  const tutoie = S.config.type_entreprise === 'startup';
   const typeLabels = {grand_groupe:'grand groupe / CAC40',pme:'PME ou ETI',startup:'startup',administration:'administration publique'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
 
-  // Clean the candidate question - remove transcription artifacts
+  // Clean transcription artifacts
   const cleanQ = candidateQ
     .replace(/\bvotre\s+votre\b/gi, 'votre')
     .replace(/\bje\s+je\b/gi, 'je')
     .replace(/\bon\s+entend\s+plus\s+(le\s+)?son\b/gi, '')
-    .trim();
+    .trim().toLowerCase();
 
-  const prompt = `Tu es ${S.recruiter?.name||'le recruteur'}, ${tone}, dans un ${typeEntreprise}. Poste recruté : ${S.config.poste}.
+  // === RÉPONSES HARDCODÉES PAR TYPE DE QUESTION ===
 
-Le candidat vient de te poser cette question en fin d'entretien :
-"${cleanQ}"
+  // Combien de candidats
+  if(/combien.*(candidat|postul|dossier|personne)/i.test(cleanQ)) {
+    const r = [
+      `Je ne communique pas les chiffres exacts. Ce que je peux vous dire c'est que vous faites partie des profils retenus pour un entretien — ce n'est pas anodin.`,
+      `Nous avons reçu un volume important de candidatures. Je préfère ne pas donner de chiffre précis, mais la sélection a été rigoureuse.`,
+      `C'est une information que je garde confidentielle. Ce qui compte c'est que vous soyez là aujourd'hui.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
 
-Réponds directement et naturellement à SA QUESTION — uniquement à ce qu'il demande.
-${S.config.type_entreprise === 'startup' ? 'Tu tutoies.' : 'Tu vouvoies.'}
-2 à 4 phrases. Commence directement par ta réponse.`;
+  // Prochaines étapes / processus
+  if(/prochaine.*(étape|suite)|après.*(entretien|sélection)|process|comment.*(se pass|déroule)/i.test(cleanQ)) {
+    const r = [
+      `Vous aurez un retour de ma part sous 5 à 7 jours ouvrés. Si votre profil est retenu, un second entretien avec le manager direct sera organisé.`,
+      `Je reviens vers vous d'ici une semaine. L'étape suivante serait une mise en situation avec l'équipe opérationnelle.`,
+      `Nous consolidons les retours d'ici fin de semaine. Vous recevrez un email de ma part dans tous les cas — retenu ou non.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
 
-  return await apiCall(prompt, 250);
+  // Délai de réponse
+  if(/quand|délai|combien de temps|réponse|retour|nouvelle/i.test(cleanQ)) {
+    const r = [
+      `Comptez 5 à 7 jours ouvrés maximum. Nous prenons le temps de comparer sérieusement les profils.`,
+      `D'ici la fin de la semaine prochaine. Je vous contacterai directement par email.`,
+      `Nous finalisons les entretiens cette semaine. Vous aurez notre retour avant la fin du mois.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Pourquoi le poste est ouvert
+  if(/pourquoi.*(poste|ouvert|recrute)|départ|remplac/i.test(cleanQ)) {
+    const r = [
+      `C'est une création de poste liée à notre croissance — nous développons l'équipe pour répondre à la demande.`,
+      `Notre collaborateur précédent a évolué en interne. C'est une bonne nouvelle — ça montre que les perspectives existent chez nous.`,
+      `Nous renforçons l'équipe suite à un développement commercial important sur ce secteur.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Évolution / perspectives
+  if(/évolution|perspective|progresser|carrière|avenir|monter/i.test(cleanQ)) {
+    const r = [
+      `Nous favorisons la mobilité interne. Après 2 ans sur ce poste, des évolutions vers des fonctions senior ou managériales sont possibles selon les résultats.`,
+      `Les perspectives dépendent de votre engagement et de vos résultats. Plusieurs de nos managers actuels ont commencé sur ce type de poste.`,
+      `Nous investissons beaucoup en formation. L'évolution est réelle pour ceux qui s'impliquent.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Ce qui a plu dans le profil
+  if(/plu|remarqué|retenu|intéress|profil|atout/i.test(cleanQ)) {
+    const cv = S.config.cv || '';
+    const hasBanque = /banque|populaire|bnp|caisse|crédit/i.test(cv);
+    const r = [
+      hasBanque
+        ? `Votre expérience dans la relation client et votre capacité à tenir sur la durée — 5 ans dans la même structure c'est un signal fort de fiabilité.`
+        : `Votre parcours et votre motivation pour ce poste. Ce sont des éléments qui ont retenu mon attention.`,
+      `Votre parcours atypique m'intéresse — c'est souvent les profils qui changent de secteur qui apportent le plus de valeur.`,
+      `Je préfère vous donner un retour global après délibération. Ce que je peux dire c'est que vous avez retenu mon attention aujourd'hui.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Ambiance / équipe / culture
+  if(/ambiance|équipe|culture|atmosphère|collègue|manager|chef/i.test(cleanQ)) {
+    const r = [
+      `C'est une équipe soudée, exigeante mais bienveillante. On travaille beaucoup mais dans un bon esprit.`,
+      `L'équipe est dynamique. Le manager direct est accessible et donne beaucoup de feedback régulier.`,
+      `C'est un environnement qui demande de l'autonomie. Ceux qui s'épanouissent ici sont des gens qui aiment prendre des initiatives.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Télétravail / présentiel
+  if(/télétravail|remote|distanciel|présentiel|bureau|hybride/i.test(cleanQ)) {
+    const r = [
+      `C'est principalement du présentiel sur ce poste — le contact direct avec les clients ou l'équipe est essentiel.`,
+      `Nous sommes en hybride — 3 jours bureau, 2 jours télétravail possible selon l'ancienneté et le poste.`,
+      `Pour ce poste spécifiquement c'est 100% présentiel les 6 premiers mois, puis on réévalue selon les performances.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Salaire / rémunération
+  if(/salaire|rémunér|paye|package|avantage|variable|prime/i.test(cleanQ)) {
+    const r = [
+      `La rémunération est compétitive sur ce poste. Nous en parlerons en détail si votre candidature est retenue, lors de la phase contractuelle.`,
+      `Nous avons une grille salariale structurée. Le package inclut fixe, variable selon objectifs et avantages annexes. On en discutera concrètement à l'étape suivante.`,
+      `Je préfère ne pas avancer de chiffre précis maintenant — ce sera l'objet d'une discussion dédiée si vous êtes retenu.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Formation / accompagnement
+  if(/formation|accompagnement|onboarding|intégration|apprendre/i.test(cleanQ)) {
+    const r = [
+      `Nous avons un parcours d'intégration structuré sur les premières semaines. Vous ne serez pas lâché dans le grand bain.`,
+      `La formation est continue chez nous — interne et externe. Nous investissons sur nos collaborateurs.`,
+      `L'onboarding dure environ un mois. Vous êtes accompagné par un tuteur de l'équipe pendant cette période.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // Date de prise de poste
+  if(/quand.*(commenc|poste|démarr|prise)|disponib|préavis/i.test(cleanQ)) {
+    const r = [
+      `Idéalement nous visons une prise de poste dans les 4 à 6 semaines. Votre préavis sera bien sûr pris en compte.`,
+      `Nous sommes flexibles sur la date de démarrage selon votre situation. L'important c'est d'avoir le bon profil.`,
+      `Si votre candidature est retenue, nous organisons la prise de poste en fonction de votre disponibilité — en général sous 1 à 2 mois.`,
+    ];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+
+  // === FALLBACK → API avec contexte propre ===
+  const prompt = `Tu es ${recName}, recruteur dans un ${typeEntreprise} pour le poste de ${S.config.poste}.
+Le candidat te pose cette question en fin d'entretien : "${candidateQ}"
+${tutoie ? 'Tu tutoies.' : 'Tu vouvoies.'}
+Réponds directement et naturellement. 2 à 3 phrases concrètes et professionnelles. Commence par ta réponse.`;
+
+  try {
+    return await apiCall(prompt, 200);
+  } catch(e) {
+    return `C'est une bonne question. Je reviendrai vers vous avec une réponse précise lors de notre prochain échange.`;
+  }
 }
 
 async function genOutro() {
@@ -2808,7 +2926,7 @@ async function nextQ() {
   // Phase: candidate questions (multi-tour, max 3)
   if(S.itv.phase === 'candidate_questions'){
     S.itv.candidateQCount = (S.itv.candidateQCount || 0) + 1;
-    const maxCandidateQs = 3;
+    const maxCandidateQs = 20;
 
     document.getElementById('int-actions').style.display='none';
     document.getElementById('mic-area').style.display='none';
@@ -3142,9 +3260,14 @@ async function showResults() {
     }
 
     const idealsEl=document.getElementById('res-ideals');
+    // Find where candidate questions phase starts
+    const candidatePhaseStart = S.itv.qs.findIndex(q =>
+      /avez-vous des questions|avez-vous d'autres|autre chose que vous souhaiteriez/i.test(q)
+    );
+    const interviewQs = candidatePhaseStart > 0 ? S.itv.qs.slice(0, candidatePhaseStart) : S.itv.qs;
     const reactions = S.itv.reactions || [];
     // Render skeleton first
-    idealsEl.innerHTML=S.itv.qs.map((q,i)=>{
+    idealsEl.innerHTML=interviewQs.map((q,i)=>{
       const answer = S.itv.answers[i];
       const reaction = reactions[i];
       const feedback = S.itv.feedbacks[i];
@@ -3160,8 +3283,8 @@ async function showResults() {
 
     // Generate ideals one by one (async, non-blocking)
     (async () => {
-      for(let i = 0; i < S.itv.qs.length; i++){
-        const q = S.itv.qs[i];
+      for(let i = 0; i < interviewQs.length; i++){
+        const q = interviewQs[i];
         const answer = S.itv.answers[i];
         const el = document.getElementById('ideal-txt-'+i);
         if(!el || !q) continue;
