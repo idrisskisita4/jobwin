@@ -806,7 +806,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
           <div style="font-size:13px;font-weight:600;color:white" id="r-name-top">Thomas</div>
         </div>
       </div>
-      <div class="apt-chip" id="apt-chip"><div class="apt-dot"></div><span id="apt-text">-%</span></div>
+      <div class="apt-chip" id="apt-chip" style="opacity:.4"><div class="apt-dot"></div><span id="apt-text"> </span></div>
     </div>
     <div class="recruiter-row">
       <div class="recruiter-av" id="r-avatar">🧑‍💼</div>
@@ -1901,6 +1901,18 @@ function clearAudioBuffer() {
   audioBuffer = {};
 }
 
+function cleanForTTS(txt) {
+  if(!txt) return '';
+  return txt
+    .replace(/—/g, ',')
+    .replace(/–/g, ',')
+    .replace(/\s*-\s*/g, ' ')
+    .replace(/\*+/g, '')
+    .replace(/#+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function splitForSpeech(txt) {
   // Split long text into chunks at sentence boundaries to avoid TTS cutoff
   if(!txt || txt.length <= 200) return [txt];
@@ -1921,6 +1933,7 @@ function splitForSpeech(txt) {
 
 function speakText(txt) {
   if(!txt) return;
+  txt = cleanForTTS(txt);
   stopAudio();
   isAudioPlaying = true;
   const mbtn = document.getElementById('mic-btn');
@@ -1955,6 +1968,7 @@ function speakText(txt) {
 
 async function speakTextAsync(txt) {
   if(!txt) return;
+  txt = cleanForTTS(txt);
   stopAudio();
   const rec = S.recruiter || EXPRESS_RECRUITER;
   const chunks = splitForSpeech(txt);
@@ -2005,7 +2019,8 @@ async function initInterview() {
   safe('r-meta-name', el=>el.textContent=rec.name);
   safe('q-from', el=>el.textContent=rec.name+' dit');
   safe('r-avatar', el=>el.textContent=rec.avatar);
-  safe('apt-text', el=>el.textContent='...');
+  safe('apt-text', el=>el.textContent=' ');
+  safe('apt-chip', el=>el.style.opacity='0.4');
   safe('int-actions', el=>el.style.display='none');
   safe('feedback-wrap', el=>el.style.display='none');
   safe('filler-wrap', el=>el.style.display='none');
@@ -2444,7 +2459,7 @@ async function stopRec(e) {
       S.itv.criteria.push({structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire});
       S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
       const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
-      document.getElementById('apt-text').textContent=avg+'%';
+      document.getElementById('apt-text').textContent=avg+'%'; document.getElementById('apt-chip').style.opacity='1';
       if(S.itv.currentQ === 0) document.getElementById('feedback-txt').textContent=ev.feedback;
     } catch(err) {
       S.itv.scores.push(55);
@@ -2490,7 +2505,7 @@ async function stopRec(e) {
       S.itv.feedbacks[idx] = ev.feedback;
     }
     const avg = Math.round(S.itv.scores.filter(s=>s>0).reduce((a,b)=>a+b,0)/Math.max(1,S.itv.scores.filter(s=>s>0).length));
-    document.getElementById('apt-text').textContent = avg+'%';
+    document.getElementById('apt-text').textContent = avg+'%'; document.getElementById('apt-chip').style.opacity='1';
   }).catch(()=>{});
 
   const exchangeCount = S.itv.history.length;
