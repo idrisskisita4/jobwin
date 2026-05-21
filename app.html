@@ -1634,6 +1634,16 @@ function decrementInterview(){
       applyPackToUI(pack);
     }
   }catch(e){}
+
+  // Sync avec Supabase si ce n'est pas un code test
+  const testCodes = ['TEST2026', 'DEMO2026'];
+  if(key && !testCodes.includes(key.toUpperCase())){
+    fetch('/.netlify/functions/use-interview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: key })
+    }).catch(()=>{}); // silencieux — ne bloque pas l'entretien
+  }
 }
 
 async function verifyCode(){
@@ -1662,13 +1672,10 @@ async function verifyCode(){
     }catch(e){}
   }
 
-  // Codes test internes (bypass Lemon Squeezy)
+  // Codes test internes (bypass Supabase — pour tes tests uniquement)
   const TEST_CODES = {
-    'TEST2026':    { name: 'Test',       interviews: 3  },
-    'DEMO2026':    { name: 'Démo',       interviews: 1  },
-    'DECOUVERTE':  { name: 'Découverte', interviews: 3  },
-    'ESSENTIEL':   { name: 'Essentiel',  interviews: 8  },
-    'INTENSIF':    { name: 'Intensif',   interviews: 20 }
+    'TEST2026': { name: 'Test', interviews: 3 },
+    'DEMO2026': { name: 'Demo', interviews: 1 },
   };
   if(TEST_CODES[raw]){
     const info = TEST_CODES[raw];
@@ -1683,27 +1690,23 @@ async function verifyCode(){
     return;
   }
 
-  // Valider via API Lemon Squeezy
-  try{
-    const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+  // Valider via Supabase (codes clients générés par webhook)
+  try {
+    const res = await fetch('/.netlify/functions/validate-code', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ license_key: raw, instance_name: 'JOBWIN-APP' })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: raw })
     });
     const data = await res.json();
 
     if(!data.valid){
-      throw new Error(data.error || 'Clé invalide');
+      throw new Error(data.error || 'Code invalide');
     }
 
-    // Détecter le pack selon le product_id
-    const productId = String(data.meta?.product_id || '');
-    const packInfo = LS_PRODUCTS[productId] || { name: 'Pack', interviews: LS_FALLBACK_INTERVIEWS };
-
     const packData = {
-      name: packInfo.name,
-      interviewsTotal: packInfo.interviews,
-      interviewsRemaining: packInfo.interviews,
+      name: data.pack,
+      interviewsTotal: data.credits,
+      interviewsRemaining: data.remaining,
       licenseKey: raw,
       activatedAt: new Date().toISOString()
     };
@@ -1947,31 +1950,40 @@ function speakText(txt) {
   const mbtn = document.getElementById('mic-btn');
   if(mbtn) { mbtn.style.opacity = '0.4'; mbtn.style.pointerEvents = 'none'; }
   const rec = S.recruiter || EXPRESS_RECRUITER;
-  // Use pre-buffered audio if available
+
   if(audioBuffer[txt]) {
     const url = audioBuffer[txt];
     delete audioBuffer[txt];
     currentAudio = new Audio(url);
-    currentAudio.play();
+    currentAudio.play().catch(()=>{});
     currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; isAudioPlaying=false; const mb=document.getElementById('mic-btn'); if(mb){mb.style.opacity='';mb.style.pointerEvents='';} };
     return;
   }
-  // Split long text
+
   const chunks = splitForSpeech(txt);
-  const speakChunk = (i) => {
-    if(i >= chunks.length){ isAudioPlaying=false; const mb=document.getElementById('mic-btn'); if(mb){mb.style.opacity='';mb.style.pointerEvents='';} return; }
-    fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:chunks[i],model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
-    }).then(r=>r.ok?r.blob():null).then(blob=>{
-      if(!blob){ speakChunk(i+1); return; }
-      const url=URL.createObjectURL(blob);
-      currentAudio=new Audio(url);
-      currentAudio.play();
-      currentAudio.onended=()=>{ URL.revokeObjectURL(url); currentAudio=null; speakChunk(i+1); };
-    }).catch(()=>speakChunk(i+1));
-  };
-  speakChunk(0);
+  const fetchChunk = (text) => fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+  }).then(r=>r.ok?r.blob():null).then(blob=>blob?URL.createObjectURL(blob):null).catch(()=>null);
+
+  const urlPromises = chunks.map(c => fetchChunk(c));
+
+  (async () => {
+    for(const urlPromise of urlPromises) {
+      const url = await urlPromise;
+      if(!url) continue;
+      await new Promise(resolve => {
+        currentAudio = new Audio(url);
+        currentAudio.play().catch(()=>resolve());
+        currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; resolve(); };
+        currentAudio.onerror = () => { currentAudio=null; resolve(); };
+        setTimeout(resolve, 30000);
+      });
+    }
+    isAudioPlaying = false;
+    const mb = document.getElementById('mic-btn');
+    if(mb){ mb.style.opacity=''; mb.style.pointerEvents=''; }
+  })();
 }
 
 async function speakTextAsync(txt) {
@@ -1980,39 +1992,31 @@ async function speakTextAsync(txt) {
   stopAudio();
   const rec = S.recruiter || EXPRESS_RECRUITER;
   const chunks = splitForSpeech(txt);
-  for(const chunk of chunks) {
-    await new Promise(resolve=>{
-      if(audioBuffer[chunk]) {
-        const url = audioBuffer[chunk];
-        delete audioBuffer[chunk];
-        const a = new Audio(url);
-        currentAudio = a;
-        a.play().catch(()=>resolve());
-        a.onended = () => { URL.revokeObjectURL(url); currentAudio=null; resolve(); };
-        a.onerror = () => { currentAudio=null; resolve(); };
-        // Safety timeout - never block more than 30s per chunk
-        setTimeout(resolve, 30000);
-        return;
-      }
-      fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({text:chunk,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
-      }).then(r=>r.ok?r.blob():null).then(blob=>{
-        if(!blob){ resolve(); return; }
-        const url=URL.createObjectURL(blob);
-        currentAudio=new Audio(url);
-        currentAudio.play().catch(()=>resolve());
-        currentAudio.onended=()=>{ URL.revokeObjectURL(url); currentAudio=null; resolve(); };
-        currentAudio.onerror=()=>{ currentAudio=null; resolve(); };
-        setTimeout(resolve, 30000);
-      }).catch(()=>resolve());
+
+  const fetchChunk = (text) => fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+  }).then(r=>r.ok?r.blob():null).then(blob=>blob?URL.createObjectURL(blob):null).catch(()=>null);
+
+  const urlPromises = chunks.map(c => fetchChunk(c));
+
+  for(const urlPromise of urlPromises) {
+    const url = await urlPromise;
+    if(!url) continue;
+    await new Promise(resolve => {
+      currentAudio = new Audio(url);
+      currentAudio.play().catch(()=>resolve());
+      currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; resolve(); };
+      currentAudio.onerror = () => { currentAudio=null; resolve(); };
+      setTimeout(resolve, 30000);
     });
   }
-  // Always release audio lock after speaking
+
   isAudioPlaying = false;
   const mb = document.getElementById('mic-btn');
   if(mb){ mb.style.opacity=''; mb.style.pointerEvents=''; }
 }
+
 async function initInterview() {
   const sessionSeed = Math.random().toString(36).substring(2,8);
   S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],reactions:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12,candidateQCount:0,sessionSeed};
