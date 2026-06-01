@@ -566,6 +566,43 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
   </div>
 </div>
 
+<!-- =========== EMAIL (essai gratuit) =========== -->
+<div id="screen-email" class="screen">
+  <nav class="nav">
+    <button class="nav-back" onclick="goTo('home','back')">← Retour</button>
+    <div class="logo" style="position:absolute;left:50%;transform:translateX(-50%);"><div class="logo-icon"><svg viewBox="0 0 16 16" style="width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div><span>Job<b>win</b></span></div>
+    <div style="width:72px"></div>
+  </nav>
+  <div class="content">
+    <h2 style="font-size:22px;margin-bottom:6px;">Ton entretien gratuit 🎁</h2>
+    <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px;">Entre ton email pour démarrer ton entretien offert. On t'enverra aussi ton résultat.</p>
+
+    <div class="form-group">
+      <label class="form-label">📧 Ton email</label>
+      <input type="email" class="code-input-big" id="email-input" placeholder="ton@email.fr" style="font-size:15px" autocomplete="email">
+      <div style="font-size:11px;color:var(--gray-400);margin-top:7px;text-align:center">1 entretien offert · sans engagement · pas de spam</div>
+    </div>
+
+    <div id="email-error" class="alert alert-error" style="display:none">❌ <span id="email-error-msg">Email invalide.</span></div>
+    <div id="email-loading" style="display:none;text-align:center;padding:12px">
+      <div class="dot-loader" style="justify-content:center"><span></span><span></span><span></span></div>
+      <div style="font-size:13px;color:var(--gray-400);margin-top:8px">Vérification...</div>
+    </div>
+
+    <button class="btn btn-primary" id="email-btn" onclick="submitEmail()">Démarrer mon entretien gratuit -></button>
+
+    <!-- Bloc affiché si l'essai a déjà été utilisé -->
+    <div id="email-used" style="display:none;margin-top:18px;text-align:center">
+      <div style="background:var(--blue-light);border:1.5px solid #bfdbfe;border-radius:var(--r-sm);padding:16px">
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px;font-family:'Syne',sans-serif">Tu as déjà utilisé ton essai gratuit</div>
+        <div style="font-size:13px;color:var(--gray-500);margin-bottom:14px">Pour continuer à t'entraîner, choisis un pack — à partir de 9,90€, sans abonnement.</div>
+        <button class="btn btn-primary" onclick="goToPacks()">Voir les packs -></button>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
 <!-- =========== CONFIG =========== -->
 <div id="screen-config" class="screen">
   <nav class="nav">
@@ -1607,11 +1644,22 @@ function saveApiKey(v){ /* handled server-side */ }
 function selectMode(mode) {
   S.mode = mode;
   if (mode === 'express') {
-    S.config.personnalite = 'exigeant';
-    S.config.poste = 'poste généraliste';
-    S.config.cv = '';
-    S.config.voix = 'on';
-    goTo('brief'); initBrief();
+    // Gating de l'essai gratuit : si déjà utilisé (verrou local), on bloque tout de suite.
+    if(localStorage.getItem('jw_free_used')){
+      S.mode = 'express';
+      goTo('email');
+      document.getElementById('email-btn').style.display='none';
+      document.querySelector('#screen-email .form-group').style.display='none';
+      document.getElementById('email-used').style.display='block';
+      return;
+    }
+    // Sinon, on demande l'email avant de lancer.
+    goTo('email');
+    document.getElementById('email-btn').style.display='block';
+    document.querySelector('#screen-email .form-group').style.display='block';
+    document.getElementById('email-used').style.display='none';
+    document.getElementById('email-error').style.display='none';
+    return;
   } else {
     // Vérifier si pack actif avec entretiens restants
     const pack = getSavedPack();
@@ -1628,8 +1676,70 @@ function selectMode(mode) {
   }
 }
 
-/* ========== LEMON SQUEEZY VALIDATION ========== */
-function packKey(licenseKey){ return 'jw_pack_'+licenseKey.replace(/[^A-Z0-9]/g,''); }
+/* ========== ESSAI GRATUIT : capture email + gating serveur ========== */
+async function submitEmail(){
+  const raw = (document.getElementById('email-input').value || '').trim().toLowerCase();
+  const errEl = document.getElementById('email-error');
+  const errMsg = document.getElementById('email-error-msg');
+  const loadEl = document.getElementById('email-loading');
+  const btn = document.getElementById('email-btn');
+
+  errEl.style.display = 'none';
+
+  // Validation format basique côté client
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)){
+    errMsg.textContent = 'Entre une adresse email valide.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  loadEl.style.display = 'block';
+  btn.disabled = true;
+
+  let allowed = true;
+  let alreadyUsed = false;
+  try {
+    const res = await fetch('/.netlify/functions/use-free-trial', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: raw })
+    });
+    const data = await res.json();
+    allowed = data.allowed;
+    alreadyUsed = data.alreadyUsed;
+  } catch(e) {
+    // Si le serveur est injoignable, on autorise (ne pas frustrer un vrai utilisateur).
+    allowed = true;
+  }
+
+  loadEl.style.display = 'none';
+  btn.disabled = false;
+
+  if(!allowed && alreadyUsed){
+    // Email déjà utilisé côté serveur → on bloque et on pose aussi le verrou local.
+    localStorage.setItem('jw_free_used', '1');
+    document.getElementById('email-btn').style.display='none';
+    document.querySelector('#screen-email .form-group').style.display='none';
+    document.getElementById('email-used').style.display='block';
+    return;
+  }
+
+  // Autorisé → on pose le verrou local, on mémorise l'email, et on lance l'express.
+  localStorage.setItem('jw_free_used', '1');
+  localStorage.setItem('jw_free_email', raw);
+  S.freeEmail = raw;
+  S.mode = 'express';
+  S.config.personnalite = 'exigeant';
+  S.config.poste = 'poste généraliste';
+  S.config.cv = '';
+  S.config.voix = 'on';
+  goTo('brief'); initBrief();
+}
+
+function goToPacks(){
+  // Renvoie vers l'écran de saisie de code / achat de pack.
+  goTo('code');
+}
 
 function getSavedPack(){
   const key = localStorage.getItem('jw_active_key');
