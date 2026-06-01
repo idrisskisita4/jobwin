@@ -1847,11 +1847,17 @@ async function verifyCode(){
 
   // Valider via Supabase (codes clients générés par webhook)
   try {
+    // Timeout de 15s : si le serveur ne répond pas, on coupe au lieu de mouliner à l'infini.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     const res = await fetch('/.netlify/functions/validate-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: raw })
+      body: JSON.stringify({ code: raw }),
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
     const data = await res.json();
 
     if(!data.valid){
@@ -1878,10 +1884,17 @@ async function verifyCode(){
     loadEl.style.display = 'none';
     btn.disabled = false;
     errEl.style.display = 'flex';
-    document.getElementById('code-error-msg').textContent =
-      e.message.includes('Failed to fetch')
-        ? 'Erreur réseau. Vérifie ta connexion internet.'
-        : 'Clé invalide ou déjà utilisée sur un autre appareil.';
+    let msg;
+    if(e.name === 'AbortError'){
+      msg = 'Le serveur met trop de temps à répondre. Réessaie, ou écris à support@jobwin.fr avec ton code.';
+    } else if(e.message.includes('Failed to fetch')){
+      msg = 'Erreur réseau. Vérifie ta connexion internet et réessaie.';
+    } else if(e.message === 'Code invalide' || e.message.includes('épuisé') || e.message.includes('désactivé')){
+      msg = e.message;
+    } else {
+      msg = 'Clé invalide ou déjà utilisée sur un autre appareil.';
+    }
+    document.getElementById('code-error-msg').textContent = msg;
   }
 }
 
@@ -3236,6 +3249,16 @@ async function showResults() {
     // score + date + poste seulement. Le bilan détaillé reste payant.
     saveSession({date:new Date().toISOString(),score:avg,poste:S.config.poste,mode:'express',express:true});
     updateHistoryBtn();
+    // On enregistre aussi le score dans Supabase (rattaché à l'email),
+    // pour pouvoir personnaliser les relances email plus tard.
+    const freeEmail = S.freeEmail || localStorage.getItem('jw_free_email');
+    if(freeEmail){
+      fetch('/.netlify/functions/use-free-trial', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: freeEmail, score: avg })
+      }).catch(()=>{}); // silencieux — ne bloque pas l'affichage du résultat
+    }
     await genExpressResults();
   } else {
     // PACK : show full results
