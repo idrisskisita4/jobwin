@@ -395,6 +395,20 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 #screen-brief .brief-item-text strong{color:var(--navy);font-weight:600}
 #screen-brief .brief-alert{background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:11px 13px;margin-bottom:14px;display:flex;gap:9px;align-items:flex-start}
 #screen-brief .brief-alert-text{font-size:12.5px;color:#92400e;line-height:1.5}
+.coach-card{background:#fff;border:1.5px solid #7c3aed;border-radius:16px;overflow:hidden}
+.coach-head{background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;padding:16px 20px}
+.coach-badge{display:inline-block;background:rgba(255,255,255,.2);font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.coach-title{font-family:'Syne',sans-serif;font-weight:800;font-size:18px}
+.coach-body{padding:20px}
+.coach-item{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid #e2e8f0}
+.coach-item:last-child{border-bottom:none}
+.coach-ic{flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.coach-item-title{font-family:'Syne',sans-serif;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:3px}
+.coach-item-txt{font-size:14px;line-height:1.55;color:#475569}
+.coach-plan{margin-top:16px;background:#f3e8ff;border-radius:12px;padding:15px 17px}
+.coach-plan-title{font-family:'Syne',sans-serif;font-weight:700;color:#7c3aed;font-size:14px;margin-bottom:9px}
+.coach-plan ol{margin:0;padding-left:19px}
+.coach-plan li{font-size:14px;line-height:1.7;color:#475569}
 </style>
 </head>
 <body>
@@ -1026,6 +1040,19 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="divider"></div>
       <div class="slabel">💡 Réponses idéales - Question par question</div>
       <div id="res-ideals" style="margin-bottom:20px"></div>
+
+      <!-- Coaching Intensif (affiché seulement pour le pack Intensif) -->
+      <div id="coaching-intensif" style="display:none;margin-bottom:20px">
+        <div class="coach-card">
+          <div class="coach-head">
+            <div class="coach-badge">🎯 Coaching Intensif</div>
+            <div class="coach-title">Ton plan d'amélioration personnalisé</div>
+          </div>
+          <div class="coach-body" id="coaching-body">
+            <div style="color:var(--gray-400);font-size:14px">Analyse en cours...</div>
+          </div>
+        </div>
+      </div>
 
       <button class="btn btn-primary" onclick="newInterview()" style="margin-bottom:10px">🔄 Nouvel entretien</button>
       <button class="btn btn-secondary" onclick="goTo('home','back')">← Retour à l'accueil</button>
@@ -3371,6 +3398,11 @@ async function showResults() {
       updateHistoryBtn();
     }
     await genFinalAnalysis(avg);
+    // Coaching personnalisé : réservé au pack Intensif
+    const _pk = getSavedPack();
+    if(_pk && _pk.name === 'Intensif'){
+      await genCoachingIntensif(avg);
+    }
   }
 }
 
@@ -3413,6 +3445,50 @@ async function genFinalAnalysis(avg) {
   }catch(e){
     document.getElementById('res-forts').innerHTML='<div class="result-item"><div class="result-item-icon">⚠️</div><div>Analyse non disponible</div></div>';
     document.getElementById('res-axes').innerHTML='<div class="result-item"><div class="result-item-icon">⚠️</div><div>Analyse non disponible</div></div>';
+  }
+}
+
+async function genCoachingIntensif(avg){
+  const box = document.getElementById('coaching-intensif');
+  if(!box) return;
+  box.style.display = 'block';
+  const bodyEl = document.getElementById('coaching-body');
+
+  // Donnée réelle : débit moyen (mots/min) capté pendant l'entretien
+  const wpm = S.wpmCount>0 ? Math.round(S.totalWPM/S.wpmCount) : 0;
+  const qas = S.itv.qs.map((q,i)=>`Q: ${q}\nR: ${S.itv.answers[i]||'(silence)'}`).join('\n\n');
+
+  const prompt = `Tu es un coach d'entretien expert. Analyse cet entretien et donne un plan d'amélioration personnalisé et CONCRET.
+POSTE: ${S.config.poste} | SCORE: ${avg}% | DÉBIT: ${wpm} mots/min
+${qas}
+
+Retourne UNIQUEMENT ce JSON, sans texte autour :
+{
+  "axes": [
+    {"titre":"Rythme de parole","conseil":"conseil concret basé sur le débit de ${wpm} mots/min (idéal 130-150)"},
+    {"titre":"Structure des réponses","conseil":"conseil concret sur la structure STAR selon les réponses"},
+    {"titre":"Concret et chiffres","conseil":"conseil concret sur l'usage d'exemples chiffrés"}
+  ],
+  "priorites": ["priorité 1 courte","priorité 2 courte","priorité 3 courte"]
+}`;
+
+  const icons = ['🗣️','🧱','📊'];
+  const bgs = ['#fef3c7','#dbeafe','#dcfce7'];
+
+  try{
+    const txt = await apiCall(prompt, 800);
+    const d = JSON.parse(txt.replace(/```json?|```/g,'').trim());
+    let html = '';
+    d.axes.forEach((a,i)=>{
+      html += `<div class="coach-item">
+        <div class="coach-ic" style="background:${bgs[i]||'#f1f5f9'}">${icons[i]||'•'}</div>
+        <div><div class="coach-item-title">${a.titre}</div><div class="coach-item-txt">${a.conseil}</div></div>
+      </div>`;
+    });
+    html += `<div class="coach-plan"><div class="coach-plan-title">📋 Tes priorités pour le prochain entretien</div><ol>${d.priorites.map(p=>`<li>${p}</li>`).join('')}</ol></div>`;
+    bodyEl.innerHTML = html;
+  }catch(e){
+    bodyEl.innerHTML = '<div style="color:var(--gray-400);font-size:14px">Coaching non disponible pour le moment.</div>';
   }
 }
 
