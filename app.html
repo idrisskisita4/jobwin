@@ -461,6 +461,18 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <span class="badge badge-free">Gratuit</span>
     </div>
 
+    <!-- Hameçon de retour : visible seulement si un essai a déjà été fait -->
+    <div id="comeback-hook" style="display:none;background:var(--blue-light);border:1.5px solid #bfdbfe;border-radius:var(--r-sm);padding:12px 16px;margin-bottom:12px;cursor:pointer" onclick="selectMode('express')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:22px">📈</div>
+        <div style="flex:1">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--blue)" id="comeback-title">Ton dernier essai : 58%</div>
+          <div style="font-size:12px;color:var(--gray-500)" id="comeback-sub">Refais un entretien pour voir si tu progresses</div>
+        </div>
+        <div style="font-size:18px;color:var(--blue)">→</div>
+      </div>
+    </div>
+
     <div class="mode-card complet" onclick="selectMode('complet')">
       <div class="mode-card-icon">🎯</div>
       <div class="mode-card-body">
@@ -1539,6 +1551,39 @@ const EXPRESS_QS = [
 const _akEl = document.getElementById('api-key-input'); if (S.apiKey && _akEl) _akEl.value = S.apiKey;
 loadSavedPack();
 updateHistoryBtn();
+showComebackHook();
+
+/* Hameçon de retour : si un essai express existe déjà, on l'affiche sur l'accueil */
+function showComebackHook(){
+  try{
+    const el = document.getElementById('comeback-hook');
+    if(!el) return;
+    // On regarde l'historique express + l'historique du pack actif éventuel
+    const keys = ['jw_hist_express'];
+    if(S.accessCode) keys.push('jw_hist_'+S.accessCode);
+    let sessions = [];
+    keys.forEach(k=>{
+      try{ sessions = sessions.concat(JSON.parse(localStorage.getItem(k)||'[]')); }catch(e){}
+    });
+    if(!sessions.length){ el.style.display='none'; return; }
+    // Trier par date décroissante, prendre la plus récente
+    sessions.sort((a,b)=> new Date(b.date) - new Date(a.date));
+    const last = sessions[0];
+    const titleEl = document.getElementById('comeback-title');
+    const subEl = document.getElementById('comeback-sub');
+    titleEl.textContent = 'Ton dernier entretien : '+last.score+'%';
+    if(sessions.length === 1){
+      subEl.textContent = 'Refais-en un pour voir si tu progresses';
+    } else {
+      const prev = sessions[1];
+      const diff = last.score - prev.score;
+      subEl.textContent = diff >= 0
+        ? 'Tu as gagné +'+diff+'% — continue sur ta lancée'
+        : 'En baisse de '+Math.abs(diff)+'% — retente ta chance';
+    }
+    el.style.display='block';
+  }catch(e){ /* silencieux */ }
+}
 
 /* ========== NAVIGATION ========== */
 function goTo(id, dir='forward') {
@@ -2286,6 +2331,23 @@ async function genRecruiterTurn(history, cv, phase) {
 
   // Thèmes importants pas encore couverts
   const allText = history.map(h=>h.q+' '+h.a).join(' ').toLowerCase();
+
+  // === SOCLE CURATÉ : vraies questions du métier (QUESTION_BANK) ===
+  // On détecte le secteur du poste et on tire quelques vraies questions
+  // métier pour les donner au recruteur comme matière première.
+  // Le recruteur reste conversationnel : il s'en inspire, il ne les récite pas.
+  const sectorKey = detectSector(S.config.poste || '');
+  let questionsMetier = [];
+  if (sectorKey && QUESTION_BANK.secteurs[sectorKey]) {
+    const dispo = QUESTION_BANK.secteurs[sectorKey].filter(q => {
+      const amorce = q.toLowerCase().substring(0, 25);
+      return !allText.includes(amorce);
+    });
+    questionsMetier = sampleQuestions(dispo.length ? dispo : QUESTION_BANK.secteurs[sectorKey], 4);
+  }
+  const blocMetier = questionsMetier.length
+    ? `\n\nVRAIES QUESTIONS DE CE MÉTIER (${sectorKey}) — inspire-toi en pour creuser le concret du poste, reformule-les à ta façon et adapte-les au CV du candidat. Ne les récite pas mot pour mot, ne les pose pas en liste :\n- ${questionsMetier.join('\n- ')}`
+    : '';
   const missing = [];
   if(!/pourquoi|motiv/.test(allText)) missing.push('motivations réelles');
   if(!/exemple|situation|racontez/.test(allText)) missing.push('exemple concret STAR');
@@ -2347,6 +2409,7 @@ TA BOUSSOLE — 8 zones à couvrir avant de conclure (dans un ordre naturel, pas
 Zones déjà bien couvertes : ${covered.length > 0 ? covered.join(', ') : 'aucune encore'}
 Zones pas encore abordées : ${priorityMissing.length > 0 ? priorityMissing.join(', ') : 'toutes couvertes — tu peux conclure'}
 ${saturated.length > 0 ? 'Sujets saturés, ne plus y revenir : '+saturated.join(', ') : ''}
+${blocMetier}
 
 COMMENT TU FONCTIONNES :
 Tu lis tout l historique. Tu remarques UN element precis dans la derniere reponse. Tu y reagis naturellement ET tu guides vers la prochaine zone non couverte quand c est le bon moment. Pas de transition forcee — tu trouves le lien naturel entre ce que le candidat vient de dire et la zone suivante.
@@ -3059,6 +3122,10 @@ async function showResults() {
     document.getElementById('results-sub').textContent='Aperçu de ton entretien';
     document.getElementById('express-results').style.display='block';
     document.getElementById('pack-results').style.display='none';
+    // Sauvegarde ALLÉGÉE de l'essai (hameçon de rétention) :
+    // score + date + poste seulement. Le bilan détaillé reste payant.
+    saveSession({date:new Date().toISOString(),score:avg,poste:S.config.poste,mode:'express',express:true});
+    updateHistoryBtn();
     await genExpressResults();
   } else {
     // PACK : show full results
@@ -3284,7 +3351,7 @@ function openHistory(){
     return `<div class="session-card">
       <div class="session-score-badge ${cls}"><div class="session-score-num">${s.score}</div><div class="session-score-pct">%</div></div>
       <div class="session-body">
-        <div class="session-poste">${s.poste||'Entretien général'}</div>
+        <div class="session-poste">${s.poste||'Entretien général'}${s.express?' <span style="font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-light);border-radius:8px;padding:1px 7px;margin-left:4px;vertical-align:middle">ESSAI</span>':''}</div>
         <div class="session-meta">${fmtDate(s.date)}${s.wpm?' · '+s.wpm+' mots/min':''}</div>
         <div class="session-criteria">${pills}</div>
       </div>
