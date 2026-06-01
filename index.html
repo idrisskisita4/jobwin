@@ -321,6 +321,38 @@ footer{background:var(--navy);padding:52px 0 32px}
 .foot-legal{display:flex;gap:20px}
 .foot-legal a{font-size:12.5px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .15s}
 .foot-legal a:hover{color:rgba(255,255,255,.6)}
+.ptable-wrap{max-width:860px;margin:0 auto;background:#fff;border:1px solid var(--line,#e2e8f0);border-radius:20px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.06)}
+.ptable{width:100%;border-collapse:collapse}
+.ptable th,.ptable td{padding:15px 12px;text-align:center;border-bottom:1px solid var(--line,#e2e8f0)}
+.ptable th:first-child,.ptable td:first-child{text-align:left;padding-left:22px;color:var(--navy);font-weight:500}
+.pt-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;color:var(--navy)}
+.pt-pop{display:inline-block;background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.pt-price{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;color:var(--navy);margin-top:5px}
+.pt-price span{font-size:13px;font-weight:600;color:#94a3b8}
+.pt-sub{font-size:11px;color:#94a3b8;margin-top:2px;line-height:1.3}
+.pt-best{background:var(--sky,#EFF6FF)}
+.ptable thead th.pt-best{border-top:3px solid var(--blue)}
+.pt-y{color:#16a34a;font-weight:700;font-size:17px}
+.pt-n{color:#cbd5e1;font-size:17px}
+.pt-feat{font-size:14px}
+.pt-btns td{padding-top:18px;padding-bottom:22px;border-bottom:none}
+.pt-btn{display:block;padding:11px;border-radius:11px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;text-decoration:none;font-size:14px}
+.pt-btn-dark{background:var(--navy);color:#fff}
+.pt-btn-blue{background:var(--blue);color:#fff}
+@media(max-width:760px){
+  .ptable th,.ptable td{padding:11px 6px;font-size:12px}
+  .ptable th:first-child,.ptable td:first-child{padding-left:12px}
+  .pt-price{font-size:18px}
+  .pt-name{font-size:13px}
+  .pt-sub{font-size:9px}
+  .pt-feat{font-size:11.5px}
+  .pt-btn{font-size:12px;padding:9px 4px}
+}
+.pt-mobile{display:none}
+@media(max-width:760px){
+  .pt-desktop{display:none}
+  .pt-mobile{display:grid}
+}
 </style>
 </head>
 <body>
@@ -354,7 +386,7 @@ footer{background:var(--navy);padding:52px 0 32px}
     <div class="hero-inner">
       <div class="hero-left">
         <div class="hero-badge"><div class="hero-pulse"></div> Disponible maintenant — sans inscription</div>
-        <h1>Décroche ton poste grâce à un <span class="accent">recruteur IA</span> qui parle</h1>
+        <h1>Prépare ton entretien et <span class="accent">décroche ton job</span></h1>
         <p class="hero-sub">Simulation vocale réaliste, questions personnalisées selon ton CV, score d'aptitude instantané. Entraîne-toi autant que tu veux.</p>
         <div class="hero-btns">
           <a href="/app.html" class="btn-cta">Commencer gratuitement →</a>
@@ -363,7 +395,7 @@ footer{background:var(--navy);padding:52px 0 32px}
         <div class="hero-trust">
           <span>✓ Sans inscription</span>
           <div class="tdiv"></div>
-          <span>✓ 3 essais offerts</span>
+          <span>✓ 1 entretien gratuit</span>
           <div class="tdiv"></div>
           <span>✓ 100% en français</span>
         </div>
@@ -484,7 +516,6 @@ footer{background:var(--navy);padding:52px 0 32px}
     <div class="reveal" style="text-align:center">
       <div class="sec-tag">Comment ça marche</div>
       <h2 class="sec-title">Prêt en moins de 2 minutes</h2>
-      <p class="sec-sub" style="margin:0 auto">Pas d'inscription. Pas d'app à télécharger. Ouvre le lien et commence.</p>
     </div>
     <div class="steps reveal">
       <div class="step"><div class="step-n">1</div><h3>Configure ton profil</h3><p>Poste, entreprise ciblée, niveau, CV. 30 secondes chrono.</p></div>
@@ -565,46 +596,89 @@ footer{background:var(--navy);padding:52px 0 32px}
       <h2 class="sec-title">Entraîne-toi jusqu'à décrocher ton poste</h2>
       <p class="sec-sub" style="margin:0 auto">Accès immédiat après paiement · Sans abonnement · Clé par email</p>
     </div>
-    <div class="pgrid reveal">
+    <div class="ptable-wrap reveal pt-desktop">
+      <table class="ptable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>
+              <div class="pt-name">Découverte</div>
+              <div class="pt-price">9,90<span>€</span></div>
+              <div class="pt-sub">3 entretiens · 3,30€/entretien</div>
+            </th>
+            <th class="pt-best">
+              <div class="pt-pop">★ Populaire</div>
+              <div class="pt-name">Essentiel</div>
+              <div class="pt-price">19,90<span>€</span></div>
+              <div class="pt-sub">8 entretiens · 2,49€/entretien</div>
+            </th>
+            <th>
+              <div class="pt-name">Intensif</div>
+              <div class="pt-price">34,90<span>€</span></div>
+              <div class="pt-sub">20 entretiens · 1,75€/entretien</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="pt-feat">Nombre d'entretiens</td><td><b>3</b></td><td class="pt-best"><b>8</b></td><td><b>20</b></td></tr>
+          <tr><td class="pt-feat">Recruteur au choix</td><td><span class="pt-y">✓</span></td><td class="pt-best"><span class="pt-y">✓</span></td><td><span class="pt-y">✓</span></td></tr>
+          <tr><td class="pt-feat">Analyse vocale (débit, fluidité, score)</td><td><span class="pt-y">✓</span></td><td class="pt-best"><span class="pt-y">✓</span></td><td><span class="pt-y">✓</span></td></tr>
+          <tr><td class="pt-feat">Score multi-critères</td><td><span class="pt-y">✓</span></td><td class="pt-best"><span class="pt-y">✓</span></td><td><span class="pt-y">✓</span></td></tr>
+          <tr><td class="pt-feat">Historique de progression</td><td><span class="pt-n">✗</span></td><td class="pt-best"><span class="pt-y">✓</span></td><td><span class="pt-y">✓</span></td></tr>
+          <tr><td class="pt-feat">Coaching personnalisé (plan d'amélioration)</td><td><span class="pt-n">✗</span></td><td class="pt-best"><span class="pt-n">✗</span></td><td><span class="pt-y">✓</span></td></tr>
+          <tr class="pt-btns">
+            <td></td>
+            <td><a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="pt-btn pt-btn-dark">Commencer →</a></td>
+            <td class="pt-best"><a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="pt-btn pt-btn-blue">Commencer →</a></td>
+            <td><a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="pt-btn pt-btn-dark">Commencer →</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pgrid pt-mobile reveal">
       <div class="pc">
         <h3>Pack Découverte</h3>
-        <div class="pc-desc">3 entretiens complets</div>
+        <div class="pc-desc">3 entretiens · 3,30€/entretien</div>
         <div><span class="pc-price">9,90</span><span class="pc-per">€</span></div>
         <div class="pc-sep"></div>
         <div class="pc-feats">
           <div class="pc-feat"><div class="pc-check"></div>Recruteur au choix</div>
-          <div class="pc-feat"><div class="pc-check"></div>Analyse complète</div>
+          <div class="pc-feat"><div class="pc-check"></div>Analyse vocale (débit, fluidité, score)</div>
           <div class="pc-feat"><div class="pc-check"></div>Score multi-critères</div>
-          <div class="pc-feat"><div class="pc-check"></div>Idéal pour tester</div>
+          <div class="pc-feat" style="opacity:.4"><div class="pc-check" style="background:#cbd5e1"></div>Historique de progression</div>
+          <div class="pc-feat" style="opacity:.4"><div class="pc-check" style="background:#cbd5e1"></div>Coaching personnalisé</div>
         </div>
-        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="pc-btn pc-btn-dark">Choisir Découverte →</a>
+        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="pc-btn pc-btn-dark">Commencer →</a>
       </div>
       <div class="pc best">
         <div class="pc-pop">⭐ Le plus populaire</div>
         <h3>Pack Essentiel</h3>
-        <div class="pc-desc">8 entretiens complets</div>
+        <div class="pc-desc">8 entretiens · 2,49€/entretien</div>
         <div><span class="pc-price">19,90</span><span class="pc-per">€</span></div>
         <div class="pc-sep"></div>
         <div class="pc-feats">
-          <div class="pc-feat"><div class="pc-check"></div>Tout du Découverte</div>
+          <div class="pc-feat"><div class="pc-check"></div>Recruteur au choix</div>
+          <div class="pc-feat"><div class="pc-check"></div>Analyse vocale (débit, fluidité, score)</div>
+          <div class="pc-feat"><div class="pc-check"></div>Score multi-critères</div>
           <div class="pc-feat"><div class="pc-check"></div>Historique de progression</div>
-          <div class="pc-feat"><div class="pc-check"></div>8 sessions pour vraiment progresser</div>
-          <div class="pc-feat"><div class="pc-check"></div>Analyse vocale avancée</div>
+          <div class="pc-feat" style="opacity:.4"><div class="pc-check" style="background:rgba(255,255,255,.4)"></div>Coaching personnalisé</div>
         </div>
-        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="pc-btn pc-btn-white">Choisir Essentiel →</a>
+        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="pc-btn pc-btn-white">Commencer →</a>
       </div>
       <div class="pc">
         <h3>Pack Intensif</h3>
-        <div class="pc-desc">20 entretiens complets</div>
+        <div class="pc-desc">20 entretiens · 1,75€/entretien</div>
         <div><span class="pc-price">34,90</span><span class="pc-per">€</span></div>
         <div class="pc-sep"></div>
         <div class="pc-feats">
-          <div class="pc-feat"><div class="pc-check"></div>Tout du Essentiel</div>
-          <div class="pc-feat"><div class="pc-check"></div>20 sessions intensives</div>
-          <div class="pc-feat"><div class="pc-check"></div>Pour les candidats déterminés</div>
-          <div class="pc-feat"><div class="pc-check"></div>Meilleur rapport qualité/prix</div>
+          <div class="pc-feat"><div class="pc-check"></div>Recruteur au choix</div>
+          <div class="pc-feat"><div class="pc-check"></div>Analyse vocale (débit, fluidité, score)</div>
+          <div class="pc-feat"><div class="pc-check"></div>Score multi-critères</div>
+          <div class="pc-feat"><div class="pc-check"></div>Historique de progression</div>
+          <div class="pc-feat"><div class="pc-check"></div><b>Coaching personnalisé (plan d'amélioration)</b></div>
         </div>
-        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="pc-btn pc-btn-dark">Choisir Intensif →</a>
+        <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="pc-btn pc-btn-dark">Commencer →</a>
       </div>
     </div>
   </div>
@@ -618,7 +692,7 @@ footer{background:var(--navy);padding:52px 0 32px}
     <div class="cta-inner reveal">
       <div class="cta-content">
         <h2>Prêt à te préparer<br>sérieusement ?</h2>
-        <p>3 simulations gratuites. Aucune carte requise. Résultats immédiats.</p>
+        <p>1 entretien gratuit. Aucune carte requise. Résultats immédiats.</p>
         <div class="cta-btns">
           <a href="/app.html" class="btn-cta-white">Commencer gratuitement →</a>
           <a href="#pricing" class="btn-cta-ghost">Voir les packs</a>
