@@ -1736,6 +1736,8 @@ async function submitEmail(){
   goTo('brief'); initBrief();
 }
 
+function packKey(licenseKey){ return 'jw_pack_'+licenseKey.replace(/[^A-Z0-9]/g,''); }
+
 function goToPacks(){
   // Renvoie vers l'écran de saisie de code / achat de pack.
   goTo('code');
