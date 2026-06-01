@@ -1,6 +1,9 @@
-const Anthropic = require('@anthropic-ai/sdk');
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Netlify Function : proxy vers l'API Anthropic
+// Gère DEUX formats d'appel venant du front :
+// 1) Legacy → { prompt, maxTokens }
+// 2) Conversational → { systemPrompt, messages, maxTokens, conversational:true }
+// + Prompt caching sur le system prompt (réduction de coût sur les tours longs)
+// + Lecture de réponse blindée (ne casse plus si la structure change)
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -8,109 +11,127 @@ exports.handler = async (event) => {
   }
 
   try {
-    const body = JSON.parse(event.body);
-    const { prompt, maxTokens = 600, systemPrompt, messages, conversational, pdfBase64 } = body;
-
-    let responseText;
-
-    if (conversational && messages && Array.isArray(messages)) {
-      // ── MULTI-TURN MODE ──
-      const sys = systemPrompt || "Tu es un recruteur professionnel en entretien d'embauche. Réponds naturellement en français.";
-
-      // Filter instruction messages
-      const conversationMessages = messages.filter((m, i) => {
-        if (i === messages.length - 1 && m.role === 'user' && m.content.startsWith('[')) return false;
-        return m.content && m.content.trim().length > 0;
-      });
-
-      const isReactionRequest = messages[messages.length - 1]?.content?.startsWith('[');
-
-      const finalMessages = isReactionRequest
-        ? [...conversationMessages, { role: 'user', content: messages[messages.length - 1].content }]
-        : conversationMessages;
-
-      const finalSystem = isReactionRequest
-        ? sys + "\nRègle absolue : réagis à la dernière réponse du candidat en 1-2 phrases. Ne pose PAS de question. Réagis à un élément précis de sa réponse."
-        : sys;
-
-      const response = await client.messages.create({
-        model: 'claude-haiku-4-5',
-        max_tokens: maxTokens || 200,
-        system: finalSystem,
-        messages: finalMessages,
-      });
-
-      responseText = response.content[0]?.text || '';
-
-    } else if (pdfBase64) {
-      // ── PDF READING MODE ──
-      // Claude reads the PDF natively - like reading it directly
-      const response = await client.messages.create({
-        model: 'claude-haiku-4-5',
-        max_tokens: 1500,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'document',
-              source: {
-                type: 'base64',
-                media_type: 'application/pdf',
-                data: pdfBase64,
-              }
-            },
-            {
-              type: 'text',
-              text: `Analyse ce CV et extrais les informations suivantes en JSON :
-{
-  "nom": "prénom et nom",
-  "postes": [{"titre": "", "entreprise": "", "periode": "", "type": "CDI/CDD/interim"}],
-  "formation": [{"diplome": "", "etablissement": "", "annee": ""}],
-  "competences": [],
-  "langues": [],
-  "trous": ["période X à Y sans activité documentée"],
-  "transitions": ["changement de secteur ou de métier notable"],
-  "postes_courts": ["poste de moins d'1 an"],
-  "resume_recruteur": "En 3 phrases, ce que remarquerait immédiatement un recruteur sur ce profil"
-}
-Réponds UNIQUEMENT avec le JSON valide, sans markdown.`
-            }
-          ]
-        }]
-      });
-
-      responseText = response.content[0]?.text || '{}';
-
-    } else {
-      // ── SINGLE PROMPT MODE ──
-      if (!prompt) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Missing prompt' }) };
-      }
-
-      const response = await client.messages.create({
-        model: 'claude-haiku-4-5',
-        max_tokens: maxTokens,
-        messages: [{ role: 'user', content: prompt }],
-      });
-
-      responseText = response.content[0]?.text || '';
+    const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+    if (!ANTHROPIC_KEY) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Clé API manquante dans les variables Netlify' })
+      };
     }
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ text: responseText }),
-    };
+    const payload = JSON.parse(event.body || '{}');
+    const {
+      prompt, // format legacy
+      systemPrompt, // format conversational
+      messages, // format conversational : [{role:'user'|'assistant', content:'...'}]
+      maxTokens
+    } = payload;
 
-  } catch (error) {
-    console.error('Chat function error:', error);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: error.message }),
-    };
+    // --- Détection du format ---
+    // Si un tableau `messages` est fourni → mode conversationnel.
+    // Sinon → mode legacy avec un simple `prompt`.
+    const isConversational = Array.isArray(messages) && messages.length > 0;
+
+    let finalMessages;
+    let finalSystem = null;
+
+    if (isConversational) {
+      finalMessages = messages;
+      if (systemPrompt && systemPrompt.trim()) {
+        // System sous forme de bloc → permet le prompt caching.
+        finalSystem = [
+          {
+            type: 'text',
+            text: systemPrompt,
+            cache_control: { type: 'ephemeral' }
+          }
+        ];
+      }
+    } else {
+      // Legacy : on transforme le prompt en un message user unique.
+      if (!prompt || !prompt.trim()) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: 'Requête vide : ni "prompt" ni "messages" fournis.' })
+        };
+      }
+      finalMessages = [{ role: 'user', content: prompt }];
+    }
+
+    // Chaîne de modèles : on tente dans l'ordre, fallback si l'un échoue.
+    const MODELS = [
+      'claude-haiku-4-5-20251001',
+      'claude-haiku-4-5',
+      'claude-3-haiku-20240307'
+    ];
+
+    let lastError = null;
+
+    for (const model of MODELS) {
+      const body = {
+        model,
+        max_tokens: maxTokens || 600,
+        messages: finalMessages
+      };
+      if (finalSystem) body.system = finalSystem;
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // Lecture blindée : on cherche le premier bloc de type "text"
+        // au lieu de supposer que c'est content[0].
+        const textBlock = Array.isArray(data.content)
+          ? data.content.find(b => b && b.type === 'text')
+          : null;
+        const text = textBlock && typeof textBlock.text === 'string'
+          ? textBlock.text
+          : '';
+
+        if (!text) {
+          // Réponse OK mais sans texte exploitable → on essaie le modèle suivant.
+          lastError = `Model ${model} → réponse sans bloc texte`;
+          continue;
+        }
+
+        return {
+          statusCode: 200,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text,
+            // Infos utiles pour suivre le coût / le cache (facultatif côté front)
+            usage: data.usage || null,
+            model
+          })
+        };
+      }
+
+      const errText = await response.text();
+      lastError = `Model ${model} → ${response.status}: ${errText}`;
+
+      // 401 = mauvaise clé : inutile de tenter les autres modèles.
+      if (response.status === 401) {
+        return {
+          statusCode: 401,
+          body: JSON.stringify({
+            error: 'Clé API Anthropic invalide ou expirée. Vérifiez Netlify > Environment variables > ANTHROPIC_API_KEY.'
+          })
+        };
+      }
+    }
+
+    return { statusCode: 500, body: JSON.stringify({ error: lastError }) };
+
+  } catch (err) {
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
 };
