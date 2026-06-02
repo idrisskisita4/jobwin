@@ -409,6 +409,14 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 .coach-plan-title{font-family:'Syne',sans-serif;font-weight:700;color:#7c3aed;font-size:14px;margin-bottom:9px}
 .coach-plan ol{margin:0;padding-left:19px}
 .coach-plan li{font-size:14px;line-height:1.7;color:#475569}
+.scroll-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:38px;height:38px;border-radius:50%;background:var(--blue,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(37,99,235,.4);cursor:pointer;z-index:20;animation:scrollBounce 1.6s ease-in-out infinite;transition:opacity .3s}
+.scroll-hint.hidden{opacity:0;pointer-events:none}
+@keyframes scrollBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
+.q-replay{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:7px 14px;background:var(--gray-50,#f8fafc);border:1px solid var(--gray-200,#e2e8f0);border-radius:99px;color:var(--blue,#2563eb);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.q-replay:hover{background:var(--blue-light,#eff6ff);border-color:var(--blue,#2563eb)}
+.q-replay:disabled{opacity:.5;cursor:not-allowed}
+.q-replay.playing svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -521,6 +529,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="faq-a">Le mode gratuit utilise un recruteur exigeant et un chrono de 25 minutes pour simuler la vraie pression. La plupart des candidats obtiennent moins de 60% sans préparation.</div>
     </div>
     <div style="height:16px"></div>
+  </div>
+  <div id="scroll-hint" class="scroll-hint" onclick="document.getElementById('screen-home').scrollBy({top:300,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
   </div>
 </div>
 
@@ -687,9 +698,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
     <div class="divider"></div>
     <div class="slabel">Personnalité du recruteur</div>
-    <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Standard - Bienveillant</div><div class="p-card-desc">Chaleureux, encourageant. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
-    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Neutre – Professionnel</div><div class="p-card-desc">Neutre, précis, à l'écoute. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
-    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Exigeant – Intimidant</div><div class="p-card-desc">Froid, direct, déstabilisant. Challenge tout.</div></div><div class="p-check"></div></div>
+    <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Bienveillant</div><div class="p-card-desc">Encourageant, met en confiance. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
+    <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Réaliste</div><div class="p-card-desc">Neutre et professionnel. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
+    <div class="p-card" id="pc-hardcore" onclick="selectPersonality('hardcore')"><div class="p-card-icon">🔥</div><div class="p-card-body"><div class="p-card-title">Exigeant</div><div class="p-card-desc">Direct, sous pression. Challenge chaque réponse.</div></div><div class="p-check"></div></div>
     <div class="divider"></div>
     <div class="slabel">Choisir votre recruteur</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px" id="recruiter-grid">
@@ -756,7 +767,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
         <div class="brief-sub" id="brief-recruiter-sub">Mode Express · 8 questions</div>
         <div class="brief-badges">
           <span class="brief-badge" id="brief-badge-mode">⚡ Express</span>
-          <span class="brief-badge" id="brief-badge-level">💼 Exigeant</span>
+          <span class="brief-badge" id="brief-badge-level">💼 Réaliste</span>
         </div>
       </div>
     </div>
@@ -894,6 +905,10 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="q-bubble">
         <div class="q-from" id="q-from">Thomas dit</div>
         <div class="q-text" id="q-text"><div class="dot-loader"><span></span><span></span><span></span></div></div>
+        <button class="q-replay" id="q-replay" onclick="replayQuestion()" title="Réécouter la question" style="display:none">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          Réécouter
+        </button>
       </div>
     </div>
     <div class="answer-wrap">
@@ -1617,6 +1632,23 @@ loadSavedPack();
 updateHistoryBtn();
 showComebackHook();
 
+/* Indicateur de défilement sur l'accueil : caché quand on atteint le bas */
+function initScrollHint(){
+  const screen = document.getElementById('screen-home');
+  const hint = document.getElementById('scroll-hint');
+  if(!screen || !hint) return;
+  const update = () => {
+    const atBottom = screen.scrollTop + screen.clientHeight >= screen.scrollHeight - 20;
+    const noScroll = screen.scrollHeight <= screen.clientHeight + 10;
+    if(atBottom || noScroll) hint.classList.add('hidden');
+    else hint.classList.remove('hidden');
+  };
+  screen.addEventListener('scroll', update);
+  setTimeout(update, 300);
+  window.addEventListener('resize', update);
+}
+initScrollHint();
+
 /* Hameçon de retour : si un essai express existe déjà, on l'affiche sur l'accueil */
 function showComebackHook(){
   try{
@@ -1975,7 +2007,7 @@ function initBrief() {
   const rec = S.recruiter || S.express_recruiter || {name:'Antoine', emoji:'🎙️'};
   const isExpress = S.mode === 'express';
   const level = S.config.personnalite || 'exigeant';
-  const levelLabels = {standard:'😊 Bienveillant', exigeant:'💼 Neutre', hardcore:'🔥 Exigeant'};
+  const levelLabels = {standard:'😊 Bienveillant', exigeant:'💼 Réaliste', hardcore:'🔥 Exigeant'};
   const modeLabel = isExpress ? '⚡ Express' : '🎯 Complet';
   const nbQ = isExpress ? 8 : 10;
   const duree = isExpress ? '25 min' : '40 min';
@@ -1983,7 +2015,7 @@ function initBrief() {
   document.getElementById('brief-recruiter-name').textContent = (rec.name || 'Antoine') + ' - Recruteur IA';
   document.getElementById('brief-recruiter-sub').textContent = (isExpress ? 'Mode Express' : 'Entretien Complet') + ' · ' + nbQ + ' questions';
   document.getElementById('brief-badge-mode').textContent = modeLabel;
-  document.getElementById('brief-badge-level').textContent = levelLabels[level] || '💼 Exigeant';
+  document.getElementById('brief-badge-level').textContent = levelLabels[level] || '💼 Réaliste';
   document.getElementById('brief-duree').textContent = duree;
   document.getElementById('brief-questions').textContent = nbQ;
 
@@ -2096,7 +2128,7 @@ async function prefetchAudio(txt) {
     const r = await fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+      body:JSON.stringify({text:txt,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.75,similarity_boost:0.85,style:0.1,use_speaker_boost:true},speed:1.25})
     });
     if(!r.ok) return;
     const blob = await r.blob();
@@ -2119,6 +2151,20 @@ function cleanForTTS(txt) {
     .replace(/#+/g, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function replayQuestion(){
+  const q = S.itv && S.itv.lastQ;
+  if(!q) return;
+  const btn = document.getElementById('q-replay');
+  if(btn){
+    btn.classList.add('playing');
+    btn.disabled = true;
+    // Réactive le bouton après un délai proportionnel à la longueur du texte
+    const delay = Math.min(Math.max(q.length * 60, 2000), 15000);
+    setTimeout(()=>{ btn.classList.remove('playing'); btn.disabled = false; }, delay);
+  }
+  speakText(q);
 }
 
 function splitForSpeech(txt) {
@@ -2160,7 +2206,7 @@ function speakText(txt) {
   const chunks = splitForSpeech(txt);
   const fetchChunk = (text) => fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+    body:JSON.stringify({text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.75,similarity_boost:0.85,style:0.1,use_speaker_boost:true},speed:1.25})
   }).then(r=>r.ok?r.blob():null).then(blob=>blob?URL.createObjectURL(blob):null).catch(()=>null);
 
   const urlPromises = chunks.map(c => fetchChunk(c));
@@ -2192,7 +2238,7 @@ async function speakTextAsync(txt) {
 
   const fetchChunk = (text) => fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.85,style:0.2,use_speaker_boost:true},speed:1.25})
+    body:JSON.stringify({text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.75,similarity_boost:0.85,style:0.1,use_speaker_boost:true},speed:1.25})
   }).then(r=>r.ok?r.blob():null).then(blob=>blob?URL.createObjectURL(blob):null).catch(()=>null);
 
   const urlPromises = chunks.map(c => fetchChunk(c));
@@ -2277,6 +2323,7 @@ async function initInterview() {
       S.itv.lastQ = firstQ;
       S.itv.currentQ = 0;
       displayQ(0);
+      if(S.config.voix){ const b=document.getElementById('q-replay'); if(b) b.style.display='inline-flex'; }
     } catch(e) {
       document.getElementById('q-text').textContent='⚠️ Erreur API. Vérifie ta clé Anthropic.';
     }
@@ -2470,10 +2517,10 @@ async function genRecruiterTurn(history, cv, phase) {
   }[recKey] || 'professionnel';
 
   const difficulte = S.config.personnalite==='hardcore'
-    ? `exigeant et intimidant. Tu challenges chaque réponse, tu cherches les contradictions, tu crées de la pression. Tu n'es jamais facilement satisfait. Froid, direct.`
+    ? `EXIGEANT, sous pression. Tu es direct et tu valides rarement. Tu challenges presque chaque réponse : tu demandes des preuves, des chiffres, des exemples précis. Quand une réponse est vague, tu le fais remarquer sèchement et tu réclames du concret. Tu pointes les contradictions et les trous dans le parcours. Tu enchaînes vite, sans laisser de répit. Ton ton reste froid et professionnel — jamais insultant, mais clairement difficile à satisfaire. Le candidat doit sentir une vraie pression.`
     : S.config.personnalite==='exigeant'
-    ? `neutre et professionnel. Tu écoutes attentivement. Tu poses des questions claires et précises quand tu as besoin de comprendre quelque chose. Ni chaud ni froid. Pas de pression, pas de flatterie. Tu veux juste comprendre.`
-    : `bienveillant. Tu écoutes vraiment. Tu accompagnes le candidat. Quand il donne un exemple, tu dis "racontez-moi" pas "prouvez-moi". Tu valides ce qui mérite d'être validé. Tu ne challenges que si la réponse est vraiment vague ou fausse. Le candidat doit se sentir guidé et à l'aise.`;
+    ? `RÉALISTE, comme un vrai recruteur professionnel. Tu es poli et neutre : ni encourageant, ni dur. Tu poses les questions classiques d'un entretien réel. Quand une réponse est vague ou incomplète, tu relances pour creuser ("pouvez-vous préciser ?", "donnez-moi un exemple"), sans pression excessive. Tu ne félicites pas, tu ne sanctionnes pas — tu mènes l'entretien de façon professionnelle et équilibrée, exactement comme en vrai.`
+    : `BIENVEILLANT, pour un débutant. Tu es chaleureux et tu mets le candidat à l'aise. Tu encourages, tu reformules positivement, tu félicites les bonnes réponses. Tu restes patient face aux hésitations. Si une réponse est faible, tu ne sanctionnes pas : tu aides le candidat à l'améliorer avec une relance douce ("et si vous ajoutiez un exemple ?") ou un micro-conseil. Le but est qu'il prenne confiance, pas qu'il soit déstabilisé.`;
 
   const tutoie = S.config.type_entreprise === 'startup';
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
@@ -2836,6 +2883,7 @@ async function stopRec(e) {
     document.getElementById('mic-btn').className = 'mic-btn';
     document.getElementById('mic-area').style.display = 'flex';
     if(S.config.voix) setTimeout(()=>speakText(transitionQ), S.config.voix ? 500 : 0);
+    if(S.config.voix){ const b=document.getElementById('q-replay'); if(b) b.style.display='inline-flex'; }
     return;
   }
 
@@ -2874,6 +2922,7 @@ async function stopRec(e) {
   document.getElementById('answer-box').className = 'answer-box';
   document.getElementById('filler-wrap').style.display='none';
   document.getElementById('wpm-display').style.display='none';
+  if(S.config.voix){ const b=document.getElementById('q-replay'); if(b) b.style.display='inline-flex'; }
 
   if(S.config.voix) {
     await speakTextAsync(recruiterTurn);
