@@ -334,9 +334,11 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 .empty-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--navy);margin-bottom:8px}
 .empty-desc{font-size:14px;color:var(--gray-400);line-height:1.55}
 
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:2px}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.04)}
+::-webkit-scrollbar-thumb{background:var(--blue,#2563eb);border-radius:6px;border:2px solid transparent;background-clip:padding-box;min-height:40px}
+::-webkit-scrollbar-thumb:hover{background:var(--blue-h,#1d4ed8);background-clip:padding-box}
+.screen{scrollbar-width:thin;scrollbar-color:var(--blue,#2563eb) rgba(0,0,0,.04)}
 
 /* EXPRESS LOCKED SECTION */
 .express-unlock-section{position:relative;margin-top:8px}
@@ -863,6 +865,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <!-- CTA -->
     <button class="btn btn-primary" onclick="startFromBrief()" style="font-size:16px;padding:17px;margin-bottom:10px">Lancer l'entretien -></button>
     <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:32px">Bonne chance - donnez le meilleur de vous-même 💼</div>
+  </div>
+  <div id="scroll-hint-brief" class="scroll-hint" onclick="document.getElementById('screen-brief').scrollBy({top:300,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
   </div>
 </div>
 
@@ -1632,10 +1637,10 @@ loadSavedPack();
 updateHistoryBtn();
 showComebackHook();
 
-/* Indicateur de défilement sur l'accueil : caché quand on atteint le bas */
-function initScrollHint(){
-  const screen = document.getElementById('screen-home');
-  const hint = document.getElementById('scroll-hint');
+/* Indicateur de défilement : caché quand on atteint le bas. Marche sur plusieurs écrans. */
+function bindScrollHint(screenId, hintId){
+  const screen = document.getElementById(screenId);
+  const hint = document.getElementById(hintId);
   if(!screen || !hint) return;
   const update = () => {
     const atBottom = screen.scrollTop + screen.clientHeight >= screen.scrollHeight - 20;
@@ -1644,10 +1649,15 @@ function initScrollHint(){
     else hint.classList.remove('hidden');
   };
   screen.addEventListener('scroll', update);
-  setTimeout(update, 300);
   window.addEventListener('resize', update);
+  // Réévalue à l'affichage (le briefing n'est pas visible au chargement)
+  setTimeout(update, 300);
+  return update;
 }
-initScrollHint();
+const _hintHome = bindScrollHint('screen-home', 'scroll-hint');
+const _hintBrief = bindScrollHint('screen-brief', 'scroll-hint-brief');
+// Réévalue les hints quand on change d'écran
+window.refreshScrollHints = () => { if(_hintHome) _hintHome(); if(_hintBrief) _hintBrief(); };
 
 /* Hameçon de retour : si un essai express existe déjà, on l'affiche sur l'accueil */
 function showComebackHook(){
@@ -1791,7 +1801,7 @@ async function submitEmail(){
   S.config.personnalite = 'exigeant';
   S.config.poste = 'poste généraliste';
   S.config.cv = '';
-  S.config.voix = 'on';
+  S.config.voix = true;
   goTo('brief'); initBrief();
 }
 
@@ -2006,6 +2016,7 @@ function rndSector(){return ['tech','commerce','finance','marketing','rh'][Math.
 function initBrief() {
   const rec = S.recruiter || S.express_recruiter || {name:'Antoine', emoji:'🎙️'};
   const isExpress = S.mode === 'express';
+  setTimeout(()=>{ if(window.refreshScrollHints) window.refreshScrollHints(); }, 350);
   const level = S.config.personnalite || 'exigeant';
   const levelLabels = {standard:'😊 Bienveillant', exigeant:'💼 Réaliste', hardcore:'🔥 Exigeant'};
   const modeLabel = isExpress ? '⚡ Express' : '🎯 Complet';
@@ -2663,7 +2674,11 @@ function displayQ(i) {
   const _re=document.getElementById('recruiter-reaction'); if(_re) _re.style.display='none';
   document.getElementById('mic-hint').textContent='Maintenir pour parler';
   document.getElementById('mic-btn').className='mic-btn';
-  if(S.config.voix) setTimeout(()=>speakText(S.itv.qs[i]),80);
+  S.itv.lastQ = S.itv.qs[i];
+  if(S.config.voix){
+    setTimeout(()=>speakText(S.itv.qs[i]),80);
+    const b=document.getElementById('q-replay'); if(b) b.style.display='inline-flex';
+  }
 }
 
 /* Web Speech API replaced by ElevenLabs */
