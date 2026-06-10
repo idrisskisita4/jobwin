@@ -833,6 +833,19 @@ const counterObs = new IntersectionObserver((entries) => {
   });
 }, {threshold:0.3});
 document.querySelectorAll('.stats-grid').forEach(g => counterObs.observe(g));
+
+/* Fix ancres : #packs (liens email + app) pointe vers la section #pricing,
+   et re-scroll après chargement complet pour éviter le saut raté. */
+(function(){
+  function gotoHash(){
+    var h = location.hash === '#packs' ? '#pricing' : location.hash;
+    if(!h) return;
+    var el = document.querySelector(h);
+    if(el) setTimeout(function(){ el.scrollIntoView({behavior:'smooth'}); }, 300);
+  }
+  window.addEventListener('load', gotoHash);
+  window.addEventListener('hashchange', gotoHash);
+})();
 </script>
 </body>
 </html>
