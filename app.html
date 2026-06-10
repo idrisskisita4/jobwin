@@ -3360,6 +3360,13 @@ async function showResults() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: freeEmail, score: avg })
       }).catch(()=>{}); // silencieux — ne bloque pas l'affichage du résultat
+      // Email post-entretien (Brevo) : score + CTA packs.
+      // Volontairement sans le bilan détaillé — il reste payant.
+      fetch('/.netlify/functions/send-trial-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: freeEmail, score: avg + '%' })
+      }).catch(()=>{}); // silencieux — ne bloque pas l'affichage du résultat
     }
     await genExpressResults();
   } else {
