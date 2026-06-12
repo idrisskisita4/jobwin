@@ -2224,16 +2224,24 @@ function speakText(txt) {
   }
 
   const chunks = splitForSpeech(txt);
-  const fetchChunk = (text) => fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
+  const fetchChunk = (text, attempt) => fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body:JSON.stringify({text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.75,similarity_boost:0.85,style:0.1,use_speaker_boost:true},speed:1.25})
-  }).then(r=>r.ok?r.blob():null).then(blob=>blob?URL.createObjectURL(blob):null).catch(()=>null);
-
-  const urlPromises = chunks.map(c => fetchChunk(c));
+  }).then(r=>{ if(!r.ok) throw new Error('TTS HTTP '+r.status); return r.blob(); })
+    .then(blob=>URL.createObjectURL(blob))
+    .catch(err=>{
+      console.warn('[TTS]', (attempt|0)?'échec définitif:':'échec, retry:', err && err.message ? err.message : err);
+      if(!(attempt|0)) return new Promise(res=>setTimeout(res,900)).then(()=>fetchChunk(text,1));
+      return null;
+    });
 
   (async () => {
-    for(const urlPromise of urlPromises) {
-      const url = await urlPromise;
+    // Pipeline séquentiel : on précharge le chunk suivant PENDANT la lecture du courant.
+    // (le tir en parallèle saturait la limite de requêtes simultanées ElevenLabs → sons manquants)
+    let nextUrl = fetchChunk(chunks[0]);
+    for(let i=0;i<chunks.length;i++){
+      const url = await nextUrl;
+      nextUrl = (i+1 < chunks.length) ? fetchChunk(chunks[i+1]) : null;
       if(!url) continue;
       await new Promise(resolve => {
         currentAudio = new Audio(url);
@@ -2256,15 +2264,22 @@ async function speakTextAsync(txt) {
   const rec = S.recruiter || EXPRESS_RECRUITER;
   const chunks = splitForSpeech(txt);
 
-  const fetchChunk = (text) => fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
+  const fetchChunk = (text, attempt) => fetch('/.netlify/functions/tts?voice='+rec.voiceId, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body:JSON.stringify({text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.75,similarity_boost:0.85,style:0.1,use_speaker_boost:true},speed:1.25})
-  }).then(r=>r.ok?r.blob():null).then(blob=>blob?URL.createObjectURL(blob):null).catch(()=>null);
+  }).then(r=>{ if(!r.ok) throw new Error('TTS HTTP '+r.status); return r.blob(); })
+    .then(blob=>URL.createObjectURL(blob))
+    .catch(err=>{
+      console.warn('[TTS]', (attempt|0)?'échec définitif:':'échec, retry:', err && err.message ? err.message : err);
+      if(!(attempt|0)) return new Promise(res=>setTimeout(res,900)).then(()=>fetchChunk(text,1));
+      return null;
+    });
 
-  const urlPromises = chunks.map(c => fetchChunk(c));
-
-  for(const urlPromise of urlPromises) {
-    const url = await urlPromise;
+  // Pipeline séquentiel : précharge le chunk suivant pendant la lecture du courant
+  let nextUrl = fetchChunk(chunks[0]);
+  for(let i=0;i<chunks.length;i++){
+    const url = await nextUrl;
+    nextUrl = (i+1 < chunks.length) ? fetchChunk(chunks[i+1]) : null;
     if(!url) continue;
     await new Promise(resolve => {
       currentAudio = new Audio(url);
@@ -2545,6 +2560,16 @@ async function genRecruiterTurn(history, cv, phase) {
   const tutoie = S.config.type_entreprise === 'startup';
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
+
+  // === ALTERNANCE : détection + consignes dédiées ===
+  const isAlternance = /alternan|apprentissag|apprenti/.test((S.config.poste||'').toLowerCase());
+  const blocAlternance = isAlternance ? `
+
+CONTEXTE ALTERNANCE — ce poste est en alternance, adapte ton entretien :
+- Le candidat est junior : évalue le potentiel, la motivation et le savoir-être, pas une longue expérience.
+- Aborde obligatoirement au fil de l'entretien : le rythme école/entreprise (organisation, assiduité), la formation visée et sa cohérence avec le poste, pourquoi l'alternance plutôt qu'un cursus classique, et le projet professionnel après le diplôme.
+- Creuse sa connaissance de l'entreprise et du métier : un bon alternant s'est renseigné avant de venir.
+- Vérifie les aspects pratiques quand c'est naturel : durée du contrat recherché, date de démarrage, mobilité.` : '';
   const cvAnalysis = analyzeCVGaps(cv);
   const exchangeCount = history.length;
 
@@ -2629,6 +2654,7 @@ Zones déjà bien couvertes : ${covered.length > 0 ? covered.join(', ') : 'aucun
 Zones pas encore abordées : ${priorityMissing.length > 0 ? priorityMissing.join(', ') : 'toutes couvertes — tu peux conclure'}
 ${saturated.length > 0 ? 'Sujets saturés, ne plus y revenir : '+saturated.join(', ') : ''}
 ${blocMetier}
+${blocAlternance}
 
 COMMENT TU FONCTIONNES :
 Tu lis tout l historique. Tu remarques UN element precis dans la derniere reponse. Tu y reagis naturellement ET tu guides vers la prochaine zone non couverte quand c est le bon moment. Pas de transition forcee — tu trouves le lien naturel entre ce que le candidat vient de dire et la zone suivante.
@@ -2658,9 +2684,12 @@ FORMAT : naturel, parle, 1 a 3 phrases. Pas de guillemets, pas de numero.`;
 
 async function genQuestions(n) {
   // Legacy - used by express mode only
+  const alt = /alternan|apprentissag|apprenti/.test((S.config.poste||'').toLowerCase());
   const q1='Pouvez-vous vous présenter en quelques mots et me parler de votre parcours ?';
   const q2='Quels sont vos principaux points forts ? Et quel est votre point faible principal ?';
-  return [q1,q2,'Pourquoi ce poste ?','Pourquoi vous et pas un autre candidat ?','Décrivez une réussite concrète.','Comment gérez-vous le stress ?'].slice(0,n);
+  const q3 = alt ? "Pourquoi avez-vous choisi l'alternance, et pourquoi ce poste en particulier ?" : 'Pourquoi ce poste ?';
+  const q5 = alt ? "Comment comptez-vous organiser le rythme entre l'école et l'entreprise ?" : 'Décrivez une réussite concrète.';
+  return [q1,q2,q3,'Pourquoi vous et pas un autre candidat ?',q5,'Comment gérez-vous le stress ?'].slice(0,n);
 }
 
 function displayQ(i) {
