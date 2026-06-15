@@ -107,6 +107,15 @@ exports.handler = async (event) => {
         </a>
         <p style="margin:12px 0 0 0;color:#6B7280;font-size:13px;">Packs à partir de 9,90&nbsp;€ — paiement unique, sans abonnement</p>
       </div>
+
+      <!-- Demande d'avis Trustpilot -->
+      <div style="border-top:1px solid #E5E7EB;margin-top:28px;padding-top:20px;text-align:center;">
+        <p style="margin:0 0 6px 0;color:#374151;font-size:14px;">Ton avis nous aide à progresser ⭐</p>
+        <a href="https://fr.trustpilot.com/evaluate/jobwin.fr"
+           style="color:#2563EB;text-decoration:none;font-weight:600;font-size:14px;">
+          Laisse un avis sur JOBWIN
+        </a>
+      </div>
     </div>
 
     <!-- Pied de page -->
