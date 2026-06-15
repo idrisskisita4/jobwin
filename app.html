@@ -168,6 +168,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
 /* CODE INPUT */
 .code-input-big{width:100%;padding:16px;font-size:20px;font-weight:600;text-align:center;letter-spacing:3px;text-transform:uppercase;border:2px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white);outline:none;font-family:'Syne',sans-serif;color:var(--navy);transition:border-color var(--t)}
+#free-poste-input{text-transform:none;letter-spacing:normal;text-align:left;font-size:15px;font-weight:500}
+.contrat-btn{flex:1;padding:12px 6px;font-size:13px;font-weight:600;border:2px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white);color:var(--gray-500);cursor:pointer;font-family:'Syne',sans-serif;transition:all var(--t)}
+.contrat-btn.active{border-color:var(--blue);background:var(--blue-light);color:var(--navy)}
 .code-input-big:focus{border-color:var(--blue)}
 .code-input-big::placeholder{color:var(--gray-300);font-size:16px;letter-spacing:2px}
 
@@ -617,6 +620,20 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <label class="form-label">📧 Ton email</label>
       <input type="email" class="code-input-big" id="email-input" placeholder="ton@email.fr" style="font-size:15px" autocomplete="email">
       <div style="font-size:11px;color:var(--gray-400);margin-top:7px;text-align:center">1 entretien offert · sans engagement · pas de spam</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">💼 Le poste visé</label>
+      <input type="text" class="code-input-big" id="free-poste-input" placeholder="Ex : Commercial, Assistant marketing..." style="font-size:15px" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">📄 Type de contrat</label>
+      <div id="free-contrat-choices" style="display:flex;gap:8px;margin-top:4px">
+        <button type="button" class="contrat-btn active" data-contrat="cdi" onclick="selectContrat(this)">CDI / CDD</button>
+        <button type="button" class="contrat-btn" data-contrat="alternance" onclick="selectContrat(this)">Alternance</button>
+        <button type="button" class="contrat-btn" data-contrat="stage" onclick="selectContrat(this)">Stage</button>
+      </div>
     </div>
 
     <div id="email-error" class="alert alert-error" style="display:none">❌ <span id="email-error-msg">Email invalide.</span></div>
@@ -1808,10 +1825,22 @@ async function submitEmail(){
   S.freeEmail = raw;
   S.mode = 'express';
   S.config.personnalite = 'exigeant';
-  S.config.poste = 'poste généraliste';
+  // Poste + type de contrat saisis sur l'écran email
+  const posteSaisi = (document.getElementById('free-poste-input')?.value || '').trim();
+  const contrat = window._freeContrat || 'cdi';
+  let posteFinal = posteSaisi || 'poste généraliste';
+  if(contrat === 'alternance') posteFinal = 'alternance ' + (posteSaisi || 'poste généraliste');
+  else if(contrat === 'stage') posteFinal = 'stage ' + (posteSaisi || 'poste généraliste');
+  S.config.poste = posteFinal;
   S.config.cv = '';
   S.config.voix = true;
   goTo('brief'); initBrief();
+}
+
+function selectContrat(btn){
+  document.querySelectorAll('.contrat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  window._freeContrat = btn.dataset.contrat;
 }
 
 function packKey(licenseKey){ return 'jw_pack_'+licenseKey.replace(/[^A-Z0-9]/g,''); }
