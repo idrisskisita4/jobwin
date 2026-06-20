@@ -718,7 +718,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
     <div class="divider"></div>
     <div class="slabel">Type d'entreprise</div>
-    <div class="pill-group" id="type-entreprise-group">
+    <div class="pill-group" id="type_entreprise-group">
       <div class="pill active" onclick="selectPill('type_entreprise',this,'grand_groupe')">🏢 Grand groupe</div>
       <div class="pill" onclick="selectPill('type_entreprise',this,'pme')">🏭 PME / ETI</div>
       <div class="pill" onclick="selectPill('type_entreprise',this,'startup')">🚀 Startup</div>
@@ -1027,6 +1027,16 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div style="margin-top:32px">
         <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser -></button>
       </div>
+
+      <!-- Retour utilisateur privé (optionnel) -->
+      <div id="feedback-box" style="margin-top:24px;padding:18px;border:1px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white)">
+        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">💬 Ton avis nous aide à progresser</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'as-tu pensé de l'entretien ? (optionnel, ça reste entre nous)</div>
+        <textarea id="feedback-text" rows="3" placeholder="Ce qui t'a plu, ce qui manque, un bug..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
+        <button id="feedback-send" class="btn" onclick="sendFeedback()" style="margin-top:8px;background:var(--navy);color:#fff">Envoyer mon retour</button>
+        <div id="feedback-thanks" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour 🙏</div>
+      </div>
+
       <div style="height:32px"></div>
     </div>
 
@@ -1841,6 +1851,22 @@ function selectContrat(btn){
   document.querySelectorAll('.contrat-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   window._freeContrat = btn.dataset.contrat;
+}
+
+function sendFeedback(){
+  const ta = document.getElementById('feedback-text');
+  const txt = (ta?.value||'').trim();
+  if(!txt) return;
+  const btn = document.getElementById('feedback-send');
+  if(btn){ btn.disabled = true; btn.textContent = 'Envoi...'; }
+  fetch('/.netlify/functions/save-feedback', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ email: S.freeEmail||'', message: txt.slice(0,1000), score: (S.itv&&S.itv.avg)||'', poste: (S.config&&S.config.poste)||'' })
+  }).catch(()=>{}); // silencieux : on remercie même si l'envoi échoue
+  if(ta) ta.style.display='none';
+  if(btn) btn.style.display='none';
+  const thanks = document.getElementById('feedback-thanks');
+  if(thanks) thanks.style.display='block';
 }
 
 function packKey(licenseKey){ return 'jw_pack_'+licenseKey.replace(/[^A-Z0-9]/g,''); }
@@ -3758,35 +3784,35 @@ async function handleCvUpload(input) {
   dropEl.style.background = 'var(--blue-light)';
 
   try {
-    // Convert PDF to base64
     const arrayBuffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
-    let binary = '';
-    for(let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-    const pdfBase64 = btoa(binary);
 
-    // Send PDF directly to Claude for native reading
+    // 1) Rendu des pages en images — gère les CV design / image, pas seulement le texte
+    const images = await pdfToImages(arrayBuffer, 2);
+    if(!images.length) throw new Error('Rendu PDF impossible');
+
+    // 2) Le moteur IA lit les images et renvoie le CV structure en JSON
+    const instruction = 'Tu es un assistant RH. Analyse ce CV (fourni en image) et reponds UNIQUEMENT par un objet JSON valide. Structure exacte : {"nom":"","postes":[{"titre":"","entreprise":"","periode":"","type":""}],"formation":[{"diplome":"","etablissement":"","annee":""}],"competences":[],"langues":[],"trous":[],"transitions":[],"postes_courts":[],"resume_recruteur":""}. Regles : "trous" = periodes d inactivite superieures a 3 mois ; "transitions" = changements de secteur ou de metier notables ; "postes_courts" = experiences de moins de 12 mois ; "resume_recruteur" = 1 a 2 phrases du point de vue d un recruteur. Si une info est absente, mets une chaine vide ou un tableau vide. N invente rien. IMPORTANT : commence ta reponse directement par le caractere accolade ouvrante et termine par accolade fermante. Aucun texte, aucune explication, aucune balise markdown avant ou apres le JSON.';
+
+    const content = images.map(b64 => ({
+      type: 'image',
+      source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
+    }));
+    content.push({ type: 'text', text: instruction });
+
     const res = await fetch('/.netlify/functions/chat', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ pdfBase64, maxTokens: 1500 })
+      body: JSON.stringify({ messages: [{ role: 'user', content }], maxTokens: 1500 })
     });
-
     if(!res.ok) throw new Error('API error');
     const data = await res.json();
+    const raw = (data.text || '').trim();
 
-    // Parse structured CV data
-    let cvData = null;
-    try {
-      const cleaned = data.text.replace(/```json?|```/g, '').trim();
-      cvData = JSON.parse(cleaned);
-    } catch(e) {}
+    // 3) Parsing tolerant du JSON
+    const cvData = parseCvJson(raw);
 
     if(cvData) {
-      // Store full structured CV
       S.config.cvData = cvData;
-
-      // Build readable CV text for prompts
       let cvText = '';
       if(cvData.nom) cvText += `Candidat : ${cvData.nom}\n`;
       if(cvData.postes?.length) {
@@ -3804,17 +3830,27 @@ async function handleCvUpload(input) {
       if(cvData.postes_courts?.length) cvText += `⚠️ Postes courts : ${cvData.postes_courts.join(' | ')}\n`;
       if(cvData.resume_recruteur) cvText += `\nNote recruteur : ${cvData.resume_recruteur}`;
 
-      S.config.cv = cvText;
-      document.getElementById('cfg-cv').value = cvText;
-
-      nameEl.textContent = '✓ ' + file.name + ' — CV analysé par Claude';
+      S.config.cv = cvText.trim();
+      document.getElementById('cfg-cv').value = cvText.trim();
+      nameEl.textContent = '✓ ' + file.name + ' — CV analysé';
       dropEl.style.borderColor = 'var(--green)';
+
+    } else if(raw.length > 50) {
+      // Filet de securite : JSON illisible mais l IA a quand meme lu le CV
+      // -> on utilise sa lecture brute, c'est toujours mieux que rien.
+      const clean = raw.replace(/```json?|```/g, '').trim().substring(0, 3000);
+      S.config.cv = clean;
+      S.config.cvData = null;
+      document.getElementById('cfg-cv').value = clean;
+      nameEl.textContent = '✓ ' + file.name + ' — CV lu';
+      dropEl.style.borderColor = 'var(--green)';
+
     } else {
       throw new Error('Parse failed');
     }
 
   } catch(err) {
-    // Fallback to PDF.js
+    // Fallback final : extraction texte brute via pdf.js (CV texte simple)
     try {
       const arrayBuffer2 = await file.arrayBuffer();
       if(typeof pdfjsLib !== 'undefined') {
@@ -3836,7 +3872,46 @@ async function handleCvUpload(input) {
     } catch(e2) {}
     nameEl.textContent = '⚠️ ' + file.name + ' — colle ton parcours manuellement';
     dropEl.style.borderColor = 'var(--red)';
+    console.error('handleCvUpload:', err);
   }
+}
+
+// Parsing JSON tolerant : gere les fences markdown, le texte autour,
+// les guillemets typographiques et les virgules trainantes.
+function parseCvJson(raw) {
+  if(!raw) return null;
+  let s = raw.replace(/```(?:json)?/gi, '').trim();
+  // Ne garder que du premier { au dernier }
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if(a !== -1 && b !== -1 && b > a) s = s.slice(a, b + 1);
+  // Tentative stricte
+  try { return JSON.parse(s); } catch(e) {}
+  // Reparations legeres puis nouvelle tentative
+  const repaired = s
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/,\s*([}\]])/g, '$1');
+  try { return JSON.parse(repaired); } catch(e) {}
+  return null;
+}
+
+// Rend les premieres pages d'un PDF en images JPEG base64 (pour lecture vision par l IA)
+async function pdfToImages(arrayBuffer, maxPages) {
+  if(typeof pdfjsLib === 'undefined') return [];
+  const pdf = await pdfjsLib.getDocument({data: arrayBuffer.slice(0)}).promise;
+  const out = [];
+  const n = Math.min(pdf.numPages, maxPages || 2);
+  for(let p = 1; p <= n; p++) {
+    const page = await pdf.getPage(p);
+    let viewport = page.getViewport({ scale: 2 });
+    const MAXW = 1600;
+    if(viewport.width > MAXW) viewport = page.getViewport({ scale: 2 * (MAXW / viewport.width) });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width; canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    out.push(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
+  }
+  return out;
 }
 
 /* Init */
