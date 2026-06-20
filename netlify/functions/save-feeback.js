@@ -41,7 +41,8 @@ exports.handler = async (event) => {
     meta: {
       message,
       score: String(payload.score || ''),
-      poste: String(payload.poste || '').slice(0, 200)
+      poste: String(payload.poste || '').slice(0, 200),
+      source: String(payload.source || 'express').slice(0, 20)
     }
   };
 
