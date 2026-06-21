@@ -51,7 +51,7 @@ body{min-height:100%;font-family:'DM Sans',sans-serif;color:var(--gray-800);-web
   position:relative;
   z-index:1;
 }
-.side-logo{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:#fff;letter-spacing:-.5px;margin-bottom:4px}
+.side-logo{font-family:'Bricolage Grotesque','Syne',sans-serif;font-weight:800;font-size:26px;color:#fff;letter-spacing:-.03em;margin-bottom:4px}
 .side-logo b{color:#60a5fa}
 .side-sub{font-size:15px;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:8px}
 .side-stat{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;backdrop-filter:blur(10px)}
@@ -471,7 +471,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
   </div>
   <div class="side-divider"></div>
-  <div class="side-trust">Ta clé API reste sur ton appareil uniquement. Aucune donnée partagée.</div>
+  <div class="side-trust">🔒 Connexion chiffrée · Tes données restent confidentielles et ne sont jamais revendues.</div>
 </div>
 
 <div id="app">
@@ -1038,11 +1038,11 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
       <!-- Retour utilisateur privé (optionnel) -->
       <div id="feedback-box" style="margin-top:24px;padding:18px;border:1px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white)">
-        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">💬 Ton avis nous aide à progresser</div>
-        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'as-tu pensé de l'entretien ? (optionnel, ça reste entre nous)</div>
-        <textarea id="feedback-text" rows="3" placeholder="Ce qui t'a plu, ce qui manque, un bug..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
+        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">Ton retour sur cet entretien</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'est-ce qui t'a aidé ? Qu'est-ce qui pourrait être amélioré ? (facultatif)</div>
+        <textarea id="feedback-text" rows="3" placeholder="Ton retour sur l'entretien..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
         <button id="feedback-send" class="btn" onclick="sendFeedback()" style="margin-top:8px;background:var(--navy);color:#fff">Envoyer mon retour</button>
-        <div id="feedback-thanks" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour 🙏</div>
+        <div id="feedback-thanks" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour.</div>
       </div>
 
       <div style="height:32px"></div>
@@ -1120,11 +1120,11 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
       <!-- Retour utilisateur privé sur l'entretien (pack/Complet) -->
       <div id="feedback-box-pack" style="margin:8px 0 20px;padding:18px;border:1px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white)">
-        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">💬 Ton ressenti nous aide à progresser</div>
-        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Comment as-tu vécu cet entretien ? Ce qui t'a aidé, ce qui manque, un bug... (optionnel, ça reste entre nous)</div>
-        <textarea id="feedback-text-pack" rows="3" placeholder="Ton ressenti sur l'entretien, ce qui t'a plu, ce qui pourrait être mieux..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
+        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">Ton retour sur cet entretien</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'est-ce qui t'a aidé ? Qu'est-ce qui pourrait être amélioré ? (facultatif)</div>
+        <textarea id="feedback-text-pack" rows="3" placeholder="Ton retour sur l'entretien..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
         <button id="feedback-send-pack" class="btn" onclick="sendFeedback('pack')" style="margin-top:8px;background:var(--navy);color:#fff">Envoyer mon retour</button>
-        <div id="feedback-thanks-pack" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour 🙏</div>
+        <div id="feedback-thanks-pack" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour.</div>
       </div>
 
       <a href="https://www.trustpilot.com/evaluate/jobwin.fr" target="_blank" rel="noopener" class="btn" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;background:#00b67a;color:#fff;text-decoration:none">⭐ Laisser un avis sur Trustpilot</a>
@@ -2268,6 +2268,26 @@ function cleanForTTS(txt) {
     .trim();
 }
 
+// Markdown -> HTML pour l'affichage (gras), sans laisser d'étoiles brutes
+function mdToHtml(t){
+  if(!t) return '';
+  return String(t)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*/g, '')
+    .replace(/^#+\s*/gm, '')
+    .replace(/`/g, '');
+}
+// Markdown -> texte brut (pour les zones en textContent)
+function mdToPlain(t){
+  if(!t) return '';
+  return String(t)
+    .replace(/\*\*/g, '')
+    .replace(/\*/g, '')
+    .replace(/^#+\s*/gm, '')
+    .replace(/`/g, '')
+    .trim();
+}
+
 function replayQuestion(){
   const q = S.itv && S.itv.lastQ;
   if(!q) return;
@@ -2283,21 +2303,24 @@ function replayQuestion(){
 }
 
 function splitForSpeech(txt) {
-  // Split long text into chunks at sentence boundaries to avoid TTS cutoff
-  if(!txt || txt.length <= 200) return [txt];
-  const sentences = txt.match(/[^.!?]+[.!?]+/g) || [txt];
+  if(!txt) return [''];
+  txt = txt.trim();
+  if(txt.length <= 200) return [txt];
+  // Découpe en phrases SANS rien perdre : le split garde tout le texte,
+  // y compris la fin sans ponctuation finale (questions, listes après ":"...).
+  const sentences = txt.split(/(?<=[.!?])\s+/);
   const chunks = [];
   let current = '';
   for(const s of sentences) {
-    if((current + s).length > 200 && current.length > 0) {
+    if(current && (current + ' ' + s).length > 200) {
       chunks.push(current.trim());
       current = s;
     } else {
-      current += s;
+      current = current ? current + ' ' + s : s;
     }
   }
   if(current.trim()) chunks.push(current.trim());
-  return chunks.length > 0 ? chunks : [txt];
+  return chunks.length ? chunks : [txt];
 }
 
 function speakText(txt) {
@@ -2624,7 +2647,7 @@ function addToSMSThread(who, text) {
   const div = document.createElement('div');
   if(who === 'recruiter') {
     div.className = 'sms-recruiter';
-    div.innerHTML = `<div class="sms-av">${S.recruiter?.emoji||'🎙️'}</div><div class="sms-bubble">${clean}</div>`;
+    div.innerHTML = `<div class="sms-av">${S.recruiter?.emoji||'🎙️'}</div><div class="sms-bubble">${mdToHtml(clean)}</div>`;
   } else {
     div.className = 'sms-candidate';
     div.innerHTML = `<div class="sms-bubble">${clean}</div>`;
@@ -2632,6 +2655,23 @@ function addToSMSThread(who, text) {
   thread.appendChild(div);
   const sc = document.getElementById('interview-scroll');
   if(sc) setTimeout(()=>sc.scrollTop=sc.scrollHeight, 80);
+}
+
+// Indicateur visible "le recruteur écrit..." pendant la génération de sa réponse
+function showRecruiterTyping() {
+  const thread = document.getElementById('sms-thread');
+  if(!thread || document.getElementById('recruiter-typing')) return;
+  const div = document.createElement('div');
+  div.className = 'sms-recruiter';
+  div.id = 'recruiter-typing';
+  div.innerHTML = `<div class="sms-av">${S.recruiter?.emoji||'🎙️'}</div><div class="sms-bubble"><div class="dot-loader"><span></span><span></span><span></span></div></div>`;
+  thread.appendChild(div);
+  const sc = document.getElementById('interview-scroll');
+  if(sc) setTimeout(()=>sc.scrollTop=sc.scrollHeight, 60);
+}
+function removeRecruiterTyping() {
+  const el = document.getElementById('recruiter-typing');
+  if(el) el.remove();
 }
 
 async function genRecruiterTurn(history, cv, phase) {
@@ -3063,6 +3103,7 @@ async function stopRec(e) {
   }
 
   // === GÉNÈRE L'INTERVENTION DU RECRUTEUR ===
+  showRecruiterTyping();
   let recruiterTurn = null;
   try {
     recruiterTurn = await genRecruiterTurn(S.itv.history, cv, S.itv.phase);
@@ -3071,6 +3112,7 @@ async function stopRec(e) {
   }
 
   if(!recruiterTurn || recruiterTurn.trim().length < 2) recruiterTurn = 'Je vois. Continuons.';
+  removeRecruiterTyping();
 
   // Stocker comme prochaine question
   S.itv.lastQ = recruiterTurn;
@@ -3085,14 +3127,14 @@ async function stopRec(e) {
       <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
       <div style="flex:1">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} DIT</div>
-        <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${recruiterTurn}</div>
+        <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${mdToHtml(recruiterTurn)}</div>
       </div>
     </div>`;
     setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
   }
 
   // Parler + afficher dans q-text
-  document.getElementById('q-text').textContent = recruiterTurn;
+  document.getElementById('q-text').textContent = mdToPlain(recruiterTurn);
   document.getElementById('answer-box').textContent = 'Ta réponse apparaîtra ici...';
   document.getElementById('answer-box').className = 'answer-box';
   document.getElementById('filler-wrap').style.display='none';
