@@ -2200,7 +2200,7 @@ let isRecording=false, currentTranscript='', recStart=0;
 let dgSocket=null, dgRestarting=false, dgInterimText='';
 
 /* ===== CLÉS API ===== */
-const DEEPGRAM_KEY = 'd73e5788df13e122555825bda62ed6b7f67b0d02';
+// La clé Deepgram n'est plus dans le front : on récupère un jeton temporaire via la function deepgram-token
 const ELEVENLABS_KEY = 'sk_8119cbdee672270d5f6d1179671d49d3d936bc8492d5f290';
 
 
@@ -2841,9 +2841,22 @@ function startRec(e) {
 }
 
 async function launchDeepgram() {
+  // 1) Récupère un jeton temporaire (la vraie clé reste côté serveur)
+  let token;
+  try {
+    const r = await fetch('/.netlify/functions/deepgram-token', { method:'POST' });
+    const j = await r.json();
+    token = j.access_token;
+    if(!r.ok || !token) throw new Error('no token');
+  } catch(err){
+    document.getElementById('mic-hint').textContent='⚠️ Service vocal indisponible, réessaie';
+    isRecording=false; document.getElementById('mic-btn').className='mic-btn';
+    return;
+  }
+  // 2) Ouvre la connexion micro + WebSocket avec le jeton (sous-protocole bearer)
   try {
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?language=fr&model=nova-2&punctuate=true&interim_results=true&smart_format=true',['token',DEEPGRAM_KEY]);
+    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?language=fr&model=nova-2&punctuate=true&interim_results=true&smart_format=true',['bearer', token]);
     dgSocket = socket;
     dgSocket._stream = stream;
     socket.onopen = () => {
