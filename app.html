@@ -51,7 +51,7 @@ body{min-height:100%;font-family:'DM Sans',sans-serif;color:var(--gray-800);-web
   position:relative;
   z-index:1;
 }
-.side-logo{font-family:'Bricolage Grotesque','Syne',sans-serif;font-weight:800;font-size:26px;color:#fff;letter-spacing:-.03em;margin-bottom:4px}
+.side-logo{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:#fff;letter-spacing:-.5px;margin-bottom:4px}
 .side-logo b{color:#60a5fa}
 .side-sub{font-size:15px;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:8px}
 .side-stat{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;backdrop-filter:blur(10px)}
@@ -471,7 +471,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
   </div>
   <div class="side-divider"></div>
-  <div class="side-trust">🔒 Connexion chiffrée · Tes données restent confidentielles et ne sont jamais revendues.</div>
+
 </div>
 
 <div id="app">
@@ -670,14 +670,6 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="form-group">
       <label class="form-label">Poste visé *</label>
       <input type="text" class="form-input" id="cfg-poste" placeholder="Ex : Développeur web, Commercial, Manager RH...">
-    </div>
-    <div class="form-group">
-      <label class="form-label">📄 Type de contrat</label>
-      <div id="cfg-contrat-choices" style="display:flex;gap:8px;margin-top:4px">
-        <button type="button" class="contrat-btn active" data-contrat="cdi" onclick="selectContratCfg(this)">CDI / CDD</button>
-        <button type="button" class="contrat-btn" data-contrat="alternance" onclick="selectContratCfg(this)">Alternance</button>
-        <button type="button" class="contrat-btn" data-contrat="stage" onclick="selectContratCfg(this)">Stage</button>
-      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Entreprise ciblée <span style="font-weight:400;color:var(--gray-400)">(optionnel)</span></label>
@@ -1038,11 +1030,11 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
       <!-- Retour utilisateur privé (optionnel) -->
       <div id="feedback-box" style="margin-top:24px;padding:18px;border:1px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white)">
-        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">Ton retour sur cet entretien</div>
-        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'est-ce qui t'a aidé ? Qu'est-ce qui pourrait être amélioré ? (facultatif)</div>
-        <textarea id="feedback-text" rows="3" placeholder="Ton retour sur l'entretien..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
+        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">💬 Ton avis nous aide à progresser</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'as-tu pensé de l'entretien ? (optionnel, ça reste entre nous)</div>
+        <textarea id="feedback-text" rows="3" placeholder="Ce qui t'a plu, ce qui manque, un bug..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
         <button id="feedback-send" class="btn" onclick="sendFeedback()" style="margin-top:8px;background:var(--navy);color:#fff">Envoyer mon retour</button>
-        <div id="feedback-thanks" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour.</div>
+        <div id="feedback-thanks" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour 🙏</div>
       </div>
 
       <div style="height:32px"></div>
@@ -1118,16 +1110,6 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
         </div>
       </div>
 
-      <!-- Retour utilisateur privé sur l'entretien (pack/Complet) -->
-      <div id="feedback-box-pack" style="margin:8px 0 20px;padding:18px;border:1px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white)">
-        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">Ton retour sur cet entretien</div>
-        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'est-ce qui t'a aidé ? Qu'est-ce qui pourrait être amélioré ? (facultatif)</div>
-        <textarea id="feedback-text-pack" rows="3" placeholder="Ton retour sur l'entretien..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
-        <button id="feedback-send-pack" class="btn" onclick="sendFeedback('pack')" style="margin-top:8px;background:var(--navy);color:#fff">Envoyer mon retour</button>
-        <div id="feedback-thanks-pack" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour.</div>
-      </div>
-
-      <a href="https://www.trustpilot.com/evaluate/jobwin.fr" target="_blank" rel="noopener" class="btn" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;background:#00b67a;color:#fff;text-decoration:none">⭐ Laisser un avis sur Trustpilot</a>
       <button class="btn btn-primary" onclick="newInterview()" style="margin-bottom:10px">🔄 Nouvel entretien</button>
       <button class="btn btn-secondary" onclick="goTo('home','back')">← Retour à l'accueil</button>
       <div style="height:32px"></div>
@@ -1185,20 +1167,6 @@ const S = {
 };
 
 const FILLERS_RE = /\b(euh|bah|ben|hein|quoi|voilà|donc|du\s+coup|genre|en\s+fait|c'est-à-dire|carrément|franchement|grave|ouais bon)\b/gi;
-
-// Répétitions / bégaiements : mots identiques consécutifs ("de de de", "qui qui").
-// Whitelist des doublements d'emphase légitimes (très très, non non...).
-const REPEAT_OK = new Set(['très','tres','non','oui','ouais','ah','oh','hé','he','bon']);
-function countRepetitions(text){
-  if(!text) return {count:0, words:{}};
-  const tokens = text.toLowerCase().replace(/[^a-zàâäéèêëïîôöùûüÿçœæ\s]/g,' ').split(/\s+/).filter(Boolean);
-  let count=0; const words={};
-  for(let i=1;i<tokens.length;i++){
-    const w=tokens[i];
-    if(w===tokens[i-1] && !REPEAT_OK.has(w)){ count++; words[w]=(words[w]||0)+1; }
-  }
-  return {count, words};
-}
 
 /* ===== LEMON SQUEEZY CONFIG ===== */
 const LS_BASE = 'https://jobwin.lemonsqueezy.com/checkout/buy/';
@@ -1880,31 +1848,24 @@ async function submitEmail(){
 }
 
 function selectContrat(btn){
-  document.querySelectorAll('#free-contrat-choices .contrat-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.contrat-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   window._freeContrat = btn.dataset.contrat;
 }
 
-function selectContratCfg(btn){
-  document.querySelectorAll('#cfg-contrat-choices .contrat-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  window._cfgContrat = btn.dataset.contrat;
-}
-
-function sendFeedback(suffix){
-  const sfx = suffix ? '-'+suffix : '';
-  const ta = document.getElementById('feedback-text'+sfx);
+function sendFeedback(){
+  const ta = document.getElementById('feedback-text');
   const txt = (ta?.value||'').trim();
   if(!txt) return;
-  const btn = document.getElementById('feedback-send'+sfx);
+  const btn = document.getElementById('feedback-send');
   if(btn){ btn.disabled = true; btn.textContent = 'Envoi...'; }
   fetch('/.netlify/functions/save-feedback', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ email: S.freeEmail||'', message: txt.slice(0,1000), score: (S.itv&&S.itv.avg)||'', poste: (S.config&&S.config.poste)||'', source: suffix||'express' })
+    body:JSON.stringify({ email: S.freeEmail||'', message: txt.slice(0,1000), score: (S.itv&&S.itv.avg)||'', poste: (S.config&&S.config.poste)||'' })
   }).catch(()=>{}); // silencieux : on remercie même si l'envoi échoue
   if(ta) ta.style.display='none';
   if(btn) btn.style.display='none';
-  const thanks = document.getElementById('feedback-thanks'+sfx);
+  const thanks = document.getElementById('feedback-thanks');
   if(thanks) thanks.style.display='block';
 }
 
@@ -2107,7 +2068,6 @@ function launchInterview() {
   S.config.entreprise=document.getElementById('cfg-entreprise').value.trim();
   S.config.secteur=document.getElementById('cfg-secteur').value;
   S.config.cv=document.getElementById('cfg-cv').value.trim();
-  S.config.contrat=window._cfgContrat||'cdi';
   if(!S.recruiter) S.recruiter = RECRUITERS['antoine'];
   S.config.type_entreprise = S.config.type_entreprise || 'grand_groupe';
   if(S.config.aleatoire) S.config.secteur=rndSector();
@@ -2200,7 +2160,7 @@ let isRecording=false, currentTranscript='', recStart=0;
 let dgSocket=null, dgRestarting=false, dgInterimText='';
 
 /* ===== CLÉS API ===== */
-// La clé Deepgram n'est plus dans le front : on récupère un jeton temporaire via la function deepgram-token
+const DEEPGRAM_KEY = 'd73e5788df13e122555825bda62ed6b7f67b0d02';
 const ELEVENLABS_KEY = 'sk_8119cbdee672270d5f6d1179671d49d3d936bc8492d5f290';
 
 
@@ -2268,26 +2228,6 @@ function cleanForTTS(txt) {
     .trim();
 }
 
-// Markdown -> HTML pour l'affichage (gras), sans laisser d'étoiles brutes
-function mdToHtml(t){
-  if(!t) return '';
-  return String(t)
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*/g, '')
-    .replace(/^#+\s*/gm, '')
-    .replace(/`/g, '');
-}
-// Markdown -> texte brut (pour les zones en textContent)
-function mdToPlain(t){
-  if(!t) return '';
-  return String(t)
-    .replace(/\*\*/g, '')
-    .replace(/\*/g, '')
-    .replace(/^#+\s*/gm, '')
-    .replace(/`/g, '')
-    .trim();
-}
-
 function replayQuestion(){
   const q = S.itv && S.itv.lastQ;
   if(!q) return;
@@ -2303,24 +2243,21 @@ function replayQuestion(){
 }
 
 function splitForSpeech(txt) {
-  if(!txt) return [''];
-  txt = txt.trim();
-  if(txt.length <= 200) return [txt];
-  // Découpe en phrases SANS rien perdre : le split garde tout le texte,
-  // y compris la fin sans ponctuation finale (questions, listes après ":"...).
-  const sentences = txt.split(/(?<=[.!?])\s+/);
+  // Split long text into chunks at sentence boundaries to avoid TTS cutoff
+  if(!txt || txt.length <= 200) return [txt];
+  const sentences = txt.match(/[^.!?]+[.!?]+/g) || [txt];
   const chunks = [];
   let current = '';
   for(const s of sentences) {
-    if(current && (current + ' ' + s).length > 200) {
+    if((current + s).length > 200 && current.length > 0) {
       chunks.push(current.trim());
       current = s;
     } else {
-      current = current ? current + ' ' + s : s;
+      current += s;
     }
   }
   if(current.trim()) chunks.push(current.trim());
-  return chunks.length ? chunks : [txt];
+  return chunks.length > 0 ? chunks : [txt];
 }
 
 function speakText(txt) {
@@ -2647,7 +2584,7 @@ function addToSMSThread(who, text) {
   const div = document.createElement('div');
   if(who === 'recruiter') {
     div.className = 'sms-recruiter';
-    div.innerHTML = `<div class="sms-av">${S.recruiter?.emoji||'🎙️'}</div><div class="sms-bubble">${mdToHtml(clean)}</div>`;
+    div.innerHTML = `<div class="sms-av">${S.recruiter?.emoji||'🎙️'}</div><div class="sms-bubble">${clean}</div>`;
   } else {
     div.className = 'sms-candidate';
     div.innerHTML = `<div class="sms-bubble">${clean}</div>`;
@@ -2655,23 +2592,6 @@ function addToSMSThread(who, text) {
   thread.appendChild(div);
   const sc = document.getElementById('interview-scroll');
   if(sc) setTimeout(()=>sc.scrollTop=sc.scrollHeight, 80);
-}
-
-// Indicateur visible "le recruteur écrit..." pendant la génération de sa réponse
-function showRecruiterTyping() {
-  const thread = document.getElementById('sms-thread');
-  if(!thread || document.getElementById('recruiter-typing')) return;
-  const div = document.createElement('div');
-  div.className = 'sms-recruiter';
-  div.id = 'recruiter-typing';
-  div.innerHTML = `<div class="sms-av">${S.recruiter?.emoji||'🎙️'}</div><div class="sms-bubble"><div class="dot-loader"><span></span><span></span><span></span></div></div>`;
-  thread.appendChild(div);
-  const sc = document.getElementById('interview-scroll');
-  if(sc) setTimeout(()=>sc.scrollTop=sc.scrollHeight, 60);
-}
-function removeRecruiterTyping() {
-  const el = document.getElementById('recruiter-typing');
-  if(el) el.remove();
 }
 
 async function genRecruiterTurn(history, cv, phase) {
@@ -2696,11 +2616,8 @@ async function genRecruiterTurn(history, cv, phase) {
   const typeLabels = {grand_groupe:'grand groupe',pme:'PME',startup:'startup',administration:'administration'};
   const typeEntreprise = typeLabels[S.config.type_entreprise||'grand_groupe'];
 
-  // === TYPE DE CONTRAT : détection + consignes dédiées ===
-  const posteLC = (S.config.poste||'').toLowerCase();
-  const contrat = S.config.contrat || '';
-  const isAlternance = contrat === 'alternance' || /alternan|apprentissag|apprenti/.test(posteLC);
-  const isStage = contrat === 'stage' || /\bstage\b|stagiaire/.test(posteLC);
+  // === ALTERNANCE : détection + consignes dédiées ===
+  const isAlternance = /alternan|apprentissag|apprenti/.test((S.config.poste||'').toLowerCase());
   const blocAlternance = isAlternance ? `
 
 CONTEXTE ALTERNANCE — ce poste est en alternance, adapte ton entretien :
@@ -2708,13 +2625,6 @@ CONTEXTE ALTERNANCE — ce poste est en alternance, adapte ton entretien :
 - Aborde obligatoirement au fil de l'entretien : le rythme école/entreprise (organisation, assiduité), la formation visée et sa cohérence avec le poste, pourquoi l'alternance plutôt qu'un cursus classique, et le projet professionnel après le diplôme.
 - Creuse sa connaissance de l'entreprise et du métier : un bon alternant s'est renseigné avant de venir.
 - Vérifie les aspects pratiques quand c'est naturel : durée du contrat recherché, date de démarrage, mobilité.` : '';
-  const blocStage = isStage ? `
-
-CONTEXTE STAGE — ce poste est un stage, adapte ton entretien :
-- Le candidat est étudiant ou en début de parcours : évalue la motivation, la curiosité, le savoir-être et la capacité d'apprentissage, pas une longue expérience.
-- Aborde au fil de l'entretien : la formation en cours et ce qu'il cherche à apprendre pendant le stage, les missions qui l'intéressent, ce qu'il peut apporter malgré son peu d'expérience, et sa capacité à s'intégrer dans une équipe.
-- Reste exigeant mais bienveillant et formateur : un entretien de stage n'évalue pas un cadre confirmé, tu peux pousser un peu sans casser le candidat.
-- Vérifie le concret quand c'est naturel : durée et dates du stage, niveau d'études en cours, convention ou gratification éventuelle.` : '';
   const cvAnalysis = analyzeCVGaps(cv);
   const exchangeCount = history.length;
 
@@ -2799,7 +2709,7 @@ Zones déjà bien couvertes : ${covered.length > 0 ? covered.join(', ') : 'aucun
 Zones pas encore abordées : ${priorityMissing.length > 0 ? priorityMissing.join(', ') : 'toutes couvertes — tu peux conclure'}
 ${saturated.length > 0 ? 'Sujets saturés, ne plus y revenir : '+saturated.join(', ') : ''}
 ${blocMetier}
-${blocAlternance}${blocStage}
+${blocAlternance}
 
 COMMENT TU FONCTIONNES :
 Tu lis tout l historique. Tu remarques UN element precis dans la derniere reponse. Tu y reagis naturellement ET tu guides vers la prochaine zone non couverte quand c est le bon moment. Pas de transition forcee — tu trouves le lien naturel entre ce que le candidat vient de dire et la zone suivante.
@@ -2881,22 +2791,9 @@ function startRec(e) {
 }
 
 async function launchDeepgram() {
-  // 1) Récupère un jeton temporaire (la vraie clé reste côté serveur)
-  let token;
-  try {
-    const r = await fetch('/.netlify/functions/deepgram-token', { method:'POST' });
-    const j = await r.json();
-    token = j.access_token;
-    if(!r.ok || !token) throw new Error('no token');
-  } catch(err){
-    document.getElementById('mic-hint').textContent='⚠️ Service vocal indisponible, réessaie';
-    isRecording=false; document.getElementById('mic-btn').className='mic-btn';
-    return;
-  }
-  // 2) Ouvre la connexion micro + WebSocket avec le jeton (sous-protocole bearer)
   try {
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?language=fr&model=nova-2&punctuate=true&interim_results=true&smart_format=true',['bearer', token]);
+    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?language=fr&model=nova-2&punctuate=true&interim_results=true&smart_format=true',['token',DEEPGRAM_KEY]);
     dgSocket = socket;
     dgSocket._stream = stream;
     socket.onopen = () => {
@@ -2924,9 +2821,11 @@ async function launchDeepgram() {
 async function stopRec(e) {
   e.preventDefault(); if(!isRecording) return; isRecording=false; dgRestarting=true;
   const recDuration=(Date.now()-recStart)/1000;
-  if(dgSocket){try{dgSocket._mediaRecorder?.stop();dgSocket._stream?.getTracks().forEach(t=>t.stop());dgSocket.close();}catch(_){}dgSocket=null;}
   document.getElementById('mic-btn').className='mic-btn analyzing';
   document.getElementById('mic-hint').textContent='Analyse en cours...';
+  // Laisse le micro capter les derniers mots avant de couper (sinon la fin de phrase est tronquée)
+  await new Promise(r=>setTimeout(r,500));
+  if(dgSocket){try{dgSocket._mediaRecorder?.stop();dgSocket._stream?.getTracks().forEach(t=>t.stop());dgSocket.close();}catch(_){}dgSocket=null;}
   await new Promise(r=>setTimeout(r,600));
   const answer=currentTranscript.trim();
 
@@ -2955,17 +2854,13 @@ async function stopRec(e) {
   const wpm=recDuration>2?Math.round((words.length/recDuration)*60):0;
   if(wpm>0){S.totalWPM+=wpm;S.wpmCount++;}
 
-  // Fillers + répétitions/bégaiements ("de de de", "qui qui")
+  // Fillers
   const fillerMatches=(answer.match(FILLERS_RE)||[]);
-  const rep=countRepetitions(answer);
-  const fillers=fillerMatches.length + rep.count;
+  const fillers=fillerMatches.length;
   S.totalFillers+=fillers;
   fillerMatches.forEach(w=>{
     const k=w.toLowerCase().trim();
     S.fillerLog[k]=(S.fillerLog[k]||0)+1;
-  });
-  Object.keys(rep.words).forEach(w=>{
-    S.fillerLog[w]=(S.fillerLog[w]||0)+rep.words[w];
   });
   if(fillers>0){
     document.getElementById('filler-wrap').style.display='block';
@@ -3103,7 +2998,6 @@ async function stopRec(e) {
   }
 
   // === GÉNÈRE L'INTERVENTION DU RECRUTEUR ===
-  showRecruiterTyping();
   let recruiterTurn = null;
   try {
     recruiterTurn = await genRecruiterTurn(S.itv.history, cv, S.itv.phase);
@@ -3112,7 +3006,6 @@ async function stopRec(e) {
   }
 
   if(!recruiterTurn || recruiterTurn.trim().length < 2) recruiterTurn = 'Je vois. Continuons.';
-  removeRecruiterTyping();
 
   // Stocker comme prochaine question
   S.itv.lastQ = recruiterTurn;
@@ -3127,14 +3020,14 @@ async function stopRec(e) {
       <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
       <div style="flex:1">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} DIT</div>
-        <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${mdToHtml(recruiterTurn)}</div>
+        <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${recruiterTurn}</div>
       </div>
     </div>`;
     setTimeout(()=>{const sc=document.getElementById('interview-scroll');if(sc)sc.scrollTop=sc.scrollHeight;},100);
   }
 
   // Parler + afficher dans q-text
-  document.getElementById('q-text').textContent = mdToPlain(recruiterTurn);
+  document.getElementById('q-text').textContent = recruiterTurn;
   document.getElementById('answer-box').textContent = 'Ta réponse apparaîtra ici...';
   document.getElementById('answer-box').className = 'answer-box';
   document.getElementById('filler-wrap').style.display='none';
@@ -3568,12 +3461,6 @@ async function showResults() {
     document.getElementById('express-results').style.display='none';
     document.getElementById('pack-results').style.display='block';
 
-    // reset du widget de ressenti (réutilisable à chaque entretien)
-    const ftp=document.getElementById('feedback-text-pack'), fsp=document.getElementById('feedback-send-pack'), ftk=document.getElementById('feedback-thanks-pack');
-    if(ftp){ ftp.style.display=''; ftp.value=''; }
-    if(fsp){ fsp.style.display=''; fsp.disabled=false; fsp.textContent='Envoyer mon retour'; }
-    if(ftk){ ftk.style.display='none'; }
-
     const crit=S.itv.criteria;
     if(crit.length>0){
       const avg4=(k)=>Math.round(crit.reduce((a,c)=>a+(c[k]||0),0)/crit.length);
@@ -3899,35 +3786,35 @@ async function handleCvUpload(input) {
   dropEl.style.background = 'var(--blue-light)';
 
   try {
+    // Convert PDF to base64
     const arrayBuffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for(let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    const pdfBase64 = btoa(binary);
 
-    // 1) Rendu des pages en images — gère les CV design / image, pas seulement le texte
-    const images = await pdfToImages(arrayBuffer, 2);
-    if(!images.length) throw new Error('Rendu PDF impossible');
-
-    // 2) Le moteur IA lit les images et renvoie le CV structure en JSON
-    const instruction = 'Tu es un assistant RH. Analyse ce CV (fourni en image) et reponds UNIQUEMENT par un objet JSON valide. Structure exacte : {"nom":"","postes":[{"titre":"","entreprise":"","periode":"","type":""}],"formation":[{"diplome":"","etablissement":"","annee":""}],"competences":[],"langues":[],"trous":[],"transitions":[],"postes_courts":[],"resume_recruteur":""}. Regles : "trous" = periodes d inactivite superieures a 3 mois ; "transitions" = changements de secteur ou de metier notables ; "postes_courts" = experiences de moins de 12 mois ; "resume_recruteur" = 1 a 2 phrases du point de vue d un recruteur. Si une info est absente, mets une chaine vide ou un tableau vide. N invente rien. IMPORTANT : commence ta reponse directement par le caractere accolade ouvrante et termine par accolade fermante. Aucun texte, aucune explication, aucune balise markdown avant ou apres le JSON.';
-
-    const content = images.map(b64 => ({
-      type: 'image',
-      source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
-    }));
-    content.push({ type: 'text', text: instruction });
-
+    // Send PDF directly to Claude for native reading
     const res = await fetch('/.netlify/functions/chat', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ messages: [{ role: 'user', content }], maxTokens: 1500 })
+      body: JSON.stringify({ pdfBase64, maxTokens: 1500 })
     });
+
     if(!res.ok) throw new Error('API error');
     const data = await res.json();
-    const raw = (data.text || '').trim();
 
-    // 3) Parsing tolerant du JSON
-    const cvData = parseCvJson(raw);
+    // Parse structured CV data
+    let cvData = null;
+    try {
+      const cleaned = data.text.replace(/```json?|```/g, '').trim();
+      cvData = JSON.parse(cleaned);
+    } catch(e) {}
 
     if(cvData) {
+      // Store full structured CV
       S.config.cvData = cvData;
+
+      // Build readable CV text for prompts
       let cvText = '';
       if(cvData.nom) cvText += `Candidat : ${cvData.nom}\n`;
       if(cvData.postes?.length) {
@@ -3945,27 +3832,17 @@ async function handleCvUpload(input) {
       if(cvData.postes_courts?.length) cvText += `⚠️ Postes courts : ${cvData.postes_courts.join(' | ')}\n`;
       if(cvData.resume_recruteur) cvText += `\nNote recruteur : ${cvData.resume_recruteur}`;
 
-      S.config.cv = cvText.trim();
-      document.getElementById('cfg-cv').value = cvText.trim();
-      nameEl.textContent = '✓ ' + file.name + ' — CV analysé';
-      dropEl.style.borderColor = 'var(--green)';
+      S.config.cv = cvText;
+      document.getElementById('cfg-cv').value = cvText;
 
-    } else if(raw.length > 50) {
-      // Filet de securite : JSON illisible mais l IA a quand meme lu le CV
-      // -> on utilise sa lecture brute, c'est toujours mieux que rien.
-      const clean = raw.replace(/```json?|```/g, '').trim().substring(0, 3000);
-      S.config.cv = clean;
-      S.config.cvData = null;
-      document.getElementById('cfg-cv').value = clean;
-      nameEl.textContent = '✓ ' + file.name + ' — CV lu';
+      nameEl.textContent = '✓ ' + file.name + ' — CV analysé par Claude';
       dropEl.style.borderColor = 'var(--green)';
-
     } else {
       throw new Error('Parse failed');
     }
 
   } catch(err) {
-    // Fallback final : extraction texte brute via pdf.js (CV texte simple)
+    // Fallback to PDF.js
     try {
       const arrayBuffer2 = await file.arrayBuffer();
       if(typeof pdfjsLib !== 'undefined') {
@@ -3987,46 +3864,7 @@ async function handleCvUpload(input) {
     } catch(e2) {}
     nameEl.textContent = '⚠️ ' + file.name + ' — colle ton parcours manuellement';
     dropEl.style.borderColor = 'var(--red)';
-    console.error('handleCvUpload:', err);
   }
-}
-
-// Parsing JSON tolerant : gere les fences markdown, le texte autour,
-// les guillemets typographiques et les virgules trainantes.
-function parseCvJson(raw) {
-  if(!raw) return null;
-  let s = raw.replace(/```(?:json)?/gi, '').trim();
-  // Ne garder que du premier { au dernier }
-  const a = s.indexOf('{'), b = s.lastIndexOf('}');
-  if(a !== -1 && b !== -1 && b > a) s = s.slice(a, b + 1);
-  // Tentative stricte
-  try { return JSON.parse(s); } catch(e) {}
-  // Reparations legeres puis nouvelle tentative
-  const repaired = s
-    .replace(/[\u201C\u201D]/g, '"')
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/,\s*([}\]])/g, '$1');
-  try { return JSON.parse(repaired); } catch(e) {}
-  return null;
-}
-
-// Rend les premieres pages d'un PDF en images JPEG base64 (pour lecture vision par l IA)
-async function pdfToImages(arrayBuffer, maxPages) {
-  if(typeof pdfjsLib === 'undefined') return [];
-  const pdf = await pdfjsLib.getDocument({data: arrayBuffer.slice(0)}).promise;
-  const out = [];
-  const n = Math.min(pdf.numPages, maxPages || 2);
-  for(let p = 1; p <= n; p++) {
-    const page = await pdf.getPage(p);
-    let viewport = page.getViewport({ scale: 2 });
-    const MAXW = 1600;
-    if(viewport.width > MAXW) viewport = page.getViewport({ scale: 2 * (MAXW / viewport.width) });
-    const canvas = document.createElement('canvas');
-    canvas.width = viewport.width; canvas.height = viewport.height;
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-    out.push(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
-  }
-  return out;
 }
 
 /* Init */
