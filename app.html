@@ -725,6 +725,13 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="pill" onclick="selectPill('type_entreprise',this,'administration')">🏛️ Administration</div>
     </div>
     <div class="divider"></div>
+    <div class="slabel">Type de contrat</div>
+    <div class="pill-group" id="type_contrat-group">
+      <div class="pill active" onclick="selectPill('type_contrat',this,'cdi')">📄 CDI / CDD</div>
+      <div class="pill" onclick="selectPill('type_contrat',this,'alternance')">🎓 Alternance</div>
+      <div class="pill" onclick="selectPill('type_contrat',this,'stage')">📝 Stage</div>
+    </div>
+    <div class="divider"></div>
     <div class="slabel">Personnalité du recruteur</div>
     <div class="p-card active" id="pc-standard" onclick="selectPersonality('standard')"><div class="p-card-icon">😊</div><div class="p-card-body"><div class="p-card-title">Bienveillant</div><div class="p-card-desc">Encourageant, met en confiance. Idéal pour débuter.</div></div><div class="p-check">✓</div></div>
     <div class="p-card" id="pc-exigeant" onclick="selectPersonality('exigeant')"><div class="p-card-icon">💼</div><div class="p-card-body"><div class="p-card-title">Réaliste</div><div class="p-card-desc">Neutre et professionnel. Comme un vrai entretien.</div></div><div class="p-check"></div></div>
@@ -1030,10 +1037,10 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
       <!-- Retour utilisateur privé (optionnel) -->
       <div id="feedback-box" style="margin-top:24px;padding:18px;border:1px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white)">
-        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">💬 Ton avis nous aide à progresser</div>
-        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'as-tu pensé de l'entretien ? (optionnel, ça reste entre nous)</div>
-        <textarea id="feedback-text" rows="3" placeholder="Ce qui t'a plu, ce qui manque, un bug..." style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
-        <button id="feedback-send" class="btn" onclick="sendFeedback()" style="margin-top:8px;background:var(--navy);color:#fff">Envoyer mon retour</button>
+        <div style="font-weight:600;color:var(--navy);margin-bottom:4px">💬 Ton retour nous aide à améliorer JOBWIN</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Qu'as-tu pensé de cet entretien ? (optionnel)</div>
+        <textarea id="feedback-text" rows="3" placeholder="Tes remarques ou suggestions" style="width:100%;padding:10px;border:1px solid var(--gray-200);border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:vertical;outline:none;box-sizing:border-box"></textarea>
+        <button id="feedback-send" class="btn" onclick="sendFeedback()" style="margin-top:8px;background:var(--navy);color:#fff">Envoyer</button>
         <div id="feedback-thanks" style="display:none;color:var(--blue);font-weight:600;margin-top:8px">Merci pour ton retour 🙏</div>
       </div>
 
@@ -2065,6 +2072,12 @@ function launchInterview() {
     setTimeout(()=>document.getElementById('cfg-poste').style.borderColor='',2000); return;
   }
   S.config.poste=S.config.aleatoire?rndJob():poste;
+  // Injecte le type de contrat dans le poste pour activer les consignes alternance/stage du recruteur
+  const contratChoisi = S.config.type_contrat || 'cdi';
+  if(!S.config.aleatoire){
+    if(contratChoisi === 'alternance' && !/alternan|apprentiss/i.test(S.config.poste)) S.config.poste = 'alternance ' + S.config.poste;
+    else if(contratChoisi === 'stage' && !/stage|stagiaire/i.test(S.config.poste)) S.config.poste = 'stage ' + S.config.poste;
+  }
   S.config.entreprise=document.getElementById('cfg-entreprise').value.trim();
   S.config.secteur=document.getElementById('cfg-secteur').value;
   S.config.cv=document.getElementById('cfg-cv').value.trim();
@@ -2245,7 +2258,8 @@ function replayQuestion(){
 function splitForSpeech(txt) {
   // Split long text into chunks at sentence boundaries to avoid TTS cutoff
   if(!txt || txt.length <= 200) return [txt];
-  const sentences = txt.match(/[^.!?]+[.!?]+/g) || [txt];
+  // Capture les phrases ET le reste final même sans ponctuation forte (sinon la fin est ignorée et non lue)
+  const sentences = txt.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [txt];
   const chunks = [];
   let current = '';
   for(const s of sentences) {
@@ -2257,6 +2271,10 @@ function splitForSpeech(txt) {
     }
   }
   if(current.trim()) chunks.push(current.trim());
+  // Filet de sécurité : vérifie qu'aucun caractère du texte d'origine n'a été perdu
+  const joined = chunks.join('').replace(/\s+/g,'');
+  const original = txt.replace(/\s+/g,'');
+  if(joined.length < original.length * 0.95) return [txt];
   return chunks.length > 0 ? chunks : [txt];
 }
 
