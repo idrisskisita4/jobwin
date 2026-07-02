@@ -2173,8 +2173,7 @@ let isRecording=false, currentTranscript='', recStart=0;
 let dgSocket=null, dgRestarting=false, dgInterimText='';
 
 /* ===== CLÉS API ===== */
-const DEEPGRAM_KEY = 'd73e5788df13e122555825bda62ed6b7f67b0d02';
-const ELEVENLABS_KEY = 'sk_8119cbdee672270d5f6d1179671d49d3d936bc8492d5f290';
+/* Clés API : aucune clé côté client — tout passe par les fonctions Netlify (tts, deepgram-token, chat) */
 
 
 const RECRUITERS = {
@@ -2811,7 +2810,12 @@ function startRec(e) {
 async function launchDeepgram() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?language=fr&model=nova-2&punctuate=true&interim_results=true&smart_format=true',['token',DEEPGRAM_KEY]);
+    // Jeton temporaire (~30s) demandé au serveur : la vraie clé Deepgram reste côté serveur, jamais dans le navigateur
+    const tokRes = await fetch('/.netlify/functions/deepgram-token', { method: 'POST' });
+    if(!tokRes.ok) throw new Error('token');
+    const tok = await tokRes.json();
+    if(!tok || !tok.access_token) throw new Error('token');
+    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?language=fr&model=nova-2&punctuate=true&interim_results=true&smart_format=true',['bearer',tok.access_token]);
     dgSocket = socket;
     dgSocket._stream = stream;
     socket.onopen = () => {
@@ -3853,7 +3857,7 @@ async function handleCvUpload(input) {
       S.config.cv = cvText;
       document.getElementById('cfg-cv').value = cvText;
 
-      nameEl.textContent = '✓ ' + file.name + ' — CV analysé par Claude';
+      nameEl.textContent = '✓ ' + file.name + ' — CV analysé, questions personnalisées activées';
       dropEl.style.borderColor = 'var(--green)';
     } else {
       throw new Error('Parse failed');
@@ -3880,7 +3884,7 @@ async function handleCvUpload(input) {
         }
       }
     } catch(e2) {}
-    nameEl.textContent = '⚠️ ' + file.name + ' — colle ton parcours manuellement';
+    nameEl.textContent = '⚠️ Ce PDF semble être un scan (image) : impossible d\'en lire le texte. Colle ton parcours dans le champ texte, ou réessaie avec un PDF créé par Word/Canva.';
     dropEl.style.borderColor = 'var(--red)';
   }
 }
