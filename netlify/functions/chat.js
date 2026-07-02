@@ -1,4 +1,4 @@
-/ Netlify Function : proxy vers l'API Anthropic
+// Netlify Function : proxy vers l'API Anthropic
 // Gère TROIS formats d'appel venant du front :
 // 1) Legacy → { prompt, maxTokens }
 // 2) Conversational → { systemPrompt, messages, maxTokens, conversational:true }
