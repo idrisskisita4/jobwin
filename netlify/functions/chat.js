@@ -1,7 +1,8 @@
-// Netlify Function : proxy vers l'API Anthropic
-// Gère DEUX formats d'appel venant du front :
+/ Netlify Function : proxy vers l'API Anthropic
+// Gère TROIS formats d'appel venant du front :
 // 1) Legacy → { prompt, maxTokens }
 // 2) Conversational → { systemPrompt, messages, maxTokens, conversational:true }
+// 3) Lecture de CV PDF → { pdfBase64, maxTokens } — Claude lit le PDF nativement (texte ET scans/images)
 // + Prompt caching sur le system prompt (réduction de coût sur les tours longs)
 // + Lecture de réponse blindée (ne casse plus si la structure change)
 // + Rate limiting anti-abus (Supabase)
@@ -40,6 +41,21 @@ async function shouldBlock(event, name, limit, windowSec) {
   }
 }
 
+// Prompt d'extraction structurée du CV (utilisé en mode pdfBase64)
+const CV_EXTRACTION_PROMPT = `Lis ce CV (il peut être un PDF texte OU un scan/image — lis tout ce qui est visible) et extrais les informations en JSON STRICT, sans aucun texte autour, sans markdown, sans backticks. Structure exacte attendue :
+{
+  "nom": "Prénom Nom ou null",
+  "postes": [{"titre":"...","entreprise":"...","periode":"...","type":"CDI/CDD/alternance/stage ou vide"}],
+  "formation": [{"diplome":"...","etablissement":"...","annee":"..."}],
+  "competences": ["...", "..."],
+  "langues": ["...", "..."],
+  "trous": ["description de chaque trou de plus de 6 mois dans le parcours, ou tableau vide"],
+  "transitions": ["description de chaque changement de secteur/métier notable, ou tableau vide"],
+  "postes_courts": ["chaque poste de moins de 8 mois hors stage/alternance, ou tableau vide"],
+  "resume_recruteur": "2 phrases max : ce qu'un recruteur retiendrait de ce profil, points forts et points de vigilance"
+}
+Si une information est absente du CV, mets null ou un tableau vide. Réponds UNIQUEMENT avec le JSON.`;
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -64,18 +80,41 @@ exports.handler = async (event) => {
       prompt, // format legacy
       systemPrompt, // format conversational
       messages, // format conversational : [{role:'user'|'assistant', content:'...'}]
+      pdfBase64, // format lecture de CV : PDF encodé en base64
       maxTokens
     } = payload;
 
     // --- Détection du format ---
-    // Si un tableau `messages` est fourni → mode conversationnel.
-    // Sinon → mode legacy avec un simple `prompt`.
-    const isConversational = Array.isArray(messages) && messages.length > 0;
+    // 1. pdfBase64 fourni → mode lecture de CV (Claude lit le PDF nativement)
+    // 2. tableau `messages` fourni → mode conversationnel
+    // 3. sinon → mode legacy avec un simple `prompt`
+    const isPdf = typeof pdfBase64 === 'string' && pdfBase64.length > 100;
+    const isConversational = !isPdf && Array.isArray(messages) && messages.length > 0;
 
     let finalMessages;
     let finalSystem = null;
 
-    if (isConversational) {
+    if (isPdf) {
+      // Mode CV : un message user contenant le document PDF + la consigne d'extraction.
+      // Le bloc "document" permet à Claude de lire nativement le PDF, y compris les scans.
+      finalMessages = [{
+        role: 'user',
+        content: [
+          {
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: pdfBase64
+            }
+          },
+          {
+            type: 'text',
+            text: CV_EXTRACTION_PROMPT
+          }
+        ]
+      }];
+    } else if (isConversational) {
       finalMessages = messages;
       if (systemPrompt && systemPrompt.trim()) {
         // System sous forme de bloc → permet le prompt caching.
@@ -92,13 +131,14 @@ exports.handler = async (event) => {
       if (!prompt || !prompt.trim()) {
         return {
           statusCode: 400,
-          body: JSON.stringify({ error: 'Requête vide : ni "prompt" ni "messages" fournis.' })
+          body: JSON.stringify({ error: 'Requête vide : ni "prompt", ni "messages", ni "pdfBase64" fournis.' })
         };
       }
       finalMessages = [{ role: 'user', content: prompt }];
     }
 
     // Chaîne de modèles : on tente dans l'ordre, fallback si l'un échoue.
+    // Note : la lecture native de PDF nécessite un modèle récent — haiku-4-5 la supporte.
     const MODELS = [
       'claude-haiku-4-5-20251001',
       'claude-haiku-4-5',
