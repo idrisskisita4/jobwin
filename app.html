@@ -2277,6 +2277,25 @@ function splitForSpeech(txt) {
   return chunks.length > 0 ? chunks : [txt];
 }
 
+/* Lecteur audio global réutilisable : contourne le blocage autoplay iOS/Safari.
+   Un élément Audio "béni" par un geste utilisateur peut ensuite rejouer programmatiquement. */
+const gAudioEl = new Audio();
+let gAudioUnlocked = false;
+function unlockAudioPlayback() {
+  if(gAudioUnlocked) return;
+  try {
+    gAudioEl.src = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7v///////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRBqpAAAAAAD/+xDEAAPAAAGkAAAAIAAANIAAAARMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQxCkDwAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=';
+    const p = gAudioEl.play();
+    if(p && p.then) p.then(()=>{ gAudioUnlocked = true; gAudioEl.pause(); }).catch(()=>{});
+  } catch(_) {}
+}
+function getPlayer(url) {
+  gAudioEl.pause();
+  gAudioEl.onended = null; gAudioEl.onerror = null;
+  gAudioEl.src = url;
+  return gAudioEl;
+}
+
 function speakText(txt) {
   if(!txt) return;
   txt = cleanForTTS(txt);
@@ -2289,7 +2308,7 @@ function speakText(txt) {
   if(audioBuffer[txt]) {
     const url = audioBuffer[txt];
     delete audioBuffer[txt];
-    currentAudio = new Audio(url);
+    currentAudio = getPlayer(url);
     currentAudio.play().catch(()=>{});
     currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; isAudioPlaying=false; const mb=document.getElementById('mic-btn'); if(mb){mb.style.opacity='';mb.style.pointerEvents='';} };
     return;
@@ -2316,7 +2335,7 @@ function speakText(txt) {
       nextUrl = (i+1 < chunks.length) ? fetchChunk(chunks[i+1]) : null;
       if(!url) continue;
       await new Promise(resolve => {
-        currentAudio = new Audio(url);
+        currentAudio = getPlayer(url);
         currentAudio.play().catch(()=>resolve());
         currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; resolve(); };
         currentAudio.onerror = () => { currentAudio=null; resolve(); };
@@ -2354,7 +2373,7 @@ async function speakTextAsync(txt) {
     nextUrl = (i+1 < chunks.length) ? fetchChunk(chunks[i+1]) : null;
     if(!url) continue;
     await new Promise(resolve => {
-      currentAudio = new Audio(url);
+      currentAudio = getPlayer(url);
       currentAudio.play().catch(()=>resolve());
       currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio=null; resolve(); };
       currentAudio.onerror = () => { currentAudio=null; resolve(); };
@@ -2796,6 +2815,7 @@ function displayQ(i) {
 /* RECORDING - Deepgram */
 function startRec(e) {
   e.preventDefault();
+  unlockAudioPlayback(); // Débloque la lecture audio iOS via ce geste utilisateur
   if(isRecording) return;
   if(isAudioPlaying) return; // Block mic while recruiter speaks
   stopAudio();
