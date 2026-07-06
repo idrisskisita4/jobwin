@@ -1025,19 +1025,20 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
         </div>
       </div>
 
-      <div style="margin-top:32px">
-        <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser -></button>
-      </div>
-
       <!-- Capture email : le candidat reçoit son bilan par email (demandé APRÈS l'entretien) -->
       <div id="score-email-block" style="margin-top:24px;padding:18px;border:1.5px solid #bfdbfe;border-radius:var(--r-sm);background:var(--blue-light)">
         <div style="font-weight:700;color:var(--navy);margin-bottom:4px;font-family:'Syne',sans-serif">📩 Reçois ton score par email</div>
-        <div style="font-size:13px;color:var(--gray-500);margin-bottom:10px">Garde une trace de ton résultat + tes prochaines étapes pour progresser.</div>
+        <div style="font-size:13px;color:var(--gray-500);margin-bottom:10px">Garde une trace de ton résultat et retrouve tes prochaines étapes pour progresser.</div>
         <input type="email" class="code-input-big" id="score-email-input" placeholder="ton@email.fr" style="font-size:15px;text-transform:none;letter-spacing:normal" autocomplete="email">
         <div id="score-email-err" style="display:none;font-size:12.5px;color:var(--red);margin-top:6px">Entre une adresse email valide.</div>
         <button class="btn btn-primary" id="score-email-btn" onclick="sendScoreEmail()" style="margin-top:10px">Recevoir mon score -></button>
         <div id="score-email-ok" style="display:none;font-size:13.5px;color:var(--green);font-weight:600;margin-top:10px">✓ C'est envoyé ! Vérifie ta boîte mail.</div>
       </div>
+
+      <div style="margin-top:32px">
+        <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser -></button>
+      </div>
+
 
       <!-- Retour utilisateur privé (optionnel) -->
       <div id="feedback-box" style="margin-top:24px;padding:18px;border:1px solid var(--gray-200);border-radius:var(--r-sm);background:var(--white)">
