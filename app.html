@@ -614,13 +614,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
   </nav>
   <div class="content">
     <h2 style="font-size:22px;margin-bottom:6px;">Ton entretien gratuit 🎁</h2>
-    <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px;">Entre ton email pour démarrer ton entretien offert. On t'enverra aussi ton résultat.</p>
-
-    <div class="form-group">
-      <label class="form-label">📧 Ton email</label>
-      <input type="email" class="code-input-big" id="email-input" placeholder="ton@email.fr" style="font-size:15px" autocomplete="email">
-      <div style="font-size:11px;color:var(--gray-400);margin-top:7px;text-align:center">1 entretien offert · sans engagement · pas de spam</div>
-    </div>
+    <p style="font-size:14px;color:var(--gray-500);margin-bottom:20px;">Configure ton entretien en 10 secondes. Aucune inscription — tu commences tout de suite.</p>
 
     <div class="form-group">
       <label class="form-label">💼 Le poste visé</label>
@@ -642,7 +636,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div style="font-size:13px;color:var(--gray-400);margin-top:8px">Vérification...</div>
     </div>
 
-    <button class="btn btn-primary" id="email-btn" onclick="submitEmail()">Démarrer mon entretien gratuit -></button>
+    <button class="btn btn-primary" id="email-btn" onclick="startExpressFree()">Démarrer mon entretien gratuit -></button>
 
     <!-- Bloc affiché si l'essai a déjà été utilisé -->
     <div id="email-used" style="display:none;margin-top:18px;text-align:center">
@@ -1033,6 +1027,16 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
       <div style="margin-top:32px">
         <button class="btn btn-primary" onclick="goTo('packs')" style="margin-bottom:10px">🎯 Choisir mon pack et progresser -></button>
+      </div>
+
+      <!-- Capture email : le candidat reçoit son bilan par email (demandé APRÈS l'entretien) -->
+      <div id="score-email-block" style="margin-top:24px;padding:18px;border:1.5px solid #bfdbfe;border-radius:var(--r-sm);background:var(--blue-light)">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:4px;font-family:'Syne',sans-serif">📩 Reçois ton score par email</div>
+        <div style="font-size:13px;color:var(--gray-500);margin-bottom:10px">Garde une trace de ton résultat + tes prochaines étapes pour progresser.</div>
+        <input type="email" class="code-input-big" id="score-email-input" placeholder="ton@email.fr" style="font-size:15px;text-transform:none;letter-spacing:normal" autocomplete="email">
+        <div id="score-email-err" style="display:none;font-size:12.5px;color:var(--red);margin-top:6px">Entre une adresse email valide.</div>
+        <button class="btn btn-primary" id="score-email-btn" onclick="sendScoreEmail()" style="margin-top:10px">Recevoir mon score -></button>
+        <div id="score-email-ok" style="display:none;font-size:13.5px;color:var(--green);font-weight:600;margin-top:10px">✓ C'est envoyé ! Vérifie ta boîte mail.</div>
       </div>
 
       <!-- Retour utilisateur privé (optionnel) -->
@@ -1761,14 +1765,14 @@ function selectMode(mode) {
       S.mode = 'express';
       goTo('email');
       document.getElementById('email-btn').style.display='none';
-      document.querySelector('#screen-email .form-group').style.display='none';
+      document.querySelectorAll('#screen-email .form-group').forEach(g=>g.style.display='none');
       document.getElementById('email-used').style.display='block';
       return;
     }
     // Sinon, on demande l'email avant de lancer.
     goTo('email');
     document.getElementById('email-btn').style.display='block';
-    document.querySelector('#screen-email .form-group').style.display='block';
+    document.querySelectorAll('#screen-email .form-group').forEach(g=>g.style.display='block');
     document.getElementById('email-used').style.display='none';
     document.getElementById('email-error').style.display='none';
     return;
@@ -1788,61 +1792,13 @@ function selectMode(mode) {
   }
 }
 
-/* ========== ESSAI GRATUIT : capture email + gating serveur ========== */
-async function submitEmail(){
-  const raw = (document.getElementById('email-input').value || '').trim().toLowerCase();
-  const errEl = document.getElementById('email-error');
-  const errMsg = document.getElementById('email-error-msg');
-  const loadEl = document.getElementById('email-loading');
-  const btn = document.getElementById('email-btn');
-
-  errEl.style.display = 'none';
-
-  // Validation format basique côté client
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)){
-    errMsg.textContent = 'Entre une adresse email valide.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  loadEl.style.display = 'block';
-  btn.disabled = true;
-
-  let allowed = true;
-  let alreadyUsed = false;
-  try {
-    const res = await fetch('/.netlify/functions/use-free-trial', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: raw })
-    });
-    const data = await res.json();
-    allowed = data.allowed;
-    alreadyUsed = data.alreadyUsed;
-  } catch(e) {
-    // Si le serveur est injoignable, on autorise (ne pas frustrer un vrai utilisateur).
-    allowed = true;
-  }
-
-  loadEl.style.display = 'none';
-  btn.disabled = false;
-
-  if(!allowed && alreadyUsed){
-    // Email déjà utilisé côté serveur → on bloque et on pose aussi le verrou local.
-    localStorage.setItem('jw_free_used', '1');
-    document.getElementById('email-btn').style.display='none';
-    document.querySelector('#screen-email .form-group').style.display='none';
-    document.getElementById('email-used').style.display='block';
-    return;
-  }
-
-  // Autorisé → on pose le verrou local, on mémorise l'email, et on lance l'express.
+/* ========== ESSAI GRATUIT : démarrage direct (email demandé à la fin, sur l'écran de score) ========== */
+function startExpressFree(){
+  // Verrou local posé au démarrage de l'essai (anti-abus navigateur).
   localStorage.setItem('jw_free_used', '1');
-  localStorage.setItem('jw_free_email', raw);
-  S.freeEmail = raw;
   S.mode = 'express';
   S.config.personnalite = 'exigeant';
-  // Poste + type de contrat saisis sur l'écran email
+  // Poste + type de contrat saisis sur l'écran de config
   const posteSaisi = (document.getElementById('free-poste-input')?.value || '').trim();
   const contrat = window._freeContrat || 'cdi';
   let posteFinal = posteSaisi || 'poste généraliste';
@@ -1858,6 +1814,34 @@ function selectContrat(btn){
   document.querySelectorAll('.contrat-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   window._freeContrat = btn.dataset.contrat;
+}
+
+function sendScoreEmail(){
+  const raw = (document.getElementById('score-email-input')?.value || '').trim().toLowerCase();
+  const err = document.getElementById('score-email-err');
+  const btn = document.getElementById('score-email-btn');
+  const ok = document.getElementById('score-email-ok');
+  err.style.display = 'none';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)){ err.style.display='block'; return; }
+  btn.disabled = true; btn.textContent = 'Envoi...';
+  const score = (S.itv && S.itv.lastScore != null) ? S.itv.lastScore : '';
+  localStorage.setItem('jw_free_email', raw);
+  S.freeEmail = raw;
+  // Marquage serveur de l'essai (rattaché à l'email) + envoi du score par email
+  fetch('/.netlify/functions/use-free-trial', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ email: raw, score: score })
+  }).catch(()=>{});
+  fetch('/.netlify/functions/send-trial-email', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ email: raw, score: score + '%' })
+  }).then(()=>{
+    btn.style.display='none';
+    document.getElementById('score-email-input').style.display='none';
+    ok.style.display='block';
+  }).catch(()=>{
+    btn.disabled=false; btn.textContent='Recevoir mon score ->';
+  });
 }
 
 function sendFeedback(){
@@ -3485,21 +3469,8 @@ async function showResults() {
     updateHistoryBtn();
     // On enregistre aussi le score dans Supabase (rattaché à l'email),
     // pour pouvoir personnaliser les relances email plus tard.
-    const freeEmail = S.freeEmail || localStorage.getItem('jw_free_email');
-    if(freeEmail){
-      fetch('/.netlify/functions/use-free-trial', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: freeEmail, score: avg })
-      }).catch(()=>{}); // silencieux — ne bloque pas l'affichage du résultat
-      // Email post-entretien (Brevo) : score + CTA packs.
-      // Volontairement sans le bilan détaillé — il reste payant.
-      fetch('/.netlify/functions/send-trial-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: freeEmail, score: avg + '%' })
-      }).catch(()=>{}); // silencieux — ne bloque pas l'affichage du résultat
-    }
+    // L'email est demandé sur l'écran de score (bloc #score-email-block) : voir sendScoreEmail().
+    S.itv.lastScore = avg;
     await genExpressResults();
   } else {
     // PACK : show full results
