@@ -562,17 +562,17 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 
     <!-- Pack info cards -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">
-      <div onclick="window.open('https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247','_blank')" style="background:var(--green-l);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='transparent'">
+      <div onclick="window.open('https://buy.stripe.com/bJecN70LT8yz9grenE8bS02','_blank')" style="background:var(--green-l);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='transparent'">
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--green)">3</div>
         <div style="font-size:10.5px;color:var(--green);font-weight:600;margin-top:2px">Découverte</div>
         <div style="font-size:10px;color:var(--gray-500);margin-top:2px">9,90€</div>
       </div>
-      <div onclick="window.open('https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472','_blank')" style="background:var(--blue-light);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='transparent'">
+      <div onclick="window.open('https://buy.stripe.com/8x228t0LTbKLakv1AS8bS01','_blank')" style="background:var(--blue-light);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='transparent'">
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--blue)">8</div>
         <div style="font-size:10.5px;color:var(--blue);font-weight:600;margin-top:2px">Essentiel</div>
-        <div style="font-size:10px;color:var(--gray-500);margin-top:2px">19,90€</div>
+        <div style="font-size:10px;color:var(--gray-500);margin-top:2px"><s style="opacity:.6">19,90€</s> <b style="color:var(--blue)">14,90€</b></div>
       </div>
-      <div onclick="window.open('https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5','_blank')" style="background:var(--purple-l);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--purple)'" onmouseout="this.style.borderColor='transparent'">
+      <div onclick="window.open('https://buy.stripe.com/7sY9AV5297uv3W7bbs8bS00','_blank')" style="background:var(--purple-l);border-radius:10px;padding:12px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:border .15s" onmouseover="this.style.borderColor='var(--purple)'" onmouseout="this.style.borderColor='transparent'">
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--purple)">20</div>
         <div style="font-size:10.5px;color:var(--purple);font-weight:600;margin-top:2px">Intensif</div>
         <div style="font-size:10px;color:var(--gray-500);margin-top:2px">34,90€</div>
@@ -595,7 +595,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="divider"></div>
     <div class="faq-item">
       <div class="faq-q">🛒 Pas encore de clé ?</div>
-      <div class="faq-a">Achète un pack sur jobwin.fr. Tu reçois ta clé par email immédiatement après le paiement via Lemon Squeezy.</div>
+      <div class="faq-a">Achète un pack sur jobwin.fr. Tu reçois ta clé par email immédiatement après le paiement.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q">📧 Clé non reçue ?</div>
@@ -1184,7 +1184,7 @@ const FILLERS_RE = /\b(euh|bah|ben|hein|quoi|voilà|donc|du\s+coup|genre|en\s+fa
 const LS_BASE = 'https://jobwin.lemonsqueezy.com/checkout/buy/';
 const LS_PACKS = {
   decouverte: { id:'0ed1af22-65f0-432d-af22-5d84376b9247', name:'Découverte', interviews:3,  price:'9,90€' },
-  essentiel:  { id:'34461eff-9f25-45d7-bb57-f4821e343472', name:'Essentiel',  interviews:8,  price:'19,90€' },
+  essentiel:  { id:'34461eff-9f25-45d7-bb57-f4821e343472', name:'Essentiel',  interviews:8,  price:'14,90€' },
   intensif:   { id:'02f41cba-2e6e-42e3-8312-1c82017cfca5', name:'Intensif',   interviews:20, price:'34,90€' }
 };
 // Map variant ID -> pack info (pour identifier le pack après achat)
@@ -3933,7 +3933,7 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--green)">9,90€</div>
       </div>
       <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Recruteur au choix · Analyse complète · Score multi-critères · Idéal pour tester</div>
-      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/0ed1af22-65f0-432d-af22-5d84376b9247" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Découverte -></a>
+      <a href="https://buy.stripe.com/bJecN70LT8yz9grenE8bS02" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Découverte -></a>
     </div>
 
     <!-- Pack Essentiel - Recommandé -->
@@ -3944,10 +3944,10 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
           <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Essentiel</div>
           <div style="font-size:12.5px;color:var(--gray-500);margin-top:2px">8 entretiens complets</div>
         </div>
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--blue)">19,90€</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--blue)"><s style="font-size:.6em;opacity:.5;font-weight:500;margin-right:6px">19,90€</s>14,90€</div><div style="display:inline-block;background:#FEF3C7;color:#92400E;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700;margin-top:4px">🎯 Offre de rentrée</div>
       </div>
       <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Découverte · Historique de progression · 8 sessions pour vraiment progresser</div>
-      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/34461eff-9f25-45d7-bb57-f4821e343472" target="_blank" class="btn btn-primary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Essentiel -></a>
+      <a href="https://buy.stripe.com/8x228t0LTbKLakv1AS8bS01" target="_blank" class="btn btn-primary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Essentiel -></a>
     </div>
 
     <!-- Pack Intensif -->
@@ -3960,10 +3960,10 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--purple)">34,90€</div>
       </div>
       <div style="font-size:13px;color:var(--gray-600);line-height:1.55;margin-bottom:14px">✅ Tout du Essentiel · 20 sessions · Pour les candidats déterminés à décrocher leur poste</div>
-      <a href="https://jobwin.lemonsqueezy.com/checkout/buy/02f41cba-2e6e-42e3-8312-1c82017cfca5" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Intensif -></a>
+      <a href="https://buy.stripe.com/7sY9AV5297uv3W7bbs8bS00" target="_blank" class="btn btn-secondary" style="text-decoration:none;font-size:14px;padding:12px">Choisir Intensif -></a>
     </div>
 
-    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:8px">🔒 Paiement sécurisé via Lemon Squeezy · Tu reçois ta clé par email</div>
+    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);margin-bottom:8px">🔒 Paiement sécurisé via Stripe · Tu reçois ta clé par email</div>
     <div style="height:16px"></div>
   </div>
 </div>
