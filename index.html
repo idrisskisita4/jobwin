@@ -53,6 +53,24 @@ h1,h2,h3,h4{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.025em;
 .reveal-d3{transition-delay:.3s}
 .reveal-d4{transition-delay:.4s}
 
+/* ─ PROMO RENTRÉE ─ */
+.promobar{background:linear-gradient(90deg,#1B2E4A,#2563EB,#1B2E4A);background-size:200% 100%;animation:promo-shine 6s linear infinite;color:#fff;text-align:center;padding:11px 16px;font-size:14px;font-weight:600;letter-spacing:-.01em;position:sticky;top:0;z-index:950}
+nav{top:41px!important}
+.promoband{background:linear-gradient(135deg,#FEF3C7,#FDE68A);border-top:2px solid #FCD34D;border-bottom:2px solid #FCD34D;padding:38px 20px;text-align:center}
+.promoband h3{font-size:clamp(24px,3.4vw,34px);font-weight:800;color:#78350F;margin-bottom:10px}
+.promoband p{color:#92400E;font-size:16px;margin-bottom:8px;font-weight:500}
+.promoband .pb-price{font-size:clamp(34px,5vw,52px);font-weight:800;color:#78350F;font-family:'Bricolage Grotesque',sans-serif;margin:6px 0 4px}
+.promoband .pb-old{font-size:.5em;text-decoration:line-through;opacity:.5;font-weight:500;margin-right:10px}
+.promoband .pb-btn{display:inline-block;margin-top:16px;background:#1B2E4A;color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:16px;transition:transform .2s}
+.promoband .pb-btn:hover{transform:translateY(-2px)}
+.promoband .pb-timer{display:inline-block;margin-top:14px;background:rgba(120,53,15,.1);border-radius:20px;padding:6px 16px;font-size:14px;font-weight:700;color:#78350F}
+.promobar b{color:#FDE047}
+.promobar a{color:#fff;text-decoration:underline;text-underline-offset:3px}
+@keyframes promo-shine{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+.promo-pill{display:inline-flex;align-items:center;gap:8px;background:#FEF3C7;border:1px solid #FCD34D;color:#92400E;border-radius:22px;padding:7px 16px;font-size:13.5px;font-weight:700;margin-bottom:14px}
+.promo-strike{text-decoration:line-through;opacity:.55;font-weight:500}
+@media(max-width:600px){.promobar{font-size:12.5px;padding:9px 12px}}
+
 /* ─ NAV ─ */
 nav{position:sticky;top:0;z-index:900;background:rgba(255,255,255,.93);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);transition:box-shadow .3s}
 nav.scrolled{box-shadow:0 4px 24px rgba(27,46,74,.08)}
@@ -366,6 +384,9 @@ footer{background:var(--navy);padding:52px 0 32px}
 </head>
 <body>
 
+<!-- PROMO BAR -->
+<div class="promobar">🎯 OFFRE DE RENTRÉE — Pack Essentiel <span class="promo-strike">19,90€</span> <b>14,90€</b> jusqu'au 30 septembre · <a href="#pricing">J'en profite</a></div>
+
 <!-- NAV -->
 <nav id="nav">
   <div class="navi">
@@ -394,12 +415,13 @@ footer{background:var(--navy);padding:52px 0 32px}
   <div class="container">
     <div class="hero-inner">
       <div class="hero-left">
+        <div class="promo-pill">🎯 Offre de rentrée · <span class="promo-strike">19,90€</span> 14,90€ jusqu'au 30 sept.</div>
         <div class="hero-badge"><div class="hero-pulse"></div> Disponible maintenant — sans inscription</div>
         <h1>Prépare ton entretien et <span class="accent">décroche ton job</span></h1>
         <p class="hero-sub">Simulation vocale réaliste, questions personnalisées selon ton CV, score d'aptitude instantané. Entraîne-toi autant que tu veux.</p>
         <div class="hero-btns">
           <a href="/app.html" class="btn-cta">Commencer gratuitement →</a>
-          <a href="#how" class="btn-sec">Voir comment ça marche</a>
+          <a href="#pricing" class="btn-sec">🎯 Voir l'offre de rentrée</a>
         </div>
         <div class="hero-trust">
           <span>✓ Sans inscription</span>
@@ -598,6 +620,16 @@ footer{background:var(--navy);padding:52px 0 32px}
 <div class="sdiv"></div>
 
 <!-- PRICING -->
+<!-- PROMO BAND -->
+<div class="promoband">
+  <h3>🎯 Offre de rentrée — jusqu'au 30 septembre</h3>
+  <p>La rentrée, c'est le pic des recrutements. Autant y arriver préparé.</p>
+  <div class="pb-price"><span class="pb-old">19,90€</span>14,90€</div>
+  <p>Pack Essentiel · 8 entretiens complets avec analyse et réponse idéale</p>
+  <div class="pb-timer" id="pbTimer"></div><br>
+  <a href="#pricing" class="pb-btn">J'en profite maintenant →</a>
+</div>
+
 <section id="pricing">
   <div class="container">
     <div class="reveal" style="text-align:center">
@@ -845,6 +877,15 @@ document.querySelectorAll('.stats-grid').forEach(g => counterObs.observe(g));
   }
   window.addEventListener('load', gotoHash);
   window.addEventListener('hashchange', gotoHash);
+})();
+</script>
+<script>
+(function(){
+  var el=document.getElementById('pbTimer');
+  if(!el)return;
+  var end=new Date('2026-09-30T23:59:59');
+  var days=Math.ceil((end-new Date())/86400000);
+  el.textContent = days>1 ? '⏳ Plus que '+days+' jours' : (days===1 ? '⏳ Dernier jour !' : '⏳ Offre terminée');
 })();
 </script>
 </body>
