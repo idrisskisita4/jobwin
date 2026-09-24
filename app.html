@@ -268,6 +268,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 .criteria-bar-score{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--navy)}
 .criteria-bar-track{height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden}
 .criteria-bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.criteria-why{font-size:12.5px;color:var(--gray-500);line-height:1.45;margin-top:6px}
 .bar-green{background:linear-gradient(90deg,#059669,#34d399)}
 .bar-blue{background:linear-gradient(90deg,#2563eb,#60a5fa)}
 .bar-purple{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
@@ -466,7 +467,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="side-stat-icon">🎯</div>
       <div>
         <div class="side-stat-val">Score multi-critères</div>
-        <div class="side-stat-lbl">Profil retenu / À renforcer / Non retenu</div>
+        <div class="side-stat-lbl">Prêt / À renforcer / Pas encore prêt</div>
       </div>
     </div>
   </div>
@@ -815,7 +816,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       </div>
       <div class="brief-pill">
         <div class="brief-pill-icon">🎯</div>
-        <div class="brief-pill-label">Score</div>
+        <div class="brief-pill-label">Préparation</div>
         <div class="brief-pill-val">0-100%</div>
       </div>
     </div>
@@ -977,10 +978,11 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
   <div class="results-hero">
     <div class="score-ring" id="score-ring">
       <div class="score-val" id="score-val">0<span class="score-unit">%</span></div>
-      <div class="score-sub">aptitude globale</div>
+      <div class="score-sub">préparation</div>
     </div>
-    <div class="verdict retenu" id="verdict">✅ Profil retenu</div>
-    <p style="margin-top:10px;color:rgba(255,255,255,.5);font-size:13px;position:relative;z-index:1" id="results-sub">Bilan vocal complet</p>
+    <div class="verdict retenu" id="verdict">✅ Prêt pour l'entretien</div>
+    <p style="margin-top:6px;color:rgba(255,255,255,.75);font-size:14px;font-weight:600;position:relative;z-index:1">Score de préparation</p>
+    <p style="margin-top:4px;color:rgba(255,255,255,.5);font-size:13px;position:relative;z-index:1" id="results-sub">Bilan vocal complet</p>
   </div>
 
   <div class="content" style="padding-top:20px">
@@ -1060,18 +1062,22 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
         <div class="criteria-bar-row">
           <div class="criteria-bar-header"><span class="criteria-bar-name">📐 Structure</span><span class="criteria-bar-score" id="bar-structure-val">-</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-blue" id="bar-structure" style="width:0%"></div></div>
+          <div class="criteria-why" id="why-structure"></div>
         </div>
         <div class="criteria-bar-row">
           <div class="criteria-bar-header"><span class="criteria-bar-name">💪 Confiance</span><span class="criteria-bar-score" id="bar-confiance-val">-</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-green" id="bar-confiance" style="width:0%"></div></div>
+          <div class="criteria-why" id="why-confiance"></div>
         </div>
         <div class="criteria-bar-row">
           <div class="criteria-bar-header"><span class="criteria-bar-name">🎯 Pertinence</span><span class="criteria-bar-score" id="bar-pertinence-val">-</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-purple" id="bar-pertinence" style="width:0%"></div></div>
+          <div class="criteria-why" id="why-pertinence"></div>
         </div>
         <div class="criteria-bar-row">
           <div class="criteria-bar-header"><span class="criteria-bar-name">📚 Vocabulaire</span><span class="criteria-bar-score" id="bar-vocabulaire-val">-</span></div>
           <div class="criteria-bar-track"><div class="criteria-bar-fill bar-amber" id="bar-vocabulaire" style="width:0%"></div></div>
+          <div class="criteria-why" id="why-vocabulaire"></div>
         </div>
       </div>
 
@@ -1172,7 +1178,7 @@ const S = {
     poste:'', entreprise:'', niveau:'debutant', secteur:'tech',
     personnalite:'standard', genre:'homme', voix:true, aleatoire:false
   },
-  itv: { qs:[], currentQ:0, answers:[], scores:[], criteria:[], feedbacks:[], ideals:[], startTime:0 },
+  itv: { qs:[], currentQ:0, answers:[], scores:[], criteria:[], justifs:[], feedbacks:[], ideals:[], startTime:0 },
   totalWords:0, totalFillers:0, totalSilences:0,
   totalWPM:0, wpmCount:0,
   expressTimer: null, expressSecondsLeft: 25*60
@@ -1725,7 +1731,7 @@ function showComebackHook(){
     const last = sessions[0];
     const titleEl = document.getElementById('comeback-title');
     const subEl = document.getElementById('comeback-sub');
-    titleEl.textContent = 'Ton dernier entretien : '+last.score+'%';
+    titleEl.textContent = 'Ton dernier score de préparation : '+last.score+'%';
     if(sessions.length === 1){
       subEl.textContent = 'Refais-en un pour voir si tu progresses';
     } else {
@@ -2396,7 +2402,7 @@ async function speakTextAsync(txt) {
 
 async function initInterview() {
   const sessionSeed = Math.random().toString(36).substring(2,8);
-  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],feedbacks:[],ideals:[],reactions:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12,candidateQCount:0,sessionSeed};
+  S.itv={qs:[],currentQ:0,answers:[],scores:[],criteria:[],justifs:[],feedbacks:[],ideals:[],reactions:[],startTime:Date.now(),history:[],phase:'interview',minQ:8,maxQ:12,candidateQCount:0,sessionSeed};
   S.totalWords=0; S.totalFillers=0; S.totalSilences=0; S.totalWPM=0; S.wpmCount=0; S.fillerLog={}; clearAudioBuffer();
 
   const rec = (S.recruiter && S.recruiter.name) ? S.recruiter : RECRUITERS.antoine;
@@ -2948,13 +2954,15 @@ async function stopRec(e) {
       const ev=await evalAnswer(S.itv.qs[S.itv.currentQ],answer);
       S.itv.scores.push(ev.score);
       S.itv.criteria.push({structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire});
+      S.itv.justifs.push(ev.justif||null);
       S.itv.feedbacks.push(ev.feedback); S.itv.ideals.push(ev.ideal);
       const avg=Math.round(S.itv.scores.reduce((a,b)=>a+b,0)/S.itv.scores.length);
       document.getElementById('apt-text').textContent=avg+'%'; document.getElementById('apt-chip').style.opacity='1';
       if(S.itv.currentQ === 0) document.getElementById('feedback-txt').textContent=ev.feedback;
     } catch(err) {
       S.itv.scores.push(55);
-      S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55});
+      S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55,pending:true});
+      S.itv.justifs.push(null);
       S.itv.feedbacks.push('Réponse enregistrée.'); S.itv.ideals.push('');
       if(S.itv.currentQ === 0) document.getElementById('feedback-txt').textContent='⚠️ Analyse indisponible.';
     }
@@ -2988,15 +2996,18 @@ async function stopRec(e) {
 
   // Eval en background
   S.itv.scores.push(55);
-  S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55});
+  S.itv.criteria.push({structure:55,confiance:55,pertinence:55,vocabulaire:55,pending:true});
+  S.itv.justifs.push(null);
   S.itv.feedbacks.push('');
   S.itv.ideals.push('');
+  const _evalIdx = S.itv.scores.length - 1;
   evalAnswer(S.itv.lastQ || '', answer).then(ev=>{
     if(!ev) return;
-    const idx = S.itv.scores.length - 1;
+    const idx = _evalIdx;
     if(idx >= 0){
       S.itv.scores[idx] = ev.score;
       S.itv.criteria[idx] = {structure:ev.structure,confiance:ev.confiance,pertinence:ev.pertinence,vocabulaire:ev.vocabulaire};
+      S.itv.justifs[idx] = ev.justif||null;
       S.itv.feedbacks[idx] = ev.feedback;
     }
     const avg = Math.round(S.itv.scores.filter(s=>s>0).reduce((a,b)=>a+b,0)/Math.max(1,S.itv.scores.filter(s=>s>0).length));
@@ -3437,11 +3448,13 @@ RÉPONSE : "${answer}"
 
 Feedback : 1-2 phrases max, ton ${tone}, UN point faible + UN point fort.
 
+Justif : pour CHAQUE critère, 1 phrase (max 15 mots) qui explique la note en citant un élément CONCRET de la réponse (un mot, une idée, un manque). Tutoie le candidat. Pas de généralités.
+
 JSON uniquement (sans markdown) :
-{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"ici"}`;
-  const txt=await apiCall(prompt,300);
+{"score":75,"structure":70,"confiance":80,"pertinence":75,"vocabulaire":65,"feedback":"ici","justif":{"structure":"...","confiance":"...","pertinence":"...","vocabulaire":"..."}}`;
+  const txt=await apiCall(prompt,550);
   try{return JSON.parse(txt.replace(/```json?|```/g,'').trim())}
-  catch(e){return{score:60,structure:60,confiance:60,pertinence:60,vocabulaire:60,feedback:'Réponse enregistrée.'}}
+  catch(e){return null}
 }
 
 async function genIdealResponse(q, answer, i) {
@@ -3467,7 +3480,8 @@ async function showResults() {
   goTo('results');
   if(S.mode === 'complet') decrementInterview();
 
-  const scores=S.itv.scores;
+  const _okIdx=S.itv.scores.map((_,i)=>i).filter(i=>S.itv.criteria[i] && !S.itv.criteria[i].pending);
+  const scores=_okIdx.length>0?_okIdx.map(i=>S.itv.scores[i]):S.itv.scores;
   const avg=scores.length>0?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
 
   // Score ring
@@ -3476,9 +3490,9 @@ async function showResults() {
 
   // Verdict
   const vEl=document.getElementById('verdict');
-  if(avg>=75){vEl.className='verdict retenu';vEl.innerHTML='✅ Profil retenu';}
-  else if(avg>=55){vEl.className='verdict renforcer';vEl.innerHTML='⚠️ Profil à renforcer';}
-  else{vEl.className='verdict non';vEl.innerHTML='❌ Profil non retenu';}
+  if(avg>=75){vEl.className='verdict retenu';vEl.innerHTML='✅ Prêt pour l\'entretien';}
+  else if(avg>=55){vEl.className='verdict renforcer';vEl.innerHTML='⚠️ Préparation à renforcer';}
+  else{vEl.className='verdict non';vEl.innerHTML='❌ Pas encore prêt';}
 
   if(S.mode==='express'){
     // EXPRESS : show locked results
@@ -3500,7 +3514,8 @@ async function showResults() {
     document.getElementById('express-results').style.display='none';
     document.getElementById('pack-results').style.display='block';
 
-    const crit=S.itv.criteria;
+    const _critOk=S.itv.criteria.filter(c=>c && !c.pending);
+    const crit=_critOk.length>0?_critOk:S.itv.criteria;
     if(crit.length>0){
       const avg4=(k)=>Math.round(crit.reduce((a,c)=>a+(c[k]||0),0)/crit.length);
       const structure=avg4('structure'), confiance=avg4('confiance'),
@@ -3510,6 +3525,22 @@ async function showResults() {
       animBar('bar-pertinence',pertinence,'bar-pertinence-val');
       animBar('bar-vocabulaire',vocabulaire,'bar-vocabulaire-val');
     }
+    // Justification de chaque sous-note : la réponse où le critère est le plus faible
+    const _defs={
+      structure:'Clarté et fil conducteur de tes réponses (situation, action, résultat).',
+      confiance:'Assurance à l\'oral : hésitations, formulations prudentes, affirmations nettes.',
+      pertinence:'Tes réponses collent-elles à la question et au poste, avec des exemples concrets ?',
+      vocabulaire:'Richesse du vocabulaire et registre professionnel.'
+    };
+    ['structure','confiance','pertinence','vocabulaire'].forEach(k=>{
+      const el=document.getElementById('why-'+k); if(!el) return;
+      let worst=-1, worstVal=101;
+      S.itv.criteria.forEach((c,i)=>{
+        const j=S.itv.justifs[i];
+        if(c && !c.pending && j && j[k] && typeof c[k]==='number' && c[k]<worstVal){ worst=i; worstVal=c[k]; }
+      });
+      el.textContent = worst>=0 ? ('Réponse '+(worst+1)+' ('+worstVal+'%) : '+S.itv.justifs[worst][k]) : _defs[k];
+    });
 
     const avgWPM=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
     if(avgWPM>0){
@@ -3597,7 +3628,8 @@ async function showResults() {
 
     if(S.accessCode){
       const avgWPM2=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
-      const crit2=S.itv.criteria;
+      const _c2=S.itv.criteria.filter(c=>c && !c.pending);
+      const crit2=_c2.length>0?_c2:S.itv.criteria;
       const avg4=(k)=>crit2.length>0?Math.round(crit2.reduce((a,c)=>a+(c[k]||0),0)/crit2.length):0;
       saveSession({date:new Date().toISOString(),score:avg,poste:S.config.poste,mode:S.mode,structure:avg4('structure'),confiance:avg4('confiance'),pertinence:avg4('pertinence'),vocabulaire:avg4('vocabulaire'),wpm:avgWPM2});
       updateHistoryBtn();
