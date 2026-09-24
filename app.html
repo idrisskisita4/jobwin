@@ -1108,7 +1108,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="divider"></div>
       <div class="slabel">✅ Points forts</div>
       <div id="res-forts" style="margin-bottom:16px"><div class="result-item"><div class="result-item-icon">⏳</div><div>Analyse IA en cours...</div></div></div>
-      <div class="slabel">🎯 Axes d'amélioration</div>
+      <div class="slabel">⚠️ 3 choses qui pourraient te pénaliser</div>
       <div id="res-axes" style="margin-bottom:16px"><div class="result-item"><div class="result-item-icon">⏳</div><div>Analyse IA en cours...</div></div></div>
 
       <div class="divider"></div>
@@ -3672,13 +3672,33 @@ function animBar(barId, val, labelId) {
 }
 
 async function genFinalAnalysis(avg) {
-  const qas=S.itv.qs.map((q,i)=>`Q: ${q}\nR: ${S.itv.answers[i]||'(silence)'}`).join('\n\n');
-  const prompt=`Coach carrière expert. Bilan entretien.\nPOSTE: ${S.config.poste} | SCORE: ${avg}%\n${qas}\n\nRetourne UNIQUEMENT ce JSON:\n{"forts":["Point 1","Point 2","Point 3"],"axes":["Axe 1","Axe 2","Axe 3"]}`;
+  const qas=S.itv.qs.map((q,i)=>`Q${i+1}: ${q}\nR${i+1}: ${S.itv.answers[i]||'(silence)'}`).join('\n\n');
+  const prompt=`Tu es un recruteur expérimenté qui débriefe un candidat après un entretien blanc.
+POSTE: ${S.config.poste} | SCORE DE PRÉPARATION: ${avg}%
+${qas}
+
+1) "forts" : 3 points forts réels, courts (max 15 mots), basés sur ses réponses.
+2) "penalites" : les 3 choses qui pourraient le faire ÉCARTER dans un vrai entretien, de la plus grave à la moins grave. Pour chacune :
+- "quoi" : le problème en une phrase courte (max 10 mots)
+- "pourquoi" : ce qu'un recruteur en conclurait, en citant un élément CONCRET d'une réponse (ex : "En Q3, tu as dit...") (max 30 mots)
+- "correction" : ce qu'il doit dire ou faire à la place, concret et actionnable (max 30 mots)
+Tutoie le candidat. Sois franc mais constructif. Pas de généralités.
+
+Retourne UNIQUEMENT ce JSON, sans markdown :
+{"forts":["...","...","..."],"penalites":[{"quoi":"...","pourquoi":"...","correction":"..."},{"quoi":"...","pourquoi":"...","correction":"..."},{"quoi":"...","pourquoi":"...","correction":"..."}]}`;
+  const esc=(t)=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   try{
-    const txt=await apiCall(prompt,700);
+    const txt=await apiCall(prompt,1100);
     const d=JSON.parse(txt.replace(/```json?|```/g,'').trim());
-    document.getElementById('res-forts').innerHTML=d.forts.map(f=>`<div class="result-item"><div class="result-item-icon">✅</div><div>${f}</div></div>`).join('');
-    document.getElementById('res-axes').innerHTML=d.axes.map(a=>`<div class="result-item"><div class="result-item-icon">🎯</div><div>${a}</div></div>`).join('');
+    document.getElementById('res-forts').innerHTML=(d.forts||[]).map(f=>`<div class="result-item"><div class="result-item-icon">✅</div><div>${esc(f)}</div></div>`).join('');
+    const pen=Array.isArray(d.penalites)?d.penalites.slice(0,3):[];
+    if(pen.length===0) throw new Error('no penalites');
+    document.getElementById('res-axes').innerHTML=pen.map((p,i)=>`
+      <div style="border:1.5px solid #fecaca;background:#fff7f7;border-radius:12px;padding:14px 16px;margin-bottom:10px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:6px">${i+1}. ${esc(p.quoi)}</div>
+        <div style="font-size:13.5px;color:var(--gray-600,#4b5563);line-height:1.5;margin-bottom:8px"><b>Ce que le recruteur retient :</b> ${esc(p.pourquoi)}</div>
+        <div style="font-size:13.5px;color:#166534;line-height:1.5;background:#f0fdf4;border-radius:8px;padding:8px 10px"><b>👉 À faire la prochaine fois :</b> ${esc(p.correction)}</div>
+      </div>`).join('');
   }catch(e){
     document.getElementById('res-forts').innerHTML='<div class="result-item"><div class="result-item-icon">⚠️</div><div>Analyse non disponible</div></div>';
     document.getElementById('res-axes').innerHTML='<div class="result-item"><div class="result-item-icon">⚠️</div><div>Analyse non disponible</div></div>';
