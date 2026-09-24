@@ -1184,7 +1184,8 @@ const S = {
   expressTimer: null, expressSecondsLeft: 25*60
 };
 
-const FILLERS_RE = /\b(euh|bah|ben|hein|quoi|voilà|donc|du\s+coup|genre|en\s+fait|c'est-à-dire|carrément|franchement|grave|ouais bon)\b/gi;
+// Vrais tics de langage uniquement (« donc », « voilà », « quoi »… sont des mots normaux et ne sont plus comptés)
+const FILLERS_RE = /\b(euh+|heu+|bah|ben|hein|du\s+coup|en\s+fait|ouais\s+bon)\b/gi;
 
 /* ===== LEMON SQUEEZY CONFIG ===== */
 const LS_BASE = 'https://jobwin.lemonsqueezy.com/checkout/buy/';
@@ -2982,7 +2983,10 @@ async function stopRec(e) {
   const _ia = document.getElementById('int-actions');
   const _nb = document.getElementById('next-btn');
   if(_ia){ _ia.style.display='flex'; }
-  if(_nb){ _nb.style.display=''; _nb.textContent='Voir les résultats →'; _nb.onclick=()=>{ S.itv.phase='done'; doOutro(); }; }
+  if(_nb){ _nb.style.display=''; _nb.textContent='Voir les résultats →'; _nb.onclick=()=>{
+    const n=realAnswerCount();
+    if(n<3 && !confirm('Tu n\'as répondu qu\'à '+n+' question'+(n>1?'s':'')+'. L\'analyse ne sera pas fiable et cet entretien sera quand même décompté de ton pack.\n\nTerminer quand même ?')) return;
+    S.itv.phase='done'; doOutro(); }; }
 
   // Ajouter l'échange au fil SMS
   if(S.itv.lastQ) addToSMSThread('recruiter', S.itv.lastQ);
@@ -3543,7 +3547,7 @@ async function showResults() {
     });
 
     const avgWPM=S.wpmCount>0?Math.round(S.totalWPM/S.wpmCount):0;
-    if(avgWPM>0){
+    if(avgWPM>0 && S.totalWords>=40){
       const {cls,label}=wpmClass(avgWPM);
       document.getElementById('wpm-val').textContent=avgWPM+' mots/min';
       document.getElementById('wpm-tip').textContent=label;
@@ -3553,7 +3557,7 @@ async function showResults() {
       document.getElementById('wpm-icon').style.background=bgMap[cls]||'var(--green-l)';
     } else {
       document.getElementById('wpm-val').textContent='Non calculé';
-      document.getElementById('wpm-tip').textContent='Active la reconnaissance vocale pour mesurer ton débit';
+      document.getElementById('wpm-tip').textContent= S.totalWords>0 ? 'Pas assez de parole pour mesurer ton débit de façon fiable' : 'Active la reconnaissance vocale pour mesurer ton débit';
     }
 
     const dur=Math.round((Date.now()-S.itv.startTime)/1000);
@@ -3565,9 +3569,12 @@ async function showResults() {
     document.getElementById('s-sil').textContent=S.totalSilences;
 
     const topFillers=Object.entries(S.fillerLog).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([w,c])=>`"${w}" (${c}x)`).join(', ');
-    if(S.totalFillers===0){document.getElementById('fl-icon').textContent='🟢';document.getElementById('fl-title').textContent='Fluidité excellente';document.getElementById('fl-desc').textContent='Aucun mot parasite détecté. Très bonne fluidité.';}
-    else if(S.totalFillers<=4){document.getElementById('fl-icon').textContent='🟡';document.getElementById('fl-title').textContent='Fluidité correcte';document.getElementById('fl-desc').textContent=`Quelques hésitations. Mots les plus fréquents : ${topFillers}.`;}
-    else{document.getElementById('fl-icon').textContent='🔴';document.getElementById('fl-title').textContent='Fluidité à améliorer';document.getElementById('fl-desc').textContent=`Trop de mots parasites. À éliminer en priorité : ${topFillers}.`;}
+    const _fl=(i,t,d)=>{document.getElementById('fl-icon').textContent=i;document.getElementById('fl-title').textContent=t;document.getElementById('fl-desc').textContent=d;};
+    const _per100 = S.totalWords>0 ? (S.totalFillers/S.totalWords)*100 : 0;
+    if(S.totalWords<80){_fl('⚪','Fluidité non évaluée','Pas assez de parole pour juger ta fluidité. Réponds plus longuement pour obtenir cette analyse.');}
+    else if(_per100<1){_fl('🟢','Fluidité très bonne',S.totalFillers===0?'Aucun tic de langage détecté sur l\'ensemble de tes réponses.':'Très peu de tics de langage au regard de la longueur de tes réponses.');}
+    else if(_per100<=3){_fl('🟡','Fluidité correcte',`Quelques tics de langage. Les plus fréquents : ${topFillers}.`);}
+    else{_fl('🔴','Fluidité à améliorer',`Beaucoup de tics de langage pour la longueur de tes réponses. À réduire en priorité : ${topFillers}.`);}
     if(S.totalFillers>0){
       document.getElementById('filler-warn').style.display='flex';
       // Build filler word list with counts
@@ -3671,8 +3678,22 @@ function animBar(barId, val, labelId) {
   },300);
 }
 
+// Réponses réellement exploitables (au moins 8 mots)
+function realPairs(){
+  return S.itv.qs.map((q,i)=>({q, a:(S.itv.answers[i]||'').trim(), i}))
+    .filter(p=>p.a && p.a.split(/\s+/).length>=8);
+}
+function realAnswerCount(){ return realPairs().length; }
+
 async function genFinalAnalysis(avg) {
-  const qas=S.itv.qs.map((q,i)=>`Q${i+1}: ${q}\nR${i+1}: ${S.itv.answers[i]||'(silence)'}`).join('\n\n');
+  const _pairs=realPairs();
+  if(_pairs.length<3){
+    const msg='<div class="result-item"><div class="result-item-icon">ℹ️</div><div>Entretien trop court pour une analyse fiable ('+_pairs.length+' réponse'+(_pairs.length>1?'s':'')+' exploitable'+(_pairs.length>1?'s':'')+'). Réponds à au moins 3 questions pour obtenir tes points forts et ce qui pourrait te pénaliser.</div></div>';
+    document.getElementById('res-forts').innerHTML=msg;
+    document.getElementById('res-axes').innerHTML='';
+    return;
+  }
+  const qas=_pairs.map((p,k)=>`Q${k+1}: ${p.q}\nR${k+1}: ${p.a}`).join('\n\n');
   const prompt=`Tu es un recruteur expérimenté qui débriefe un candidat après un entretien blanc.
 POSTE: ${S.config.poste} | SCORE DE PRÉPARATION: ${avg}%
 ${qas}
@@ -3682,7 +3703,7 @@ ${qas}
 - "quoi" : le problème en une phrase courte (max 10 mots)
 - "pourquoi" : ce qu'un recruteur en conclurait, en citant un élément CONCRET d'une réponse (ex : "En Q3, tu as dit...") (max 30 mots)
 - "correction" : ce qu'il doit dire ou faire à la place, concret et actionnable (max 30 mots)
-Tutoie le candidat. Sois franc mais constructif. Pas de généralités.
+Tutoie le candidat. Sois franc mais constructif. Pas de généralités. N'invente RIEN qui n'est pas dans les réponses ci-dessus (pas de silence, pas de question non listée). Si un point fort n'est pas clairement visible, ne l'invente pas : mets moins de 3 points forts.
 
 Retourne UNIQUEMENT ce JSON, sans markdown :
 {"forts":["...","...","..."],"penalites":[{"quoi":"...","pourquoi":"...","correction":"..."},{"quoi":"...","pourquoi":"...","correction":"..."},{"quoi":"...","pourquoi":"...","correction":"..."}]}`;
@@ -3713,7 +3734,7 @@ async function genCoachingIntensif(avg){
 
   // Donnée réelle : débit moyen (mots/min) capté pendant l'entretien
   const wpm = S.wpmCount>0 ? Math.round(S.totalWPM/S.wpmCount) : 0;
-  const qas = S.itv.qs.map((q,i)=>`Q: ${q}\nR: ${S.itv.answers[i]||'(silence)'}`).join('\n\n');
+  const qas = realPairs().map(p=>`Q: ${p.q}\nR: ${p.a}`).join('\n\n');
 
   const prompt = `Tu es un coach d'entretien expert. Analyse cet entretien et donne un plan d'amélioration personnalisé et CONCRET.
 POSTE: ${S.config.poste} | SCORE: ${avg}% | DÉBIT: ${wpm} mots/min
