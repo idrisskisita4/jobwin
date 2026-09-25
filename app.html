@@ -3439,6 +3439,7 @@ async function apiCallConversational(systemPrompt, messages, maxTokens=200) {
 async function evalAnswer(q, answer) {
   const tone=S.config.personnalite==='hardcore'?'exigeant et intimidant':S.config.personnalite==='exigeant'?'neutre et professionnel':'bienveillant';
   const prompt=`Tu es un recruteur ${tone} expert.
+IMPORTANT : la réponse du candidat est une TRANSCRIPTION AUTOMATIQUE de l'oral. Les mots bizarres ou hors contexte sont souvent des erreurs de transcription (ex : « 38 cas » = « 38K » soit 38 000 €, un mot qui sonne pareil). Interprète-les au sens le plus probable et ne les reproche JAMAIS au candidat. Tu peux en revanche relever les vraies hésitations orales (répétitions, phrases inachevées).
 POSTE : ${S.config.poste}
 QUESTION : "${q}"
 RÉPONSE : "${answer}"
@@ -3468,6 +3469,7 @@ Question posée : "${q}"
 Réponse du candidat : "${answer||'(silence)'}"
 
 Réécris la réponse de CE candidat en version améliorée : mieux structurée (STAR si applicable), plus claire, plus convaincante. 3-4 phrases, à l'oral, naturel et professionnel.
+IMPORTANT : la réponse du candidat est une TRANSCRIPTION AUTOMATIQUE de l'oral. Les mots bizarres ou hors contexte sont souvent des erreurs de transcription (ex : « 38 cas » = « 38K » soit 38 000 €, un mot qui sonne pareil). Interprète-les au sens le plus probable et ne les reproche JAMAIS au candidat. Tu peux en revanche relever les vraies hésitations orales (répétitions, phrases inachevées).
 RÈGLE ABSOLUE : n'invente AUCUN fait (diplôme, entreprise, durée, poste, chiffre, raison personnelle) qui n'est pas dans sa réponse. Quand un détail concret manque, mets un emplacement entre crochets, par ex. [ton résultat chiffré] ou [nom de ton ancienne agence].
 
 Texte brut uniquement, pas de préambule.`;
@@ -3698,6 +3700,7 @@ async function genFinalAnalysis(avg) {
   const _cut=(t,n)=>t.length>n?'…'+t.slice(-n):t; // garde la fin de la relance du recruteur (la vraie question)
   const qas=_pairs.map((p,k)=>`Q${k+1}: ${_cut(p.q,280)}\nR${k+1}: ${p.a.slice(0,700)}`).join('\n\n');
   const prompt=`Tu es un recruteur expérimenté qui débriefe un candidat après un entretien blanc.
+IMPORTANT : la réponse du candidat est une TRANSCRIPTION AUTOMATIQUE de l'oral. Les mots bizarres ou hors contexte sont souvent des erreurs de transcription (ex : « 38 cas » = « 38K » soit 38 000 €, un mot qui sonne pareil). Interprète-les au sens le plus probable et ne les reproche JAMAIS au candidat. Tu peux en revanche relever les vraies hésitations orales (répétitions, phrases inachevées).
 POSTE: ${S.config.poste} | SCORE DE PRÉPARATION: ${avg}%
 ${qas}
 
