@@ -1112,7 +1112,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div id="res-axes" style="margin-bottom:16px"><div class="result-item"><div class="result-item-icon">⏳</div><div>Analyse IA en cours...</div></div></div>
 
       <div class="divider"></div>
-      <div class="slabel">💡 Réponses idéales - Question par question</div>
+      <div class="slabel">💡 Tes réponses améliorées - question par question</div>
       <div id="res-ideals" style="margin-bottom:20px"></div>
 
       <!-- Coaching Intensif (affiché seulement pour le pack Intensif) -->
@@ -3467,7 +3467,8 @@ async function genIdealResponse(q, answer, i) {
 Question posée : "${q}"
 Réponse du candidat : "${answer||'(silence)'}"
 
-Rédige la réponse idéale qu'aurait donnée un excellent candidat à cette question. 3-4 phrases, structure STAR si applicable, avec des tournures naturelles du type "J'ai été amené à...", "Dans ce contexte, j'ai choisi de...", "Le résultat a été...". En français, naturel et professionnel.
+Réécris la réponse de CE candidat en version améliorée : mieux structurée (STAR si applicable), plus claire, plus convaincante. 3-4 phrases, à l'oral, naturel et professionnel.
+RÈGLE ABSOLUE : n'invente AUCUN fait (diplôme, entreprise, durée, poste, chiffre, raison personnelle) qui n'est pas dans sa réponse. Quand un détail concret manque, mets un emplacement entre crochets, par ex. [ton résultat chiffré] ou [nom de ton ancienne agence].
 
 Texte brut uniquement, pas de préambule.`;
   try {
@@ -3541,7 +3542,8 @@ async function showResults() {
       let worst=-1, worstVal=101;
       S.itv.criteria.forEach((c,i)=>{
         const j=S.itv.justifs[i];
-        if(c && !c.pending && j && j[k] && typeof c[k]==='number' && c[k]<worstVal){ worst=i; worstVal=c[k]; }
+        const _nw=((S.itv.answers[i]||'').trim().split(/\s+/).filter(Boolean).length);
+        if(_nw>=8 && c && !c.pending && j && j[k] && typeof c[k]==='number' && c[k]<worstVal){ worst=i; worstVal=c[k]; }
       });
       el.textContent = worst>=0 ? ('Réponse '+(worst+1)+' ('+worstVal+'%) : '+S.itv.justifs[worst][k]) : _defs[k];
     });
@@ -3621,7 +3623,7 @@ async function showResults() {
         try {
           const ideal = await genIdealResponse(q, answer, i);
           if(ideal && el) {
-            el.innerHTML = `<strong style="color:var(--green);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase">✦ Réponse idéale</strong><br><span style="color:var(--gray-600);line-height:1.6">${ideal}</span>`;
+            el.innerHTML = `<strong style="color:var(--green);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase">✦ Exemple de réponse améliorée</strong><br><span style="color:var(--gray-600);line-height:1.6">${ideal}</span>`;
           } else if(el) {
             el.innerHTML = '<span style="color:var(--gray-400)">Non disponible</span>';
           }
@@ -3693,7 +3695,8 @@ async function genFinalAnalysis(avg) {
     document.getElementById('res-axes').innerHTML='';
     return;
   }
-  const qas=_pairs.map((p,k)=>`Q${k+1}: ${p.q}\nR${k+1}: ${p.a}`).join('\n\n');
+  const _cut=(t,n)=>t.length>n?'…'+t.slice(-n):t; // garde la fin de la relance du recruteur (la vraie question)
+  const qas=_pairs.map((p,k)=>`Q${k+1}: ${_cut(p.q,280)}\nR${k+1}: ${p.a.slice(0,700)}`).join('\n\n');
   const prompt=`Tu es un recruteur expérimenté qui débriefe un candidat après un entretien blanc.
 POSTE: ${S.config.poste} | SCORE DE PRÉPARATION: ${avg}%
 ${qas}
@@ -3709,8 +3712,16 @@ Retourne UNIQUEMENT ce JSON, sans markdown :
 {"forts":["...","...","..."],"penalites":[{"quoi":"...","pourquoi":"...","correction":"..."},{"quoi":"...","pourquoi":"...","correction":"..."},{"quoi":"...","pourquoi":"...","correction":"..."}]}`;
   const esc=(t)=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   try{
-    const txt=await apiCall(prompt,1100);
-    const d=JSON.parse(txt.replace(/```json?|```/g,'').trim());
+    let d=null;
+    for(let attempt=0; attempt<2 && !d; attempt++){
+      try{
+        const txt=await apiCall(prompt,900);
+        const clean=txt.replace(/```json?|```/g,'');
+        const a=clean.indexOf('{'), b=clean.lastIndexOf('}');
+        d=JSON.parse(clean.slice(a,b+1));
+      }catch(err){ d=null; if(attempt===0) await new Promise(r=>setTimeout(r,1500)); }
+    }
+    if(!d) throw new Error('analyse indisponible');
     document.getElementById('res-forts').innerHTML=(d.forts||[]).map(f=>`<div class="result-item"><div class="result-item-icon">✅</div><div>${esc(f)}</div></div>`).join('');
     const pen=Array.isArray(d.penalites)?d.penalites.slice(0,3):[];
     if(pen.length===0) throw new Error('no penalites');
