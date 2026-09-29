@@ -142,9 +142,13 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 .rec-card{border:2px solid var(--gray-200);border-radius:var(--r-sm);padding:14px 12px;cursor:pointer;text-align:center;transition:all var(--t);background:var(--white);user-select:none}
 .rec-card:active{transform:scale(.98)}
 .rec-card.active{border-color:var(--blue);background:var(--blue-light)}
-.rec-avatar{font-size:26px;margin-bottom:5px}
+.rec-avatar{width:60px;height:60px;border-radius:50%;overflow:hidden;margin:0 auto 7px;border:2px solid var(--gray-200)}
+.rec-card.active .rec-avatar{border-color:var(--blue)}
+.rav{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.recruiter-av,.brief-avatar,.sms-av{overflow:hidden}
 .rec-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--navy)}
 .rec-genre{font-size:11px;color:var(--gray-400);margin-top:2px}
+.rec-tag{font-size:10.5px;color:var(--blue);font-weight:600;margin-top:4px;line-height:1.3}
 .rec-card.active .rec-name{color:var(--blue)}
 
 
@@ -735,34 +739,40 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="slabel">Choisir votre recruteur</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px" id="recruiter-grid">
       <div class="rec-card active" id="rc-antoine" onclick="selectRecruiter('antoine')">
-        <div class="rec-avatar">🧑‍💼</div>
+        <div class="rec-avatar"><img class="rav" src="/rec-antoine.jpg" alt="Antoine - Recruteur IA" loading="lazy"></div>
         <div class="rec-name">Antoine</div>
-        <div class="rec-genre">Homme</div>
+        <div class="rec-genre">Recruteur IA</div>
+        <div class="rec-tag">Chaleureux · rassurant</div>
       </div>
       <div class="rec-card" id="rc-laurent" onclick="selectRecruiter('laurent')">
-        <div class="rec-avatar">👨‍💼</div>
+        <div class="rec-avatar"><img class="rav" src="/rec-laurent.jpg" alt="Laurent - Recruteur IA" loading="lazy"></div>
         <div class="rec-name">Laurent</div>
-        <div class="rec-genre">Homme</div>
+        <div class="rec-genre">Recruteur IA</div>
+        <div class="rec-tag">Senior · précis</div>
       </div>
       <div class="rec-card" id="rc-guillaume" onclick="selectRecruiter('guillaume')">
-        <div class="rec-avatar">🧑‍💻</div>
+        <div class="rec-avatar"><img class="rav" src="/rec-guillaume.jpg" alt="Guillaume - Recruteur IA" loading="lazy"></div>
         <div class="rec-name">Guillaume</div>
-        <div class="rec-genre">Homme</div>
+        <div class="rec-genre">Recruteur IA</div>
+        <div class="rec-tag">Posé · analytique</div>
       </div>
       <div class="rec-card" id="rc-manon" onclick="selectRecruiter('manon')">
-        <div class="rec-avatar">👩‍💼</div>
+        <div class="rec-avatar"><img class="rav" src="/rec-manon.jpg" alt="Manon - Recruteur IA" loading="lazy"></div>
         <div class="rec-name">Manon</div>
-        <div class="rec-genre">Femme</div>
+        <div class="rec-genre">Recruteur IA</div>
+        <div class="rec-tag">Sérieuse · directe</div>
       </div>
       <div class="rec-card" id="rc-jeanne" onclick="selectRecruiter('jeanne')">
-        <div class="rec-avatar">👩‍💻</div>
+        <div class="rec-avatar"><img class="rav" src="/rec-jeanne.jpg" alt="Jeanne - Recruteur IA" loading="lazy"></div>
         <div class="rec-name">Jeanne</div>
-        <div class="rec-genre">Femme</div>
+        <div class="rec-genre">Recruteur IA</div>
+        <div class="rec-tag">Jeune · dynamique</div>
       </div>
       <div class="rec-card" id="rc-victoria" onclick="selectRecruiter('victoria')">
-        <div class="rec-avatar">👩‍🎓</div>
+        <div class="rec-avatar"><img class="rav" src="/rec-victoria.jpg" alt="Victoria - Recruteur IA" loading="lazy"></div>
         <div class="rec-name">Victoria</div>
-        <div class="rec-genre">Femme</div>
+        <div class="rec-genre">Recruteur IA</div>
+        <div class="rec-tag">Naturelle · conversationnelle</div>
       </div>
     </div>
     <div class="form-group" style="margin-top:14px">
@@ -2114,6 +2124,7 @@ function initBrief() {
   const duree = isExpress ? '25 min' : '40 min';
 
   document.getElementById('brief-recruiter-name').textContent = (rec.name || 'Antoine') + ' - Recruteur IA';
+  { const av=document.getElementById('brief-avatar'); if(av) av.innerHTML = recAvHTML(rec); }
   document.getElementById('brief-recruiter-sub').textContent = (isExpress ? 'Mode Express' : 'Entretien Complet') + ' · ' + nbQ + ' questions';
   document.getElementById('brief-badge-mode').textContent = modeLabel;
   document.getElementById('brief-badge-level').textContent = levelLabels[level] || '💼 Réaliste';
@@ -2190,12 +2201,12 @@ let dgSocket=null, dgRestarting=false, dgInterimText='';
 
 
 const RECRUITERS = {
-  antoine:   { name:'Antoine',  genre:'homme', voiceId:'101A8UFM73tcrunWGirw', avatar:'🧑‍💼' },
-  laurent:   { name:'Laurent',  genre:'homme', voiceId:'bjgrAyksP9wfGoNKamR1', avatar:'👨‍💼' },
-  guillaume: { name:'Guillaume',genre:'homme', voiceId:'tVu7uvtKsrCoOPPIUVR7', avatar:'🧑‍💻' },
-  manon:     { name:'Manon',    genre:'femme', voiceId:'m5U7XCsc8v988k2RJAqN', avatar:'👩‍💼' },
-  jeanne:    { name:'Jeanne',   genre:'femme', voiceId:'txtf1EDouKke753vN8SL', avatar:'👩‍💻' },
-  victoria:  { name:'Victoria', genre:'femme', voiceId:'O31r762Gb3WFygrEOGh0', avatar:'👩‍🎓' },
+  antoine:   { name:'Antoine',  genre:'homme', voiceId:'101A8UFM73tcrunWGirw', avatar:'🧑‍💼', photo:'/rec-antoine.jpg', tagline:'Chaleureux · rassurant', style:"Chaleureux, rassurant et accessible. Tu mets le candidat à l'aise (« prenez votre temps »). Tu valorises d'abord ce qui est bien avant de relancer (« c'est intéressant — et concrètement, comment ça s'est passé ? »). Ton ton est humain et encourageant, jamais froid." },
+  laurent:   { name:'Laurent',  genre:'homme', voiceId:'bjgrAyksP9wfGoNKamR1', avatar:'👨‍💼', photo:'/rec-laurent.jpg', tagline:'Senior · précis', style:"Recruteur senior, très professionnel. Phrases courtes, formelles, précises. Tu demandes systématiquement des faits vérifiables : chiffres, durées, résultats, périmètre (« combien ? sur quelle période ? quel résultat mesurable ? »). Tu ne te contentes pas d'affirmations générales." },
+  guillaume: { name:'Guillaume',genre:'homme', voiceId:'tVu7uvtKsrCoOPPIUVR7', avatar:'🧑‍💻', photo:'/rec-guillaume.jpg', tagline:'Posé · analytique', style:"Posé, expérimenté et analytique. Tu approfondis une même réponse sur 2 ou 3 niveaux (« pourquoi ce choix ? qu'est-ce que vous feriez différemment avec le recul ? »). Tu reformules parfois pour vérifier ta compréhension (« si je comprends bien, vous… »). Tu prends ton temps, pas de précipitation." },
+  manon:     { name:'Manon',    genre:'femme', voiceId:'m5U7XCsc8v988k2RJAqN', avatar:'👩‍💼', photo:'/rec-manon.jpg', tagline:'Sérieuse · directe', style:'Sérieuse, spontanée et directe. Tu vas droit au but, sans formule de politesse superflue. Quand une réponse est floue, tu le dis tout de suite et tu demandes un exemple précis (« ça reste vague. Un exemple concret ? »). Tu es franche, jamais blessante.' },
+  jeanne:    { name:'Jeanne',   genre:'femme', voiceId:'txtf1EDouKke753vN8SL', avatar:'👩‍💻', photo:'/rec-jeanne.jpg', tagline:'Jeune · dynamique', style:"Jeune, dynamique et professionnelle. Rythme soutenu, questions courtes et claires. Tu t'intéresses à l'adaptabilité, à l'énergie, à la capacité d'apprendre vite et de travailler en équipe. Ton ton est vif et positif, sans être familier." },
+  victoria:  { name:'Victoria', genre:'femme', voiceId:'O31r762Gb3WFygrEOGh0', avatar:'👩‍🎓', photo:'/rec-victoria.jpg', tagline:'Naturelle · conversationnelle', style:"Naturelle, fluide et conversationnelle. Tu rebondis sur ce que vient de dire le candidat plutôt que d'enchaîner une liste de questions (« vous parliez de… justement, … »). L'entretien doit ressembler à un vrai échange, pas à un interrogatoire." },
 };
 const EXPRESS_RECRUITER = RECRUITERS.antoine;
 // Default recruiter = Antoine (in case user never clicks a card)
@@ -2414,7 +2425,7 @@ async function initInterview() {
   safe('r-name-top', el=>el.textContent=rec.name);
   safe('r-meta-name', el=>el.textContent=rec.name);
   safe('q-from', el=>el.textContent=rec.name+' dit');
-  safe('r-avatar', el=>el.textContent=rec.avatar);
+  safe('r-avatar', el=>el.innerHTML=recAvHTML(rec));
   safe('apt-text', el=>el.textContent=' ');
   safe('apt-chip', el=>el.style.opacity='0.4');
   safe('int-actions', el=>el.style.display='none');
@@ -2506,6 +2517,7 @@ async function genRecruiterIntro(rec) {
   const entLabel = entreprise ? ' chez '+entreprise : '';
   const prompt = `Tu es ${rec.name}, recruteur qui REÇOIT un candidat en entretien pour le poste de ${poste}${entreprise ? ' chez '+entreprise : ''}.
 Style : ${style}
+Ta personnalité (elle doit se sentir dès la première phrase) : ${rec.style || 'professionnel'}
 
 Tu ouvres l entretien. Tu parles AU candidat qui est en face de toi — pas dans un email, pas dans une offre d emploi.
 2 phrases maximum :
@@ -2635,7 +2647,7 @@ function addToSMSThread(who, text) {
   const div = document.createElement('div');
   if(who === 'recruiter') {
     div.className = 'sms-recruiter';
-    div.innerHTML = `<div class="sms-av">${S.recruiter?.emoji||'🎙️'}</div><div class="sms-bubble">${clean}</div>`;
+    div.innerHTML = `<div class="sms-av">${recAvHTML()}</div><div class="sms-bubble">${clean}</div>`;
   } else {
     div.className = 'sms-candidate';
     div.innerHTML = `<div class="sms-bubble">${clean}</div>`;
@@ -2648,14 +2660,7 @@ function addToSMSThread(who, text) {
 async function genRecruiterTurn(history, cv, phase) {
   const recKey = (S.recruiter?.name||'Antoine').toLowerCase();
   const recName = S.recruiter?.name || 'Antoine';
-  const recPersonality = {
-    antoine: 'rigoureux et structuré, il va droit au but',
-    laurent: 'analytique, il creuse les faits et les chiffres',
-    guillaume: 'direct et efficace, voix grave et posée',
-    manon: 'empathique mais exigeante, elle lit entre les lignes',
-    jeanne: 'méthodique, elle suit un fil précis',
-    victoria: 'dynamique et incisive, elle challenge chaque réponse'
-  }[recKey] || 'professionnel';
+  const recPersonality = (S.recruiter && S.recruiter.style) || 'professionnel et neutre';
 
   const difficulte = S.config.personnalite==='hardcore'
     ? `EXIGEANT, sous pression. Tu es direct et tu valides rarement. Tu challenges presque chaque réponse : tu demandes des preuves, des chiffres, des exemples précis. Quand une réponse est vague, tu le fais remarquer sèchement et tu réclames du concret. Tu pointes les contradictions et les trous dans le parcours. Tu enchaînes vite, sans laisser de répit. Ton ton reste froid et professionnel — jamais insultant, mais clairement difficile à satisfaire. Le candidat doit sentir une vraie pression.`
@@ -2739,7 +2744,11 @@ CONTEXTE ALTERNANCE — ce poste est en alternance, adapte ton entretien :
     return true;
   });
 
-  const systemPrompt = `Tu es ${recName}, recruteur ${recPersonality}, ${difficulte}. Tu recrutes pour le poste de ${S.config.poste} dans un ${typeEntreprise}.
+  const systemPrompt = `Tu es ${recName}, recruteur.
+TA PERSONNALITÉ (ta MANIÈRE de poser les questions, de relancer et de réagir) : ${recPersonality}
+TON NIVEAU D'EXIGENCE (décide de la PRESSION : combien tu challenges, si tu valides ou non) : ${difficulte}
+RÈGLE : le niveau décide de la sévérité, ta personnalité décide de la façon de le dire. Ta personnalité ne rend jamais l'entretien plus dur ou plus facile que le niveau choisi.
+Tu recrutes pour le poste de ${S.config.poste} dans un ${typeEntreprise}.
 ${tutoie ? 'Tu tutoies le candidat.' : 'Tu vouvoies le candidat — jamais de "tu".'}
 
 CV du candidat :
@@ -3042,7 +3051,7 @@ async function stopRec(e) {
     if(_re2 && conclusion){
       _re2.style.display='block';
       _re2.innerHTML=`<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
-        <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
+        <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${recAvHTML()}</div>
         <div style="flex:1">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} DIT</div>
           <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${conclusion}</div>
@@ -3084,7 +3093,7 @@ async function stopRec(e) {
   if(_re){
     _re.style.display='block';
     _re.innerHTML=`<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
-      <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
+      <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${recAvHTML()}</div>
       <div style="flex:1">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} DIT</div>
         <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${recruiterTurn}</div>
@@ -3130,6 +3139,21 @@ function showNextBtn() {
   _nb.textContent=nextLabel;
   setTimeout(()=>{const sc=document.getElementById('interview-scroll');sc.scrollTop=sc.scrollHeight;},200);
 }
+// Conclusion de l'entretien, dans le style du recruteur (la fonction manquait : c'était toujours la phrase générique)
+async function genOutro() {
+  const rec = S.recruiter || RECRUITERS.antoine;
+  const tutoie = S.config.type_entreprise === 'startup';
+  const prompt = `Tu es ${rec.name}, recruteur. Ta personnalité : ${rec.style || 'professionnel'}.
+Tu CONCLUS un entretien pour le poste de ${S.config.poste || 'ce poste'}. ${tutoie ? 'Tu tutoies.' : 'Tu vouvoies.'}
+2 phrases maximum, à l'oral : remercie le candidat et annonce un retour prochain.
+INTERDIT : donner un verdict, une note, dire s'il est retenu ou non, promettre un poste.
+Texte brut uniquement.`;
+  const txt = await apiCall(prompt, 120);
+  const clean = (txt || '').trim();
+  if(clean.length < 10) throw new Error('outro vide');
+  return clean;
+}
+
 async function genCandidateQuestionAnswer(candidateQ) {
   const recName = S.recruiter?.name || 'le recruteur';
   const tutoie = S.config.type_entreprise === 'startup';
@@ -3171,7 +3195,7 @@ async function genCandidateQuestionAnswer(candidateQ) {
   }
 
   // Fallback API
-  const prompt = `Tu es ${recName}, recruteur dans un ${typeEntreprise} pour le poste de ${S.config.poste}. Le candidat te pose cette question : "${candidateQ}". ${tutoie?'Tu tutoies.':'Tu vouvoies.'} Reponds directement en 2-3 phrases concretes et professionnelles.`;
+  const prompt = `Tu es ${recName}, recruteur dans un ${typeEntreprise} pour le poste de ${S.config.poste}. Ta personnalité : ${S.recruiter?.style || 'professionnel'}. Le candidat te pose cette question : "${candidateQ}". ${tutoie?'Tu tutoies.':'Tu vouvoies.'} Reponds directement en 2-3 phrases concretes et professionnelles.`;
   try { return await apiCall(prompt, 180); }
   catch(e) { return `C est une bonne question. Je reviendrai vers vous avec une reponse precise lors de notre prochain echange.`; }
 }
@@ -3192,7 +3216,7 @@ async function handleCandidateQuestion(currentAnswer) {
     if(_re){
       _re.style.display = 'block';
       _re.innerHTML = `<div style="margin:12px 20px 8px;display:flex;align-items:flex-start;gap:10px">
-        <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${S.recruiter?.emoji||'🎙️'}</div>
+        <div style="width:34px;height:34px;background:#1B2E4A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid rgba(37,99,235,.4)">${recAvHTML()}</div>
         <div style="flex:1">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#2563EB;margin-bottom:5px">${(S.recruiter?.name||'Recruteur').toUpperCase()} RÉPOND</div>
           <div style="background:#EFF6FF;color:#1e293b;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14.5px;line-height:1.6;border-left:3px solid #2563EB">${text}</div>
@@ -3867,6 +3891,13 @@ function fmtDate(iso){
   catch(e){return '-';}
 }
 
+
+// Avatar du recruteur : photo si dispo, sinon emoji
+function recAvHTML(rec){
+  rec = rec || S.recruiter || (typeof RECRUITERS!=='undefined' ? RECRUITERS.antoine : null) || {};
+  if(rec.photo) return '<img class="rav" src="'+rec.photo+'" alt="'+(rec.name||'Recruteur')+' - Recruteur IA" loading="lazy">';
+  return rec.avatar || rec.emoji || '🎙️';
+}
 
 function selectRecruiter(key) {
   Object.keys(RECRUITERS).forEach(k => {
