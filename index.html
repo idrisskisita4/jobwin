@@ -147,6 +147,11 @@ nav.scrolled{box-shadow:0 4px 24px rgba(27,46,74,.08)}
 .mrlbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
 .mrpct{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.3rem;color:var(--green)}
 .mrbar{height:5px;background:var(--border);border-radius:5px;overflow:hidden}
+.mex{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);background:var(--sky);border-radius:20px;padding:3px 10px;display:inline-block;margin-bottom:10px}
+.mpen-t{font-size:12px;font-weight:700;color:var(--navy);margin:12px 0 6px}
+.mpen{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--navy);background:#fff7f7;border:1px solid #fecaca;border-radius:8px;padding:6px 9px;margin-bottom:5px}
+.mpen span{margin-left:auto;font-size:10px;font-weight:700;color:#b91c1c;background:#fee2e2;border-radius:10px;padding:2px 7px;white-space:nowrap}
+.mpen span.mid{color:#92400e;background:#fef3c7}
 .mrfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue3));border-radius:5px;animation:bar-grow .8s .8s ease both;--w:78%}
 
 /* floating badges */
@@ -417,8 +422,8 @@ footer{background:var(--navy);padding:52px 0 32px}
       <div class="hero-left">
         <div class="promo-pill">🎯 Offre de rentrée · <span class="promo-strike">19,90€</span> 14,90€ jusqu'au 15 oct.</div>
         <div class="hero-badge"><div class="hero-pulse"></div> Disponible maintenant — sans inscription</div>
-        <h1>Ton CV. Ton parcours. Tes réponses. <span class="accent">Jobwin te challenge dessus.</span></h1>
-        <p class="hero-sub">Comme un vrai recruteur, à l'oral : il creuse ton parcours, relance là où ça coince. À la fin, ton score de préparation et les 3 choses qui pourraient te pénaliser.</p>
+        <h1>Ton CV. Ton parcours. Tes réponses. <span class="accent">Jobwin te challenge sur ce qui compte vraiment.</span></h1>
+        <p class="hero-sub">Un recruteur IA qui ne récite pas une liste de questions : il analyse ton parcours, rebondit sur tes réponses et creuse là où un vrai recruteur pourrait te challenger. À la fin, ton score de préparation et les 3 choses qui pourraient te pénaliser.</p>
         <div class="hero-btns">
           <a href="/app.html" class="btn-cta">Commencer gratuitement →</a>
           <a href="#pricing" class="btn-sec">🎯 Voir l'offre de rentrée</a>
@@ -433,7 +438,7 @@ footer{background:var(--navy);padding:52px 0 32px}
       </div>
       <div class="mock-wrap">
         <div class="mock-glow"></div>
-        <div class="mock-badge1"><div class="badge-dot"></div> Score calculé en temps réel</div>
+        <div class="mock-badge1"><div class="badge-dot"></div> Il rebondit sur ta réponse</div>
         <div class="mock-badge2"><div class="badge-dot blue"></div> Antoine — Recruteur IA actif</div>
         <div class="mock-float">
           <div class="mframe">
@@ -443,19 +448,24 @@ footer{background:var(--navy);padding:52px 0 32px}
             </div>
             <div class="mhdr">
               <div class="mrec">
-                <div class="mav">🧑‍💼</div>
+                <div class="mav"><img src="/rec-antoine.jpg" alt="Antoine - Recruteur IA" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block"></div>
                 <div><div class="mrname">Antoine</div><div class="mrrole">Recruteur IA · Entretien en cours</div></div>
               </div>
               <div class="mapt">78% préparation</div>
             </div>
             <div class="mchat">
-              <div class="mba"><div class="mic">🤖</div><div class="mbub">Bonjour ! Je suis Antoine. Pouvez-vous vous présenter et me parler de votre parcours ?</div></div>
-              <div class="mbu"><div class="mic">👤</div><div class="mbub">J'ai 3 ans d'expérience en commerce B2B dans la vente de solutions financières…</div></div>
-              <div class="mba"><div class="mic">🤖</div><div class="mbub">Bonne introduction. Quels sont vos points forts et votre principal point faible ?</div></div>
+              <div class="mex">Exemple d'entretien</div>
+              <div class="mba"><div class="mic" style="overflow:hidden;padding:0"><img src="/rec-antoine.jpg" alt="Antoine" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block"></div><div class="mbub">Je vais être direct : qu'est-ce qui vous différencie d'un autre candidat avec le même parcours ?</div></div>
+              <div class="mbu"><div class="mic">👤</div><div class="mbub">Ma capacité à créer une relation de confiance durable avec mes clients…</div></div>
+              <div class="mba"><div class="mic" style="overflow:hidden;padding:0"><img src="/rec-antoine.jpg" alt="Antoine" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block"></div><div class="mbub">D'accord. Donnez-moi un exemple concret où un client vous a recommandé personnellement ?</div></div>
             </div>
             <div class="mresult">
               <div class="mrt"><span class="mrlbl">Score de préparation</span><span class="mrpct">78%</span></div>
               <div class="mrbar"><div class="mrfill"></div></div>
+              <div class="mpen-t">⚠️ 3 choses qui pourraient te pénaliser</div>
+              <div class="mpen"><b>1.</b> Différenciation trop générique <span>Impact élevé</span></div>
+              <div class="mpen"><b>2.</b> Pas de résultat chiffré <span>Impact élevé</span></div>
+              <div class="mpen"><b>3.</b> Objections mal gérées <span class="mid">Impact moyen</span></div>
             </div>
           </div>
         </div>
@@ -467,14 +477,14 @@ footer{background:var(--navy);padding:52px 0 32px}
 <!-- TICKER -->
 <div class="ticker-wrap">
   <div class="ticker-track">
-    <span class="tick-item"><span class="tick-val">+500</span> candidats préparés</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">Relances</span> basées sur ton CV</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">100%</span> en français</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">À partir de 8</span> questions par entretien</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">6</span> recruteurs IA au choix</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">À partir de 9,90€</span> pour commencer</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">Score</span> de préparation instantané</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">Vocal</span> — parle comme en vrai entretien</span><span class="tick-sep">·</span>
-    <span class="tick-item"><span class="tick-val">+500</span> candidats préparés</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">Relances</span> basées sur ton CV</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">100%</span> en français</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">À partir de 8</span> questions par entretien</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">6</span> recruteurs IA au choix</span><span class="tick-sep">·</span>
