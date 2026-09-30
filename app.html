@@ -739,37 +739,37 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     <div class="slabel">Choisir votre recruteur</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px" id="recruiter-grid">
       <div class="rec-card active" id="rc-antoine" onclick="selectRecruiter('antoine')">
-        <div class="rec-avatar"><img class="rav" src="/rec-antoine.jpg" alt="Antoine - Recruteur IA" loading="lazy"></div>
+        <div class="rec-avatar"><img class="rav" src="/rec-antoine.jpg" alt="Antoine - Recruteur IA" loading="lazy" onerror="this.style.display='none'"></div>
         <div class="rec-name">Antoine</div>
         <div class="rec-genre">Recruteur IA</div>
         <div class="rec-tag">Chaleureux · rassurant</div>
       </div>
       <div class="rec-card" id="rc-laurent" onclick="selectRecruiter('laurent')">
-        <div class="rec-avatar"><img class="rav" src="/rec-laurent.jpg" alt="Laurent - Recruteur IA" loading="lazy"></div>
+        <div class="rec-avatar"><img class="rav" src="/rec-laurent.jpg" alt="Laurent - Recruteur IA" loading="lazy" onerror="this.style.display='none'"></div>
         <div class="rec-name">Laurent</div>
         <div class="rec-genre">Recruteur IA</div>
         <div class="rec-tag">Senior · précis</div>
       </div>
       <div class="rec-card" id="rc-guillaume" onclick="selectRecruiter('guillaume')">
-        <div class="rec-avatar"><img class="rav" src="/rec-guillaume.jpg" alt="Guillaume - Recruteur IA" loading="lazy"></div>
+        <div class="rec-avatar"><img class="rav" src="/rec-guillaume.jpg" alt="Guillaume - Recruteur IA" loading="lazy" onerror="this.style.display='none'"></div>
         <div class="rec-name">Guillaume</div>
         <div class="rec-genre">Recruteur IA</div>
         <div class="rec-tag">Posé · analytique</div>
       </div>
       <div class="rec-card" id="rc-manon" onclick="selectRecruiter('manon')">
-        <div class="rec-avatar"><img class="rav" src="/rec-manon.jpg" alt="Manon - Recruteur IA" loading="lazy"></div>
+        <div class="rec-avatar"><img class="rav" src="/rec-manon.jpg" alt="Manon - Recruteur IA" loading="lazy" onerror="this.style.display='none'"></div>
         <div class="rec-name">Manon</div>
         <div class="rec-genre">Recruteur IA</div>
         <div class="rec-tag">Sérieuse · directe</div>
       </div>
       <div class="rec-card" id="rc-jeanne" onclick="selectRecruiter('jeanne')">
-        <div class="rec-avatar"><img class="rav" src="/rec-jeanne.jpg" alt="Jeanne - Recruteur IA" loading="lazy"></div>
+        <div class="rec-avatar"><img class="rav" src="/rec-jeanne.jpg" alt="Jeanne - Recruteur IA" loading="lazy" onerror="this.style.display='none'"></div>
         <div class="rec-name">Jeanne</div>
         <div class="rec-genre">Recruteur IA</div>
         <div class="rec-tag">Jeune · dynamique</div>
       </div>
       <div class="rec-card" id="rc-victoria" onclick="selectRecruiter('victoria')">
-        <div class="rec-avatar"><img class="rav" src="/rec-victoria.jpg" alt="Victoria - Recruteur IA" loading="lazy"></div>
+        <div class="rec-avatar"><img class="rav" src="/rec-victoria.jpg" alt="Victoria - Recruteur IA" loading="lazy" onerror="this.style.display='none'"></div>
         <div class="rec-name">Victoria</div>
         <div class="rec-genre">Recruteur IA</div>
         <div class="rec-tag">Naturelle · conversationnelle</div>
@@ -3895,7 +3895,7 @@ function fmtDate(iso){
 // Avatar du recruteur : photo si dispo, sinon emoji
 function recAvHTML(rec){
   rec = rec || S.recruiter || (typeof RECRUITERS!=='undefined' ? RECRUITERS.antoine : null) || {};
-  if(rec.photo) return '<img class="rav" src="'+rec.photo+'" alt="'+(rec.name||'Recruteur')+' - Recruteur IA" loading="lazy">';
+  if(rec.photo) return '<img class="rav" src="'+rec.photo+'" alt="'+(rec.name||'Recruteur')+' - Recruteur IA" loading="lazy" onerror="this.style.display=\'none\'">';
   return rec.avatar || rec.emoji || '🎙️';
 }
 
