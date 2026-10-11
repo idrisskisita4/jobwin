@@ -500,6 +500,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
   gtag('js', new Date());
   gtag('config', 'G-QWSQ46VX2E');
 </script>
+<script src="/jw-track.js" defer></script>
 </head>
 <body>
 <!-- DESKTOP SIDE PANEL (hidden on mobile) -->
@@ -669,6 +670,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
       <div class="faq-q"><svg class="ic" style="color:var(--blue)" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg> Clé non reçue ?</div>
       <div class="faq-a">Vérifie tes spams. Si toujours rien, contacte-nous à support@jobwin.fr avec ton numéro de commande.</div>
     </div>
+    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);padding:18px 0 6px"><a href="/mentions-legales.html" style="color:inherit">Mentions légales</a> · <a href="/cgv.html" style="color:inherit">CGV</a> · <a href="#" onclick="window.jwCookieSettings&&jwCookieSettings();return false" style="color:inherit">Cookies</a></div>
     <div style="height:16px"></div>
   </div>
 </div>
@@ -4219,6 +4221,8 @@ async function renderBriefFlags(){
 /* ---------- Déroulé de l'entretien ---------- */
 async function crashBeginInterview(rec){
   const C = S.crash || (S.crash = {i:0, stage:'main', ans:[], mode:'main'});
+  // Pixel Meta (si consentement) : pré-entretien COMMENCÉ — aucun contenu (CV, poste, réponses) n'est envoyé
+  try { if(window.jwTrack && !C.trkStart){ C.trkStart = true; window.jwTrack('PreEntretienCommence', {content_name:'Pre-entretien gratuit'}, null, true); } } catch(e){}
   _g('timer-wrap').style.display = 'none';
   _g('recruiter-center').style.display = 'block';
   _g('r-meta-role').textContent = 'Recruteuse IA · Pré-entretien';
@@ -4409,6 +4413,8 @@ function crashSetHero(score){
 
 async function crashShowResults(){
   const C = S.crash;
+  // Pixel Meta (si consentement) : Lead = pré-entretien TERMINÉ (résultats affichés), une seule fois par essai
+  try { if(window.jwTrack && C && C.ans && C.ans.length && !C.trkLead){ C.trkLead = true; window.jwTrack('Lead', {content_name:'Pre-entretien termine', content_category:'essai_gratuit'}); } } catch(e){}
   _g('express-results').style.display = 'block';
   _g('pack-results').style.display = 'none';
   _g('results-sub').textContent = 'Ton pré-entretien';
