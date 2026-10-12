@@ -2020,6 +2020,7 @@ async function verifyCode(){
       applyPackToUI(pack);
       loadEl.style.display = 'none';
       btn.disabled = false;
+      S.mode = 'complet';
       goTo('config');
       return;
     }catch(e){}
@@ -2039,6 +2040,7 @@ async function verifyCode(){
     applyPackToUI(packData);
     loadEl.style.display = 'none';
     btn.disabled = false;
+    S.mode = 'complet';
     goTo('config');
     return;
   }
@@ -2076,6 +2078,7 @@ async function verifyCode(){
     applyPackToUI(packData);
     loadEl.style.display = 'none';
     btn.disabled = false;
+    S.mode = 'complet';
     goTo('config');
 
   } catch(e){
@@ -2127,6 +2130,12 @@ function launchInterview() {
     document.getElementById('cfg-poste').style.borderColor='var(--red)';
     setTimeout(()=>document.getElementById('cfg-poste').style.borderColor='',2000); return;
   }
+  // L'écran de configuration = entretien Complet (pack), quel que soit le chemin d'arrivée
+  { const pk = getSavedPack();
+    if(!pk){ goTo('code'); return; }
+    if(pk.interviewsRemaining <= 0){ alert('Tu n\'as plus d\'entretiens disponibles dans ton pack.\nAchète un nouveau pack sur jobwin.fr'); return; } }
+  S.mode = 'complet';
+  { const act=document.querySelector('.rec-card.active'); const k=act?act.id.replace('rc-',''):'antoine'; S.recruiter = RECRUITERS[k] || RECRUITERS.antoine; }
   S.config.poste=S.config.aleatoire?rndJob():poste;
   // Injecte le type de contrat dans le poste pour activer les consignes alternance/stage du recruteur
   const contratChoisi = S.config.type_contrat || 'cdi';
