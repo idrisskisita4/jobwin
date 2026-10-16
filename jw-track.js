@@ -152,7 +152,8 @@
   /* ---------- InitiateCheckout : clic vers un lien de paiement Stripe ---------- */
   var PACKS = {
     'bJecN70LT8yz9grenE8bS02': { name: 'Decouverte', value: 9.90 },
-    '8x228t0LTbKLakv1AS8bS01': { name: 'Essentiel', value: null }, // prix promo jusqu'au 15/10 inclus
+    '28E7sN8el1678cnenE8bS03': { name: 'Essentiel', value: null }, // lien Essentiel 19,90 € (depuis le 16/10)
+    '8x228t0LTbKLakv1AS8bS01': { name: 'Essentiel', value: null }, // ancien lien promo 14,90 € (désactivé)
     '7sY9AV5297uv3W7bbs8bS00': { name: 'Intensif', value: 34.90 }
   };
   function essentielPrice() { return Date.now() < new Date('2026-10-16T00:00:00+02:00').getTime() ? 14.90 : 19.90; }
