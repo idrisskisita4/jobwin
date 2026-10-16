@@ -1,4 +1,4 @@
-/* Jobwin — consentement cookies + Pixel Meta
+/* Jobwin — consentement cookies + Pixel Meta + avertissement navigateur intégré (Instagram/Facebook)
    - Rien n'est chargé ni envoyé à Meta avant un clic sur « Accepter ».
    - Aucune donnée personnelle (CV, réponses, email, nom) n'est transmise : seulement le type d'événement,
      le pack et le montant.
@@ -60,27 +60,79 @@
     if (document.getElementById('jw-cc-css')) return;
     var s = document.createElement('style'); s.id = 'jw-cc-css';
     s.textContent =
-      '#jw-cc{position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483000;max-width:560px;margin:0 auto;background:#0F1B33;color:#E2E8F0;' +
-      'border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.35);padding:16px 16px 14px;font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}' +
-      '#jw-cc b{color:#fff;font-size:15px}#jw-cc p{margin:6px 0 12px;color:#CBD5E1;font-size:13.5px}' +
-      '#jw-cc .r{display:flex;gap:8px}#jw-cc button{flex:1;border:0;border-radius:10px;padding:11px 10px;font:700 14px/1 inherit;cursor:pointer;font-family:inherit}' +
+      '#jw-dock{position:fixed;left:10px;right:10px;bottom:10px;z-index:2147483000;max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:8px;pointer-events:none}' +
+      '#jw-dock>*{pointer-events:auto}' +
+      '#jw-cc{background:#0F1B33;color:#E2E8F0;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.3);padding:11px 12px 11px;font:13px/1.4 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}' +
+      '#jw-cc p{margin:0 0 9px;color:#CBD5E1;font-size:12.5px}#jw-cc p b{color:#fff}' +
+      '#jw-cc .r{display:flex;gap:8px}#jw-cc button{flex:1;border:0;border-radius:9px;padding:9px 10px;font:700 13.5px/1 inherit;cursor:pointer;font-family:inherit}' +
       '#jw-cc .a{background:#2563EB;color:#fff}#jw-cc .d{background:#fff;color:#0F1B33}' +
-      '#jw-cc a{color:#93C5FD}#jw-toast{position:fixed;left:12px;right:12px;top:12px;z-index:2147483001;max-width:560px;margin:0 auto;background:#065F46;color:#fff;' +
+      '#jw-ia{background:#FFF7E6;color:#3B2A05;border:1.5px solid #F5C451;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:12px 38px 12px 14px;font:13px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;position:relative}' +
+      '#jw-ia b{display:block;font-size:14px;color:#1F1600;margin-bottom:3px}#jw-ia .x{position:absolute;right:8px;top:6px;border:0;background:none;font-size:20px;line-height:1;color:#8A6D1E;cursor:pointer;padding:4px}' +
+      '#jw-ia .r{display:flex;gap:8px;margin-top:9px}#jw-ia .r button{flex:1;border:0;border-radius:9px;padding:10px 8px;font:700 13.5px/1 Inter,system-ui,sans-serif;cursor:pointer;background:#1B2E4A;color:#fff}' +
+      '#jw-ia .r button.s{background:#fff;color:#1B2E4A;border:1.5px solid #E5D3A0}' +
+      '#jw-toast{position:fixed;left:12px;right:12px;top:12px;z-index:2147483001;max-width:560px;margin:0 auto;background:#065F46;color:#fff;' +
       'border-radius:14px;padding:14px 16px;font:600 14px/1.45 Inter,system-ui,sans-serif;box-shadow:0 14px 40px rgba(0,0,0,.3)}';
     document.head.appendChild(s);
+  }
+
+  function dock() {
+    var d = document.getElementById('jw-dock');
+    if (!d) {
+      css(); d = document.createElement('div'); d.id = 'jw-dock'; document.body.appendChild(d);
+      // Réserve la place du dock en bas de page : rien du site ne reste caché dessous
+      var base = parseFloat(getComputedStyle(document.body).paddingBottom) || 0;
+      setInterval(function () {
+        var h = d.offsetHeight ? d.offsetHeight + 20 : 0;
+        document.body.style.paddingBottom = (base + h) + 'px';
+      }, 300);
+    }
+    return d;
   }
 
   function showBanner() {
     if (document.getElementById('jw-cc')) return;
     css();
     var d = document.createElement('div'); d.id = 'jw-cc'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Cookies');
-    d.innerHTML = '<b>Cookies publicitaires</b>' +
-      '<p>Avec ton accord, nous utilisons le pixel Meta (Facebook, Instagram) pour mesurer l’efficacité de nos publicités. ' +
-      'Ton CV, tes réponses et tes coordonnées ne sont jamais transmis. Tu peux changer d’avis à tout moment via « Cookies » en bas de page.</p>' +
+    d.innerHTML = '<p><b>Cookies pub.</b> Avec ton accord, on mesure nos pubs Meta. Ton CV et tes réponses ne sont jamais transmis. Modifiable via « Cookies » en bas de page.</p>' +
       '<div class="r"><button type="button" class="d" id="jw-cc-no">Refuser</button><button type="button" class="a" id="jw-cc-yes">Accepter</button></div>';
-    document.body.appendChild(d);
+    dock().appendChild(d);
     document.getElementById('jw-cc-yes').onclick = function () { decide(true); };
     document.getElementById('jw-cc-no').onclick = function () { decide(false); };
+  }
+
+  /* ---------- Navigateur intégré (Instagram, Facebook, TikTok…) ----------
+     Le micro y est souvent bloqué : on propose d'ouvrir Jobwin dans le vrai navigateur. */
+  var UA = navigator.userAgent || '';
+  var IA = /Instagram/i.test(UA) ? 'Instagram' : /FBAN|FBAV|FB_IAB|FBIOS|FB4A/i.test(UA) ? 'Facebook' : /Messenger/i.test(UA) ? 'Messenger' :
+    /LinkedInApp/i.test(UA) ? 'LinkedIn' : /musical_ly|TikTok|BytedanceWebview/i.test(UA) ? 'TikTok' : /Snapchat/i.test(UA) ? 'Snapchat' : '';
+  var ANDROID = /Android/i.test(UA);
+  function showInApp() {
+    if (!IA || document.getElementById('jw-ia')) return;
+    try { if (sessionStorage.getItem('jw_ia_x')) return; } catch (e) {}
+    // Un seul bandeau à la fois : on attend que le choix cookies soit fait
+    if (document.getElementById('jw-cc')) { setTimeout(showInApp, 500); return; }
+    var url = 'https://jobwin.fr' + location.pathname + location.search;
+    var d = document.createElement('div'); d.id = 'jw-ia'; d.setAttribute('role', 'note');
+    d.innerHTML = '<button type="button" class="x" aria-label="Fermer">×</button>' +
+      '<b>🎙️ Le micro peut être bloqué dans ' + IA + '</b>' +
+      (ANDROID ? 'Pour ton entretien à l’oral, ouvre Jobwin dans Chrome.'
+               : 'Ouvre Jobwin dans Safari : touche <b style="display:inline;font-size:13px">⋯</b> en haut à droite → « Ouvrir dans le navigateur ».') +
+      '<div class="r">' + (ANDROID ? '<button type="button" id="jw-ia-open">Ouvrir dans Chrome</button>' : '') +
+      '<button type="button" class="' + (ANDROID ? 's' : '') + '" id="jw-ia-copy">Copier le lien</button></div>';
+    var dk = dock(); dk.insertBefore(d, dk.firstChild);
+    d.querySelector('.x').onclick = function () { d.remove(); try { sessionStorage.setItem('jw_ia_x', '1'); } catch (e) {} };
+    var op = document.getElementById('jw-ia-open');
+    if (op) op.onclick = function () { location.href = 'intent://' + url.replace(/^https:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end'; };
+    document.getElementById('jw-ia-copy').onclick = function () {
+      var btn = this, done = function () { btn.textContent = 'Lien copié ✓ Colle-le dans ' + (ANDROID ? 'Chrome' : 'Safari'); };
+      try { navigator.clipboard.writeText(url).then(done, fallback); } catch (e) { fallback(); }
+      function fallback() { var t = document.createElement('input'); t.value = url; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) { btn.textContent = url; } t.remove(); }
+    };
+    // Pendant l'entretien lui-même, on n'encombre pas l'écran (le bouton micro est en bas)
+    setInterval(function () {
+      var busy = !!document.querySelector('#screen-interview.active,#screen-brief.active,#screen-results.active');
+      d.style.display = busy ? 'none' : '';
+    }, 400);
   }
 
   function decide(ads) {
@@ -162,6 +214,7 @@
     var c = readConsent();
     if (c === true) { loadPixel(); checkPurchase(); }
     else if (c === null) showBanner();
+    showInApp();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
