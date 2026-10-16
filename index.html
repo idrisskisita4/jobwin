@@ -55,7 +55,6 @@ h1,h2,h3,h4{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.025em;
 
 /* ─ PROMO RENTRÉE ─ */
 .promobar{background:linear-gradient(90deg,#1B2E4A,#2563EB,#1B2E4A);background-size:200% 100%;animation:promo-shine 6s linear infinite;color:#fff;text-align:center;padding:11px 16px;font-size:14px;font-weight:600;letter-spacing:-.01em;position:sticky;top:0;z-index:950}
-nav{top:41px!important}
 .promoband{background:linear-gradient(135deg,#FEF3C7,#FDE68A);border-top:2px solid #FCD34D;border-bottom:2px solid #FCD34D;padding:38px 20px;text-align:center}
 .promoband h3{font-size:clamp(24px,3.4vw,34px);font-weight:800;color:#78350F;margin-bottom:10px}
 .promoband p{color:#92400E;font-size:16px;margin-bottom:8px;font-weight:500}
@@ -117,6 +116,7 @@ nav.scrolled{box-shadow:0 4px 24px rgba(27,46,74,.08)}
 .hero-trust{display:flex;align-items:center;gap:14px;margin-top:20px;flex-wrap:wrap}
 .hero-trust span{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted)}
 .tdiv{width:1px;height:12px;background:var(--border)}
+@media(max-width:600px){.hero{min-height:0;align-items:flex-start;padding-top:18px}.hero h1{font-size:31px;margin-bottom:12px}.hero-sub{font-size:14.5px;line-height:1.5;margin-bottom:16px}.hero-badge{margin-bottom:12px}.promo-pill{margin-bottom:10px!important}}
 @media(max-width:900px){.hero-inner{grid-template-columns:1fr;gap:44px;padding-bottom:56px}.hero-left{text-align:center}.hero-badge{margin-left:auto;margin-right:auto;display:inline-flex}.hero-sub{margin-left:auto;margin-right:auto}.hero-btns{justify-content:center}.hero-trust{justify-content:center}.blob1,.blob2,.hero-grid-bg{display:none}}
 
 /* MOCKUP */
@@ -390,8 +390,6 @@ footer{background:var(--navy);padding:52px 0 32px}
 </head>
 <body>
 
-<!-- PROMO BAR -->
-<div class="promobar">🎯 OFFRE DE RENTRÉE — Pack Essentiel <span class="promo-strike">19,90€</span> <b>14,90€</b> jusqu'au 15 octobre · <a href="#pricing">J'en profite</a></div>
 
 <!-- NAV -->
 <nav id="nav">
@@ -421,13 +419,12 @@ footer{background:var(--navy);padding:52px 0 32px}
   <div class="container">
     <div class="hero-inner">
       <div class="hero-left">
-        <div class="promo-pill">🎯 Offre de rentrée · <span class="promo-strike">19,90€</span> 14,90€ jusqu'au 15 oct.</div>
         <div class="hero-badge"><div class="hero-pulse"></div> Disponible maintenant — sans inscription</div>
         <h1>Ton CV. Ton parcours. Tes réponses. <span class="accent">Jobwin te challenge.</span></h1>
         <p class="hero-sub">Un recruteur IA qui ne récite pas une liste de questions : il analyse ton parcours, rebondit sur tes réponses et creuse là où un vrai recruteur pourrait te challenger. À la fin, ton score de préparation et les 3 choses qui pourraient te pénaliser.</p>
         <div class="hero-btns">
           <a href="/app.html" class="btn-cta">Commencer gratuitement →</a>
-          <a href="#pricing" class="btn-sec">🎯 Voir l'offre de rentrée</a>
+          <a href="#pricing" class="btn-sec">Voir les tarifs</a>
         </div>
         <div class="hero-trust">
           <span>✓ Sans inscription</span>
@@ -631,22 +628,12 @@ footer{background:var(--navy);padding:52px 0 32px}
 <div class="sdiv"></div>
 
 <!-- PRICING -->
-<!-- PROMO BAND -->
-<div class="promoband">
-  <h3>🎯 Offre de rentrée — jusqu'au 15 octobre</h3>
-  <p>La rentrée, c'est le pic des recrutements. Autant y arriver préparé.</p>
-  <div class="pb-price"><span class="pb-old">19,90€</span>14,90€</div>
-  <p>Pack Essentiel · 8 entretiens complets avec analyse et réponse idéale</p>
-  <div class="pb-timer" id="pbTimer"></div><br>
-  <a href="#pricing" class="pb-btn">J'en profite maintenant →</a>
-</div>
-
 <section id="pricing">
   <div class="container">
     <div class="reveal" style="text-align:center">
       <div class="sec-tag">Tarifs</div>
       <h2 class="sec-title">Entraîne-toi jusqu'à décrocher ton poste</h2>
-      <p class="sec-sub" style="margin:0 auto">Accès immédiat après paiement · Sans abonnement · Clé par email<br><b>Offre de rentrée sur le pack Essentiel jusqu'au 15 octobre</b></p>
+      <p class="sec-sub" style="margin:0 auto">Accès immédiat après paiement · Sans abonnement · Clé par email</p>
     </div>
     <div class="ptable-wrap reveal pt-desktop">
       <table class="ptable">
@@ -659,9 +646,9 @@ footer{background:var(--navy);padding:52px 0 32px}
               <div class="pt-sub">3 entretiens · 3,30€/entretien</div>
             </th>
             <th class="pt-best">
-              <div class="pt-pop">★ Offre de rentrée</div>
+              <div class="pt-pop">★ Recommandé</div>
               <div class="pt-name">Essentiel</div>
-              <div class="pt-price"><span style="text-decoration:line-through;opacity:.45;font-size:.5em;margin-right:6px">19,90€</span>14,90<span>€</span></div>
+              <div class="pt-price">19,90<span>€</span></div>
               <div class="pt-sub">8 entretiens · 1,86€/entretien</div>
             </th>
             <th>
@@ -704,10 +691,10 @@ footer{background:var(--navy);padding:52px 0 32px}
         <a href="https://buy.stripe.com/bJecN70LT8yz9grenE8bS02" target="_blank" class="pc-btn pc-btn-dark">Commencer →</a>
       </div>
       <div class="pc best">
-        <div class="pc-pop">⭐ Offre de rentrée</div>
+        <div class="pc-pop">⭐ Recommandé</div>
         <h3>Pack Essentiel</h3>
         <div class="pc-desc">8 entretiens · 1,86€/entretien</div>
-        <div><span style="text-decoration:line-through;opacity:.5;font-size:1.1rem;margin-right:8px">19,90€</span><span class="pc-price">14,90</span><span class="pc-per">€</span></div>
+        <div><span class="pc-price">19,90</span><span class="pc-per">€</span></div>
         <div class="pc-sep"></div>
         <div class="pc-feats">
           <div class="pc-feat"><div class="pc-check"></div>Recruteur au choix</div>
@@ -890,15 +877,6 @@ document.querySelectorAll('.stats-grid').forEach(g => counterObs.observe(g));
   }
   window.addEventListener('load', gotoHash);
   window.addEventListener('hashchange', gotoHash);
-})();
-</script>
-<script>
-(function(){
-  var el=document.getElementById('pbTimer');
-  if(!el)return;
-  var end=new Date('2026-10-15T23:59:59');
-  var days=Math.ceil((end-new Date())/86400000);
-  el.textContent = days>1 ? '⏳ Plus que '+days+' jours' : (days===1 ? '⏳ Dernier jour !' : '⏳ Offre terminée');
 })();
 </script>
 </body>
