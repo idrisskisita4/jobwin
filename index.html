@@ -4,14 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>JOBWIN — Simulateur d'Entretien IA Vocal | Prépare ton entretien</title>
-<meta name="description" content="Entraîne-toi à l'entretien d'embauche avec un recruteur IA qui parle. Questions personnalisées, score de préparation, feedback détaillé. Dès 9,90€ — sans abonnement.">
+<meta name="description" content="Entraîne-toi à ton entretien d'embauche à voix haute, face à un recruteur IA. Pré-entretien gratuit sur ton CV, sans inscription. Packs dès 9,90 €, sans abonnement.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://jobwin.fr">
-<meta property="og:title" content="JOBWIN — Entraîne-toi avec un vrai recruteur IA">
-<meta property="og:description" content="Simulation d'entretien vocal avec IA. Le recruteur parle, tu réponds. Score instantané. Dès 9,90€.">
+<meta property="og:title" content="JOBWIN — Ton entretien d'embauche, à voix haute, face à un recruteur IA">
+<meta property="og:description" content="Le recruteur IA parle, tu réponds au micro. Pré-entretien gratuit : 3 questions tirées de ton CV, sans inscription.">
 <meta property="og:url" content="https://jobwin.fr">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://jobwin.fr/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"JOBWIN","url":"https://jobwin.fr","applicationCategory":"EducationalApplication","operatingSystem":"Web","offers":{"@type":"AggregateOffer","lowPrice":"9.90","highPrice":"34.90","priceCurrency":"EUR"},"inLanguage":"fr-FR"}</script>
@@ -376,16 +378,32 @@ footer{background:var(--navy);padding:52px 0 32px}
   .pt-desktop{display:none}
   .pt-mobile{display:grid}
 }
+
+/* ─ DÉMO VIDÉO ─ */
+.demo-section{padding:64px 0 72px;background:var(--white)}
+.demo-frame{position:relative;max-width:920px;margin:36px auto 0;border-radius:18px;overflow:hidden;background:#0B1220;box-shadow:0 24px 60px rgba(27,46,74,.18);aspect-ratio:16/9}
+.demo-frame video{display:block;width:100%;height:100%;object-fit:cover}
+.demo-sound{position:absolute;left:14px;bottom:14px;border:0;border-radius:999px;padding:10px 16px;background:rgba(15,27,51,.88);color:#fff;font:600 14px/1 'DM Sans',sans-serif;cursor:pointer}
+.demo-sound:hover{background:var(--blue)}
+@media(max-width:600px){.demo-section{padding:40px 0 48px}.demo-frame{margin-top:24px;border-radius:14px}.demo-sound{font-size:13px;padding:9px 13px;left:10px;bottom:10px}}
+/* ─ ESSAI GRATUIT (remplace les témoignages) ─ */
+.try-n{width:34px;height:34px;border-radius:10px;background:var(--sky);color:var(--blue);display:grid;place-items:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15px}
+.try-t{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px;color:var(--navy);line-height:1.25}
+.try-d{font-size:14px;color:var(--muted);line-height:1.65;font-weight:300}
+.try-foot{text-align:center;margin-top:36px}
+.try-note{font-size:13.5px;color:var(--muted);margin-top:16px;line-height:1.6}
+/* ─ RÉASSURANCE SOUS LES PRIX ─ */
+.pay-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 26px;margin-top:30px;font-size:13.5px;color:var(--navy);font-weight:500}
+.pay-trust a{color:var(--blue)}
+.pay-note{text-align:center;font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6}
+.pay-note a{color:var(--blue)}
+.pc-feat.pc-no{opacity:.55}
+.pc-x{width:16px;height:16px;line-height:16px;text-align:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px}
+.faq-a-inner a{color:var(--blue)}
+.hero-sub strong{color:var(--navy);font-weight:600}
 </style>
 
-<!-- Google Analytics 4 — remplace G-QWSQ46VX2E par ton vrai ID -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QWSQ46VX2E"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-QWSQ46VX2E');
-</script>
+<!-- Mesure d'audience et pubs : chargées par /jw-track.js, uniquement après accord (bandeau cookies) -->
 <script src="/jw-track.js" defer></script>
 </head>
 <body>
@@ -420,8 +438,8 @@ footer{background:var(--navy);padding:52px 0 32px}
     <div class="hero-inner">
       <div class="hero-left">
         <div class="hero-badge"><div class="hero-pulse"></div> Disponible maintenant — sans inscription</div>
-        <h1>Ton CV. Ton parcours. Tes réponses. <span class="accent">Jobwin te challenge.</span></h1>
-        <p class="hero-sub">Un recruteur IA qui ne récite pas une liste de questions : il analyse ton parcours, rebondit sur tes réponses et creuse là où un vrai recruteur pourrait te challenger. À la fin, ton score de préparation et les 3 choses qui pourraient te pénaliser.</p>
+        <h1>Ton entretien d'embauche, à voix haute, <span class="accent">face à un recruteur IA.</span></h1>
+        <p class="hero-sub"><strong>3 questions tirées de ton CV. Gratuit, sans inscription.</strong> Ton CV, ton parcours, tes réponses : Jobwin te challenge dessus. Le recruteur rebondit sur ce que tu dis et creuse là où un vrai recruteur insisterait. À la fin : ton score de préparation et les 3 choses qui pourraient te pénaliser.</p>
         <div class="hero-btns">
           <a href="/app.html" class="btn-cta">Commencer gratuitement →</a>
           <a href="#pricing" class="btn-sec">Voir les tarifs</a>
@@ -472,6 +490,22 @@ footer{background:var(--navy);padding:52px 0 32px}
   </div>
 </div>
 
+<!-- DÉMO VIDÉO -->
+<section class="demo-section" id="demo">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <div class="sec-tag">Démo</div>
+      <h2 class="sec-title">Jobwin en 35 secondes</h2>
+    </div>
+    <div class="demo-frame reveal">
+      <video id="demo-video" muted loop playsinline preload="none" poster="/demo-jobwin.jpg" width="1280" height="720">
+        <source src="/demo-jobwin.mp4" type="video/mp4">
+      </video>
+      <button type="button" class="demo-sound" id="demo-sound">🔊 Activer le son</button>
+    </div>
+  </div>
+</section>
+
 <!-- TICKER -->
 <div class="ticker-wrap">
   <div class="ticker-track">
@@ -479,14 +513,14 @@ footer{background:var(--navy);padding:52px 0 32px}
     <span class="tick-item"><span class="tick-val">100%</span> en français</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">À partir de 8</span> questions par entretien</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">6</span> recruteurs IA au choix</span><span class="tick-sep">·</span>
-    <span class="tick-item"><span class="tick-val">À partir de 9,90€</span> pour commencer</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">Gratuit</span> pour commencer</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">Score</span> de préparation instantané</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">Vocal</span> — parle comme en vrai entretien</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">Relances</span> basées sur ton CV</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">100%</span> en français</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">À partir de 8</span> questions par entretien</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">6</span> recruteurs IA au choix</span><span class="tick-sep">·</span>
-    <span class="tick-item"><span class="tick-val">À partir de 9,90€</span> pour commencer</span><span class="tick-sep">·</span>
+    <span class="tick-item"><span class="tick-val">Gratuit</span> pour commencer</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">Score</span> de préparation instantané</span><span class="tick-sep">·</span>
     <span class="tick-item"><span class="tick-val">Vocal</span> — parle comme en vrai entretien</span><span class="tick-sep">·</span>
   </div>
@@ -499,7 +533,7 @@ footer{background:var(--navy);padding:52px 0 32px}
   <div class="container">
     <div class="reveal">
       <div class="sec-tag">Fonctionnalités</div>
-      <h2 class="sec-title">Tout ce qu'il faut pour<br>décrocher le poste</h2>
+      <h2 class="sec-title">Tout ce qu'il faut pour<br>arriver prêt le jour J</h2>
       <p class="sec-sub">Pas un simple quiz. Un vrai entraînement vocal avec un recruteur IA qui s'adapte à ton profil et ton CV.</p>
     </div>
     <div class="feat-grid reveal">
@@ -526,7 +560,7 @@ footer{background:var(--navy);padding:52px 0 32px}
       <div class="b reveal-d2">
         <div class="b-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
         <div class="b-t">Progression trackée</div>
-        <div class="b-d">Historique de tes sessions et de tes scores. Vois si tu progresses d'un entretien à l'autre.</div>
+        <div class="b-d">Historique de tes sessions et de tes scores, conservé sur ton appareil. Vois si tu progresses d'un entretien à l'autre.</div>
       </div>
       <div class="b reveal-d3">
         <div class="b-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
@@ -597,30 +631,34 @@ footer{background:var(--navy);padding:52px 0 32px}
 
 <div class="sdiv"></div>
 
-<!-- TESTIMONIALS -->
-<div class="test-section">
+<!-- ESSAI GRATUIT -->
+<div class="test-section" id="essai">
   <div class="container">
     <div class="reveal" style="text-align:center">
-      <div class="sec-tag">Résultats</div>
-      <h2 class="sec-title">Ce que JOBWIN change vraiment</h2>
-      <p class="sec-sub" style="margin:0 auto">Des candidats préparés sérieusement, qui ont décroché le poste.</p>
+      <div class="sec-tag">Essai gratuit</div>
+      <h2 class="sec-title">Juge par toi-même</h2>
+      <p class="sec-sub" style="margin:0 auto">Le pré-entretien est gratuit. Voici ce que tu obtiens en quelques minutes.</p>
     </div>
     <div class="test-grid reveal">
       <div class="tcard">
-        <div class="tstars"><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div></div>
-        <p class="tquote">"J'avais un entretien chez BNP dans 3 jours. J'ai fait 5 simulations en mode Exigeant. Le vrai entretien m'a semblé facile en comparaison. Poste obtenu."</p>
-        <div class="tauthor"><div class="tav">👨</div><div><div class="tname">Karim B.</div><div class="trole">Chargé de clientèle — Paris</div></div></div>
+        <div class="try-n">1</div>
+        <div class="try-t">3 questions tirées de ton CV</div>
+        <p class="try-d">Le recruteur IA lit ton CV et t'interroge dessus, à voix haute. Tu réponds au micro, comme le jour de l'entretien.</p>
       </div>
       <div class="tcard">
-        <div class="tstars"><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div></div>
-        <p class="tquote">"Les réponses idéales après chaque entretien m'ont tout appris. Je voyais exactement où je me ratais. En 1 semaine mon score est passé de 52% à 84%."</p>
-        <div class="tauthor"><div class="tav">👩</div><div><div class="tname">Sarah M.</div><div class="trole">Responsable marketing — Lyon</div></div></div>
+        <div class="try-n">2</div>
+        <div class="try-t">Ton score de préparation</div>
+        <p class="try-d">À la fin, tu sais où tu en es avant ton vrai entretien, et sur quoi travailler en priorité.</p>
       </div>
       <div class="tcard">
-        <div class="tstars"><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div><div class="tstar"></div></div>
-        <p class="tquote">"En reconversion après 8 ans, j'avais peur des entretiens. JOBWIN m'a aidé à structurer mes réponses et à retrouver confiance. Maintenant j'attends les entretiens avec impatience."</p>
-        <div class="tauthor"><div class="tav">👨</div><div><div class="tname">Marc D.</div><div class="trole">Reconversion vers le digital — Bordeaux</div></div></div>
+        <div class="try-n">3</div>
+        <div class="try-t">Sans compte, sans carte bancaire</div>
+        <p class="try-d">Tu lances l'essai tout de suite. Ton email n'est demandé qu'à la fin, et seulement si tu veux recevoir ton score.</p>
       </div>
+    </div>
+    <div class="try-foot reveal">
+      <a href="/app.html" class="btn-cta">Faire le pré-entretien gratuit →</a>
+      <p class="try-note">Jobwin a été lancé en 2026. Pas encore d'avis clients à afficher : fais l'essai et juge par toi-même.</p>
     </div>
   </div>
 </div>
@@ -632,7 +670,7 @@ footer{background:var(--navy);padding:52px 0 32px}
   <div class="container">
     <div class="reveal" style="text-align:center">
       <div class="sec-tag">Tarifs</div>
-      <h2 class="sec-title">Entraîne-toi jusqu'à décrocher ton poste</h2>
+      <h2 class="sec-title">Entraîne-toi jusqu'à être prêt le jour J</h2>
       <p class="sec-sub" style="margin:0 auto">Accès immédiat après paiement · Sans abonnement · Clé par email</p>
     </div>
     <div class="ptable-wrap reveal pt-desktop">
@@ -649,7 +687,7 @@ footer{background:var(--navy);padding:52px 0 32px}
               <div class="pt-pop">★ Recommandé</div>
               <div class="pt-name">Essentiel</div>
               <div class="pt-price">19,90<span>€</span></div>
-              <div class="pt-sub">8 entretiens · 1,86€/entretien</div>
+              <div class="pt-sub">8 entretiens · 2,49€/entretien</div>
             </th>
             <th>
               <div class="pt-name">Intensif</div>
@@ -685,15 +723,15 @@ footer{background:var(--navy);padding:52px 0 32px}
           <div class="pc-feat"><div class="pc-check"></div>Recruteur au choix</div>
           <div class="pc-feat"><div class="pc-check"></div>Analyse vocale (débit, fluidité, score)</div>
           <div class="pc-feat"><div class="pc-check"></div>Score multi-critères</div>
-          <div class="pc-feat" style="opacity:.4"><div class="pc-check" style="background:#cbd5e1"></div>Historique de progression</div>
-          <div class="pc-feat" style="opacity:.4"><div class="pc-check" style="background:#cbd5e1"></div>Coaching personnalisé</div>
+          <div class="pc-feat pc-no"><span class="pc-x">✗</span><s>Historique de progression</s></div>
+          <div class="pc-feat pc-no"><span class="pc-x">✗</span><s>Coaching personnalisé</s></div>
         </div>
         <a href="https://buy.stripe.com/bJecN70LT8yz9grenE8bS02" target="_blank" class="pc-btn pc-btn-dark">Commencer →</a>
       </div>
       <div class="pc best">
         <div class="pc-pop">⭐ Recommandé</div>
         <h3>Pack Essentiel</h3>
-        <div class="pc-desc">8 entretiens · 1,86€/entretien</div>
+        <div class="pc-desc">8 entretiens · 2,49€/entretien</div>
         <div><span class="pc-price">19,90</span><span class="pc-per">€</span></div>
         <div class="pc-sep"></div>
         <div class="pc-feats">
@@ -701,7 +739,7 @@ footer{background:var(--navy);padding:52px 0 32px}
           <div class="pc-feat"><div class="pc-check"></div>Analyse vocale (débit, fluidité, score)</div>
           <div class="pc-feat"><div class="pc-check"></div>Score multi-critères</div>
           <div class="pc-feat"><div class="pc-check"></div>Historique de progression</div>
-          <div class="pc-feat" style="opacity:.4"><div class="pc-check" style="background:rgba(255,255,255,.4)"></div>Coaching personnalisé</div>
+          <div class="pc-feat pc-no"><span class="pc-x">✗</span><s>Coaching personnalisé</s></div>
         </div>
         <a href="https://buy.stripe.com/28E7sN8el1678cnenE8bS03" target="_blank" class="pc-btn pc-btn-white">Commencer →</a>
       </div>
@@ -720,6 +758,13 @@ footer{background:var(--navy);padding:52px 0 32px}
         <a href="https://buy.stripe.com/7sY9AV5297uv3W7bbs8bS00" target="_blank" class="pc-btn pc-btn-dark">Commencer →</a>
       </div>
     </div>
+    <div class="pay-trust reveal">
+      <span>🔒 Paiement sécurisé par Stripe</span>
+      <span>✓ Paiement unique, sans abonnement</span>
+      <span>✉️ Clé d'accès envoyée par email</span>
+      <span>Une question ? <a href="mailto:contact@jobwin.fr">contact@jobwin.fr</a></span>
+    </div>
+    <p class="pay-note reveal">Pas encore sûr ? Commence par le <a href="/app.html">pré-entretien gratuit</a>. Conditions de vente et droit de rétractation : voir les <a href="/cgv.html">CGV</a>.</p>
   </div>
 </section>
 
@@ -751,11 +796,19 @@ footer{background:var(--navy);padding:52px 0 32px}
     <div class="faq-list reveal">
       <div class="faq-item">
         <div class="faq-q">Ai-je besoin de créer un compte ?<div class="faq-icon">+</div></div>
-        <div class="faq-a"><div class="faq-a-inner">Non. JOBWIN fonctionne sans inscription. Tu achètes un pack et tu reçois une clé d'accès par email. C'est tout.</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Non. Le pré-entretien gratuit se lance sans compte et sans carte bancaire. Si tu prends un pack, tu reçois une clé d'accès par email : tu la saisis dans l'application, c'est tout.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Le pré-entretien est-il vraiment gratuit ?<div class="faq-icon">+</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Oui. 3 questions tirées de ton CV et ton score de préparation à la fin, sans compte ni carte bancaire. Ton email n'est demandé qu'après, et seulement si tu veux recevoir ton score. L'essai gratuit est limité à un par personne.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Que deviennent mon CV et mes réponses ?<div class="faq-icon">+</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Ils servent uniquement à mener l'entretien et à produire ton bilan. Ils sont transmis à nos prestataires techniques (IA, reconnaissance et synthèse vocales) le temps du traitement, et ne sont pas enregistrés dans une base de données Jobwin. Ton historique de scores reste sur ton appareil. Le détail est dans notre <a href="/confidentialite.html">politique de confidentialité</a>.</div></div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Comment fonctionne la reconnaissance vocale ?<div class="faq-icon">+</div></div>
-        <div class="faq-a"><div class="faq-a-inner">Tu maintiens le bouton micro pendant ta réponse. La transcription est en temps réel. Tes réponses ne sont pas stockées — tout est traité localement dans la session.</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Tu maintiens le bouton micro pendant ta réponse et la transcription s'affiche en temps réel. Ta voix est transcrite par notre prestataire de reconnaissance vocale, puis ta réponse est analysée par l'IA pour produire ton bilan. Jobwin ne conserve pas l'enregistrement de ta voix.</div></div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Fonctionne sur mobile ?<div class="faq-icon">+</div></div>
@@ -763,7 +816,7 @@ footer{background:var(--navy);padding:52px 0 32px}
       </div>
       <div class="faq-item">
         <div class="faq-q">Que se passe-t-il après mon achat ?<div class="faq-icon">+</div></div>
-        <div class="faq-a"><div class="faq-a-inner">Tu reçois ta clé d'accès par email immédiatement après le paiement. Tu la saisis dans l'app et ton pack est activé instantanément. Vérifie tes spams si besoin.</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Tu reçois ta clé d'accès par email dans les minutes qui suivent le paiement. Tu la saisis dans l'application et ton pack est activé tout de suite. Pense à vérifier tes spams.</div></div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Puis-je utiliser JOBWIN pour n'importe quel secteur ?<div class="faq-icon">+</div></div>
@@ -782,7 +835,7 @@ footer{background:var(--navy);padding:52px 0 32px}
           <div class="foot-logo-box"><svg viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5 5V3.5A1.5 1.5 0 016.5 2h3A1.5 1.5 0 0111 3.5V5"/></svg></div>
           JOBWIN
         </a>
-        <p class="foot-desc">Simulateur d'entretien IA vocal. Prépare-toi sérieusement pour décrocher le poste que tu mérites.</p>
+        <p class="foot-desc">Simulateur d'entretien d'embauche vocal, avec un recruteur IA. Prépare-toi sérieusement pour ton prochain entretien.</p>
       </div>
       <div>
         <div class="foot-col-title">Produit</div>
@@ -805,8 +858,9 @@ footer{background:var(--navy);padding:52px 0 32px}
         <div class="foot-links">
           <a href="/mentions-legales.html">Mentions légales</a>
           <a href="/cgv.html">CGV</a>
+          <a href="/confidentialite.html">Confidentialité</a>
           <a href="#" onclick="window.jwCookieSettings&&jwCookieSettings();return false">Cookies</a>
-          <a href="mailto:support@jobwin.fr">Support</a>
+          <a href="mailto:contact@jobwin.fr">Contact</a>
         </div>
       </div>
     </div>
@@ -815,6 +869,7 @@ footer{background:var(--navy);padding:52px 0 32px}
       <div class="foot-legal">
         <a href="/mentions-legales.html">Mentions légales</a>
         <a href="/cgv.html">CGV</a>
+        <a href="/confidentialite.html">Confidentialité</a>
         <a href="#" onclick="window.jwCookieSettings&&jwCookieSettings();return false">Cookies</a>
       </div>
     </div>
@@ -822,6 +877,21 @@ footer{background:var(--navy);padding:52px 0 32px}
 </footer>
 
 <script>
+// Vidéo de démo : démarre sans le son quand elle est visible ; le bouton active le son
+(function(){
+  var v = document.getElementById('demo-video'), b = document.getElementById('demo-sound');
+  if(!v || !b) return;
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function play(){ var p = v.play(); if(p && p.catch) p.catch(function(){}); }
+  if(calm){ v.controls = true; }
+  else if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting) play(); else v.pause(); }); }, {threshold:.35}).observe(v);
+  } else { v.controls = true; }
+  b.addEventListener('click', function(){
+    v.muted = false; v.loop = false; v.controls = true; v.currentTime = 0; play(); b.style.display = 'none';
+  });
+})();
+
 // Scroll reveal
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});

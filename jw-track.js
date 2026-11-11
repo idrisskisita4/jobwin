@@ -1,5 +1,7 @@
-/* Jobwin — consentement cookies + Pixel Meta + avertissement navigateur intégré (Instagram/Facebook)
-   - Rien n'est chargé ni envoyé à Meta avant un clic sur « Accepter ».
+/* Jobwin — consentement cookies + Google Analytics + Pixel Meta + avertissement navigateur intégré (Instagram/Facebook)
+   - Rien n'est chargé ni envoyé à Google ou à Meta avant un accord explicite (« Tout accepter » ou choix personnalisé).
+   - Deux finalités distinctes : mesure d'audience (Google Analytics) et mesure des publicités (Pixel Meta).
+   - Refuser est aussi simple qu'accepter ; le choix est modifiable à tout moment via le lien « Cookies » en bas de page.
    - Aucune donnée personnelle (CV, réponses, email, nom) n'est transmise : seulement le type d'événement,
      le pack et le montant.
    - Purchase n'est envoyé qu'après vérification serveur auprès de Stripe (paiement réellement payé),
@@ -7,21 +9,49 @@
 (function () {
   'use strict';
   var PIXEL_ID = '1899463654700183';
-  var KEY = 'jw_consent_v1'; // {ads:true|false, t:timestamp}
+  var GA_ID = 'G-QWSQ46VX2E';
+  var KEY = 'jw_consent_v2'; // {ads:true|false, stats:true|false, t:timestamp}
   var MAX_AGE = 1000 * 60 * 60 * 24 * 180; // on redemande au bout de 6 mois
   var queue = []; // événements en attente du consentement
-  var loaded = false;
+  var loaded = false; // Pixel Meta chargé
+  var gaLoaded = false; // Google Analytics chargé
 
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
   function sget(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
   function sset(k, v) { try { if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) {} }
 
+  /* Renvoie {ads, stats} ou null si aucun choix valable n'est enregistré */
   function readConsent() {
     try {
       var c = JSON.parse(store(KEY) || 'null');
-      if (!c || typeof c.ads !== 'boolean' || !c.t || Date.now() - c.t > MAX_AGE) return null;
-      return c.ads;
+      if (!c || typeof c.ads !== 'boolean' || typeof c.stats !== 'boolean' || !c.t || Date.now() - c.t > MAX_AGE) return null;
+      return { ads: c.ads, stats: c.stats };
     } catch (e) { return null; }
+  }
+
+  /* Efface les cookies de mesure déjà posés (retrait ou refus après un accord) */
+  function clearCookies() {
+    try {
+      var host = location.hostname, parts = host.split('.'), domains = ['', host, '.' + host];
+      if (parts.length > 2) domains.push('.' + parts.slice(-2).join('.'));
+      document.cookie.split(';').forEach(function (c) {
+        var n = c.split('=')[0].trim();
+        if (!/^(_ga|_gid|_gat|_gcl|_fbp|_fbc)/.test(n)) return;
+        domains.forEach(function (d) { document.cookie = n + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' + (d ? '; domain=' + d : ''); });
+      });
+    } catch (e) {}
+  }
+
+  /* ---------- Google Analytics (mesure d'audience) ---------- */
+  function loadGA() {
+    if (gaLoaded) return; gaLoaded = true;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', GA_ID, { cookie_expires: 60 * 60 * 24 * 395 }); // 13 mois au plus
+    var s = document.createElement('script'); s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    document.head.appendChild(s);
   }
 
   /* ---------- Pixel ---------- */
@@ -49,9 +79,9 @@
   /* API publique : jwTrack('Lead', {...}) / jwTrack('X', {...}, {eventID}, true) pour un événement personnalisé */
   window.jwTrack = function (name, params, opts, custom) {
     var c = readConsent();
-    if (c === false) return; // refusé : on n'envoie rien
+    if (c && c.ads === false) return; // refusé : on n'envoie rien
     var kind = custom ? 'trackCustom' : 'track';
-    if (c === true && loaded) send(kind, name, params, opts);
+    if (c && c.ads === true && loaded) send(kind, name, params, opts);
     else queue.push([kind, name, params, opts]); // en attente du choix
   };
 
@@ -66,6 +96,12 @@
       '#jw-cc p{margin:0 0 9px;color:#CBD5E1;font-size:12.5px}#jw-cc p b{color:#fff}' +
       '#jw-cc .r{display:flex;gap:8px}#jw-cc button{flex:1;border:0;border-radius:9px;padding:9px 10px;font:700 13.5px/1 inherit;cursor:pointer;font-family:inherit}' +
       '#jw-cc .a{background:#2563EB;color:#fff}#jw-cc .d{background:#fff;color:#0F1B33}' +
+      '#jw-cc p a{color:#93C5FD;text-decoration:underline}' +
+      '#jw-cc .o{display:none;margin:0 0 10px}#jw-cc.custom .o{display:block}' +
+      '#jw-cc .o label{display:flex;align-items:flex-start;gap:9px;padding:7px 0;font-size:13px;color:#E2E8F0;cursor:pointer}' +
+      '#jw-cc .o input{width:18px;height:18px;margin:1px 0 0;flex:none;accent-color:#2563EB}#jw-cc .o small{display:block;color:#94A3B8;font-size:11.5px}' +
+      '#jw-cc .c{display:block;width:100%;margin-top:8px;background:none;border:0;color:#CBD5E1;font:600 12.5px/1 inherit;font-family:inherit;text-decoration:underline;cursor:pointer;padding:6px}' +
+      '#jw-cc .s{display:none}#jw-cc.custom .s{display:block}#jw-cc.custom .c:not(.s){display:none}' +
       '#jw-ia{background:#FFF7E6;color:#3B2A05;border:1.5px solid #F5C451;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:12px 38px 12px 14px;font:13px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;position:relative}' +
       '#jw-ia b{display:block;font-size:14px;color:#1F1600;margin-bottom:3px}#jw-ia .x{position:absolute;right:8px;top:6px;border:0;background:none;font-size:20px;line-height:1;color:#8A6D1E;cursor:pointer;padding:4px}' +
       '#jw-ia .r{display:flex;gap:8px;margin-top:9px}#jw-ia .r button{flex:1;border:0;border-radius:9px;padding:10px 8px;font:700 13.5px/1 Inter,system-ui,sans-serif;cursor:pointer;background:#1B2E4A;color:#fff}' +
@@ -93,11 +129,21 @@
     if (document.getElementById('jw-cc')) return;
     css();
     var d = document.createElement('div'); d.id = 'jw-cc'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Cookies');
-    d.innerHTML = '<p><b>Cookies pub.</b> Avec ton accord, on mesure nos pubs Meta. Ton CV et tes réponses ne sont jamais transmis. Modifiable via « Cookies » en bas de page.</p>' +
-      '<div class="r"><button type="button" class="d" id="jw-cc-no">Refuser</button><button type="button" class="a" id="jw-cc-yes">Accepter</button></div>';
+    d.innerHTML = '<p><b>Cookies.</b> Avec ton accord, on mesure l’audience du site (Google Analytics) et l’efficacité de nos pubs (Meta). Ton CV et tes réponses ne leur sont jamais transmis. <a href="/confidentialite.html#cookies">En savoir plus</a></p>' +
+      '<div class="o">' +
+      '<label><input type="checkbox" id="jw-cc-stats"><span>Mesure d’audience<small>Google Analytics : pages vues, provenance des visites.</small></span></label>' +
+      '<label><input type="checkbox" id="jw-cc-ads"><span>Mesure des publicités<small>Pixel Meta : savoir si une pub Facebook ou Instagram a amené une visite ou un achat.</small></span></label>' +
+      '</div>' +
+      '<div class="r"><button type="button" class="d" id="jw-cc-no">Tout refuser</button><button type="button" class="a" id="jw-cc-yes">Tout accepter</button></div>' +
+      '<button type="button" class="c" id="jw-cc-custom">Personnaliser</button>' +
+      '<button type="button" class="c s" id="jw-cc-save">Enregistrer mes choix</button>';
     dock().appendChild(d);
-    document.getElementById('jw-cc-yes').onclick = function () { decide(true); };
-    document.getElementById('jw-cc-no').onclick = function () { decide(false); };
+    document.getElementById('jw-cc-yes').onclick = function () { decide(true, true); };
+    document.getElementById('jw-cc-no').onclick = function () { decide(false, false); };
+    document.getElementById('jw-cc-custom').onclick = function () { d.className = 'custom'; };
+    document.getElementById('jw-cc-save').onclick = function () {
+      decide(document.getElementById('jw-cc-ads').checked, document.getElementById('jw-cc-stats').checked);
+    };
   }
 
   /* ---------- Navigateur intégré (Instagram, Facebook, TikTok…) ----------
@@ -135,17 +181,20 @@
     }, 400);
   }
 
-  function decide(ads) {
-    store(KEY, JSON.stringify({ ads: ads, t: Date.now() }));
+  function decide(ads, stats) {
+    store(KEY, JSON.stringify({ ads: !!ads, stats: !!stats, t: Date.now() }));
     var b = document.getElementById('jw-cc'); if (b) b.remove();
+    if (stats) loadGA();
     if (ads) { loadPixel(); checkPurchase(); }
     else { queue = []; }
+    if (!ads || !stats) clearCookies();
   }
 
   /* Lien « Cookies » pour changer d'avis */
   window.jwCookieSettings = function () {
     try { localStorage.removeItem(KEY); } catch (e) {}
-    if (loaded) { location.reload(); return; } // déjà chargé : on recharge pour repartir propre
+    clearCookies();
+    if (loaded || gaLoaded) { location.reload(); return; } // déjà chargé : on recharge pour repartir propre
     showBanner();
   };
 
@@ -192,7 +241,7 @@
 
   function checkPurchase() {
     var sid = sget('jw_pending_purchase'); if (!sid) return;
-    if (readConsent() !== true) return; // sera traité si l'utilisateur accepte
+    var cc = readConsent(); if (!cc || cc.ads !== true) return; // sera traité si l'utilisateur accepte
     if (store('jw_purchase_' + sid)) { sset('jw_pending_purchase', null); return; } // déjà envoyé
     fetch('/.netlify/functions/verify-checkout?session_id=' + encodeURIComponent(sid))
       .then(function (r) { return r.ok ? r.json() : null; })
@@ -212,9 +261,10 @@
   function start() {
     var fromStripe = capturePurchaseParam();
     if (fromStripe) toast('Paiement reçu, merci ! Ton code d’accès arrive par email dans quelques minutes (pense à vérifier tes spams).');
+    try { localStorage.removeItem('jw_consent_v1'); } catch (e) {} // ancien format (pubs seules) : on redemande
     var c = readConsent();
-    if (c === true) { loadPixel(); checkPurchase(); }
-    else if (c === null) showBanner();
+    if (c === null) showBanner();
+    else { if (c.stats) loadGA(); if (c.ads) { loadPixel(); checkPurchase(); } }
     showInApp();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

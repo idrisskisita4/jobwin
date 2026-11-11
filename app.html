@@ -492,14 +492,7 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
 .tipc .ic{color:var(--blue);width:17px;height:17px;margin-top:1px}
 </style>
 
-<!-- Google Analytics 4 — remplace G-QWSQ46VX2E par ton vrai ID -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QWSQ46VX2E"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-QWSQ46VX2E');
-</script>
+<!-- Mesure d'audience et pubs : chargées par /jw-track.js, uniquement après accord (bandeau cookies) -->
 <script src="/jw-track.js" defer></script>
 </head>
 <body>
@@ -668,9 +661,9 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
     </div>
     <div class="faq-item">
       <div class="faq-q"><svg class="ic" style="color:var(--blue)" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg> Clé non reçue ?</div>
-      <div class="faq-a">Vérifie tes spams. Si toujours rien, contacte-nous à support@jobwin.fr avec ton numéro de commande.</div>
+      <div class="faq-a">Vérifie tes spams. Si toujours rien, contacte-nous à contact@jobwin.fr avec ton numéro de commande.</div>
     </div>
-    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);padding:18px 0 6px"><a href="/mentions-legales.html" style="color:inherit">Mentions légales</a> · <a href="/cgv.html" style="color:inherit">CGV</a> · <a href="#" onclick="window.jwCookieSettings&&jwCookieSettings();return false" style="color:inherit">Cookies</a></div>
+    <div style="text-align:center;font-size:12.5px;color:var(--gray-400);padding:18px 0 6px"><a href="/mentions-legales.html" style="color:inherit">Mentions légales</a> · <a href="/cgv.html" style="color:inherit">CGV</a> · <a href="/confidentialite.html" style="color:inherit">Confidentialité</a> · <a href="#" onclick="window.jwCookieSettings&&jwCookieSettings();return false" style="color:inherit">Cookies</a></div>
     <div style="height:16px"></div>
   </div>
 </div>
@@ -2087,7 +2080,7 @@ async function verifyCode(){
     errEl.style.display = 'flex';
     let msg;
     if(e.name === 'AbortError'){
-      msg = 'Le serveur met trop de temps à répondre. Réessaie, ou écris à support@jobwin.fr avec ton code.';
+      msg = 'Le serveur met trop de temps à répondre. Réessaie, ou écris à contact@jobwin.fr avec ton code.';
     } else if(e.message.includes('Failed to fetch')){
       msg = 'Erreur réseau. Vérifie ta connexion internet et réessaie.';
     } else if(e.message === 'Code invalide' || e.message.includes('épuisé') || e.message.includes('désactivé')){
