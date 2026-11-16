@@ -206,16 +206,21 @@
     '7sY9AV5297uv3W7bbs8bS00': { name: 'Intensif', value: 34.90 }
   };
   function essentielPrice() { return Date.now() < new Date('2026-10-16T00:00:00+02:00').getTime() ? 14.90 : 19.90; }
-  document.addEventListener('click', function (e) {
-    var el = e.target && e.target.closest ? e.target.closest('a[href*="buy.stripe.com"],[onclick*="buy.stripe.com"]') : null;
-    if (!el) return;
-    var src = (el.getAttribute('href') || '') + ' ' + (el.getAttribute('onclick') || '');
-    var m = src.match(/buy\.stripe\.com\/([A-Za-z0-9]+)/); if (!m) return;
+  function trackCheckout(src) {
+    var m = String(src || '').match(/buy\.stripe\.com\/([A-Za-z0-9]+)/); if (!m) return;
     var p = PACKS[m[1]] || { name: 'Inconnu', value: null };
     var value = p.name === 'Essentiel' ? essentielPrice() : p.value;
     var params = { content_name: 'Pack ' + p.name, currency: 'EUR' };
     if (value) params.value = value;
     window.jwTrack('InitiateCheckout', params);
+  }
+  // Appelée par jw-checkout.js quand le client confirme et part vers Stripe
+  window.jwTrackCheckout = trackCheckout;
+  // Secours si jw-checkout.js n'est pas chargé : clic direct sur un lien Stripe
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('a[href*="buy.stripe.com"],[onclick*="buy.stripe.com"]') : null;
+    if (!el) return;
+    trackCheckout((el.getAttribute('href') || '') + ' ' + (el.getAttribute('onclick') || ''));
   }, true);
 
   /* ---------- Purchase : retour de Stripe avec ?session_id=cs_... ---------- */

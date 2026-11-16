@@ -1,6 +1,10 @@
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
+// Identité du vendeur, reprise dans l'email de confirmation (support durable exigé pour la vente à distance)
+const SELLER = 'Jobwin — Idriss Kisita, entrepreneur individuel — 142 rue de Rivoli, 75001 Paris [[À CONFIRMER]] — SIRET 106 681 976 00010 — contact@jobwin.fr';
+const PACK_LABELS = { DECOUVERTE: 'Découverte', ESSENTIEL: 'Essentiel', INTENSIF: 'Intensif' };
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
@@ -166,6 +170,8 @@ exports.handler = async (event) => {
     console.log('Code saved:', code);
 
     const brevoKey = process.env.BREVO_API_KEY;
+    const prix = (total / 100).toFixed(2).replace('.', ',') + ' €';
+    const dateAchat = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date());
     if (brevoKey && customerEmail) {
       const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
@@ -193,8 +199,15 @@ exports.handler = async (event) => {
                 <li>Entrez votre code d'accès</li>
                 <li>Commencez votre simulation d'entretien</li>
               </ol>
+              <div style="margin-top:28px;padding:18px;border-radius:12px;background:#132544;font-size:13px;line-height:1.6;color:rgba(255,255,255,.75)">
+                <strong style="color:white">Récapitulatif de votre achat</strong><br>
+                Pack ${PACK_LABELS[pack.name] || pack.name} — ${pack.credits} entretiens complets — ${prix} — payé le ${dateAchat}<br>
+                Vous avez demandé à accéder au service tout de suite. Vous pouvez vous rétracter pendant 14 jours : nous vous remboursons alors les entretiens que vous n'avez pas utilisés (article L221-25 du Code de la consommation).<br>
+                Pour vous rétracter : <a href="https://jobwin.fr/retractation.html" style="color:#93C5FD">Renoncer au contrat ici</a> · Conditions générales de vente : <a href="https://jobwin.fr/cgv.html" style="color:#93C5FD">jobwin.fr/cgv.html</a>
+              </div>
               <div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:rgba(255,255,255,.3)">
-                Code personnel — ne le partagez pas. Valable pour ${pack.credits} entretiens.
+                Code personnel — ne le partagez pas. Valable pour ${pack.credits} entretiens, pendant 12 mois.<br>
+                ${SELLER}
               </div>
             </div>
           `,

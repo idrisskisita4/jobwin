@@ -112,10 +112,11 @@
     footer{background:var(--surface);border-top:1px solid var(--border);padding:1.75rem 3rem;display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--muted);}
     footer a{color:var(--muted);text-decoration:none;}
     footer a:hover{color:var(--navy);}
-    .footer-links{display:flex;gap:1.75rem;}
+    .footer-links{display:flex;flex-wrap:wrap;gap:1.75rem;}
 
     @media(max-width:900px){.art-layout{grid-template-columns:1fr;}.sidebar{position:static;}}
-    @media(max-width:640px){nav,.art-hero,.art-layout,footer{padding-left:1.25rem;padding-right:1.25rem;}}
+    .art-layout>*{min-width:0;}
+    @media(max-width:640px){nav,.art-hero,.art-layout,footer{padding-left:1.25rem;padding-right:1.25rem;}.nav-links{gap:1rem;}.nav-links a:not(.nav-cta){display:none;}}
   </style>
 </head>
 <body>
@@ -263,6 +264,8 @@
     <a href="/blog/">Blog</a>
     <a href="/mentions-legales.html">Mentions légales</a>
     <a href="/cgv.html">CGV</a>
+  <a href="/confidentialite.html">Confidentialité</a>
+  <a href="/retractation.html">Renoncer au contrat ici</a>
   </div>
 </footer>
 

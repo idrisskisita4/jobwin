@@ -114,7 +114,7 @@
     footer { background: var(--surface); border-top: 1px solid var(--border); padding: 1.75rem 3rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: var(--muted); }
     footer a { color: var(--muted); text-decoration: none; }
     footer a:hover { color: var(--navy); }
-    .footer-links { display: flex; gap: 1.75rem; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: .75rem 1.75rem; }
 
     @media(max-width:960px) {
       .featured { grid-template-columns: 1fr; }
@@ -124,6 +124,8 @@
       .cta { flex-direction: column; text-align: center; }
     }
     @media(max-width:640px) {
+      .nav-links { gap: 1rem; }
+      .nav-links a:not(.nav-cta) { display: none; }
       nav, .hero, .main, footer { padding-left: 1.25rem; padding-right: 1.25rem; }
       .grid { grid-template-columns: 1fr; }
     }
@@ -243,6 +245,8 @@
     <a href="/blog/">Blog</a>
     <a href="/mentions-legales.html">Mentions légales</a>
     <a href="/cgv.html">CGV</a>
+    <a href="/confidentialite.html">Confidentialité</a>
+    <a href="/retractation.html">Renoncer au contrat ici</a>
   </div>
 </footer>
 
