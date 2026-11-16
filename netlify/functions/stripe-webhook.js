@@ -2,7 +2,7 @@ const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
 // Identité du vendeur, reprise dans l'email de confirmation (support durable exigé pour la vente à distance)
-const SELLER = 'Jobwin — Idriss Kisita, entrepreneur individuel — 142 rue de Rivoli, 75001 Paris [[À CONFIRMER]] — SIRET 106 681 976 00010 — contact@jobwin.fr';
+const SELLER = 'Jobwin — Idriss Kisita, entrepreneur individuel — 142 rue de Rivoli, 75001 Paris — SIRET 106 681 976 00010 — contact@jobwin.fr';
 const PACK_LABELS = { DECOUVERTE: 'Découverte', ESSENTIEL: 'Essentiel', INTENSIF: 'Intensif' };
 
 const supabase = createClient(
