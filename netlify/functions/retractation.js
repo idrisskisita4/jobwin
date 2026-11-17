@@ -1,5 +1,5 @@
 // netlify/functions/retractation.js
-// Fonction de rétractation en ligne (« Renoncer au contrat ici », obligatoire depuis le 19 juin 2026).
+// Fonction de rétractation en ligne (« Se rétracter d’un achat », obligatoire depuis le 19 juin 2026).
 // Reçoit la demande du client, prévient Jobwin et envoie au client un accusé de réception horodaté.
 // Variables d'env : BREVO_API_KEY (obligatoire), SUPABASE_URL + SUPABASE_SERVICE_KEY (anti-abus, facultatif)
 

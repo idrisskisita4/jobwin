@@ -203,7 +203,7 @@ exports.handler = async (event) => {
                 <strong style="color:white">Récapitulatif de votre achat</strong><br>
                 Pack ${PACK_LABELS[pack.name] || pack.name} — ${pack.credits} entretiens complets — ${prix} — payé le ${dateAchat}<br>
                 Vous avez demandé à accéder au service tout de suite. Vous pouvez vous rétracter pendant 14 jours : nous vous remboursons alors les entretiens que vous n'avez pas utilisés (article L221-25 du Code de la consommation).<br>
-                Pour vous rétracter : <a href="https://jobwin.fr/retractation.html" style="color:#93C5FD">Renoncer au contrat ici</a> · Conditions générales de vente : <a href="https://jobwin.fr/cgv.html" style="color:#93C5FD">jobwin.fr/cgv.html</a>
+                Pour vous rétracter : <a href="https://jobwin.fr/retractation.html" style="color:#93C5FD">Se rétracter d’un achat</a> · Conditions générales de vente : <a href="https://jobwin.fr/cgv.html" style="color:#93C5FD">jobwin.fr/cgv.html</a>
               </div>
               <div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:rgba(255,255,255,.3)">
                 Code personnel — ne le partagez pas. Valable pour ${pack.credits} entretiens, pendant 12 mois.<br>
