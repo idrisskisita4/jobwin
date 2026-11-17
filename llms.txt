@@ -1,0 +1,28 @@
+# JOBWIN
+
+> Jobwin (jobwin.fr) est un simulateur d'entretien d'embauche vocal, 100 % en français. Un recruteur IA pose des questions tirées du CV du candidat, le relance à l'oral comme un vrai recruteur, puis donne un score de préparation et les 3 points qui pourraient le pénaliser, avec quoi faire à la place.
+
+- Pré-entretien gratuit : 3 questions tirées du CV, à voix haute, et le score de préparation à la fin. Sans compte ni carte bancaire, un par personne.
+- Packs en paiement unique, sans abonnement, valables 12 mois : Découverte 9,90 € (3 entretiens complets), Essentiel 19,90 € (8), Intensif 34,90 € (20).
+- Entretien 100 % vocal : on répond au micro, sans webcam. Fonctionne sur mobile et sur ordinateur, dans le navigateur, sans installation ni compte.
+- Entretien complet : CV et annonce du poste visé ; choix du type d'entreprise (grand groupe, PME, startup, administration), du contrat (CDI, stage, alternance) et du niveau ; 6 recruteurs IA aux styles différents.
+- Données : le CV et les réponses servent uniquement à mener l'entretien et à produire le bilan. Ils sont transmis aux prestataires techniques (IA, reconnaissance et synthèse vocales) le temps du traitement, et ne sont pas enregistrés dans une base de données Jobwin. L'historique des scores reste sur l'appareil.
+- Service français, édité par un entrepreneur individuel basé à Paris. Contact : contact@jobwin.fr
+
+## Pages principales
+
+- [Accueil](https://jobwin.fr/): présentation, tarifs et questions fréquentes
+- [Lancer le Pré-entretien gratuit](https://jobwin.fr/app.html)
+- [Simulateur d'entretien d'embauche en français : comment bien choisir](https://jobwin.fr/blog/simulateur-entretien-embauche-francais.html): les 5 critères à vérifier et ce que propose Jobwin
+- [Simulateur IA ou coach : lequel choisir ?](https://jobwin.fr/blog/simulateur-entretien-ia-vs-coach.html): comparatif honnête
+
+## Blog
+
+- [Comment répondre à « Pourquoi vous ? » sans paraître arrogant](https://jobwin.fr/blog/comment-repondre-pourquoi-vous-entretien.html)
+- [Startup ou grand groupe : les codes d'entretien sont différents](https://jobwin.fr/blog/entretien-startup-vs-grand-groupe.html)
+
+## Informations légales
+
+- [Conditions générales de vente](https://jobwin.fr/cgv.html)
+- [Politique de confidentialité](https://jobwin.fr/confidentialite.html)
+- [Mentions légales](https://jobwin.fr/mentions-legales.html)
