@@ -1057,8 +1057,13 @@ h1{font-weight:600}h2{font-weight:700}h3{font-weight:600}
         <div style="font-size:13px;color:var(--gray-500);margin-bottom:10px">Pour les garder sous la main le jour où tu prépares ton vrai entretien.</div>
         <input type="email" class="code-input-big" id="score-email-input" placeholder="ton@email.fr" style="font-size:15px;text-transform:none;letter-spacing:normal" autocomplete="email">
         <div id="score-email-err" style="display:none;font-size:12.5px;color:var(--red);margin-top:6px">Entre une adresse email valide.</div>
+        <!-- Accord pour les 3 emails de conseils : case NON cochée par défaut (prospection = accord préalable) -->
+        <label id="score-relances-label" style="display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13px;line-height:1.45;color:var(--gray-600);cursor:pointer">
+          <input type="checkbox" id="score-relances" style="flex:none;width:18px;height:18px;margin:1px 0 0;accent-color:var(--blue)">
+          <span>Envoie-moi aussi 3 conseils par email sur 6 jours pour préparer mon entretien, avec nos offres. Désinscription en 1 clic. <a href="/confidentialite.html#relances" target="_blank" rel="noopener" style="color:var(--blue)">En savoir plus</a></span>
+        </label>
         <button class="btn btn-primary" id="score-email-btn" onclick="sendScoreEmail()" style="margin-top:10px">Recevoir mon score -></button>
-        <div id="score-email-ok" style="display:none;font-size:13.5px;color:var(--green);font-weight:600;margin-top:10px">✓ C'est envoyé ! Vérifie ta boîte mail.</div>
+        <div id="score-email-ok" style="display:none;font-size:13.5px;color:var(--green);font-weight:600;margin-top:10px">✓ C'est envoyé ! Vérifie ta boîte mail.<span id="score-relances-ok" style="display:none"> Tes 3 conseils arrivent à partir de demain.</span></div>
       </div>
 
       <div style="margin-top:32px">
@@ -1837,8 +1842,13 @@ function startExpressFree(force){
     if(w){ w.style.display='block'; setTimeout(()=>w.scrollIntoView({behavior:'smooth',block:'center'}),50); }
     return;
   }
-  // Verrou local posé au démarrage de l'essai (anti-abus navigateur).
-  localStorage.setItem('jw_free_used', '1');
+  // Anti-abus navigateur : l'essai n'est consommé qu'une fois terminé (verrou posé à l'affichage des résultats).
+  // Un départ interrompu (micro bloqué, appel, page rechargée) laisse une nouvelle chance, dans la limite de 3 départs.
+  try {
+    const starts = (parseInt(localStorage.getItem('jw_free_starts') || '0', 10) || 0) + 1;
+    localStorage.setItem('jw_free_starts', String(starts));
+    if(starts >= 3) localStorage.setItem('jw_free_used', '1');
+  } catch(e) {}
   S.mode = 'express';
   S.config.personnalite = 'exigeant';
   S.config.type_entreprise = 'grand_groupe';
@@ -1900,13 +1910,22 @@ async function sendScoreEmail(){
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ email: raw, score: score })
   }).catch(()=>{});
+  // 3 emails de conseils : seulement si la case est cochée
+  const wantsTips = !!(document.getElementById('score-relances') || {}).checked;
+  const optin = !wantsTips ? Promise.resolve(false) : fetch('/.netlify/functions/relances-optin', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ email: raw, score: score, poste: (S.config && S.config.poste) || '' })
+  }).then(r => r.ok ? r.json() : {}).then(d => !!(d && d.ok)).catch(() => false);
   // Envoi de l'email : score + aperçu (2 forts + 2 axes). Le bilan complet reste dans les packs.
   fetch('/.netlify/functions/send-trial-email', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ email: raw, score: score + '%', points_forts: forts, axes_progression: axes })
-  }).then(()=>{
+  }).then(async ()=>{
+    const tipsOk = await optin;
     btn.style.display='none';
     document.getElementById('score-email-input').style.display='none';
+    { const l = document.getElementById('score-relances-label'); if(l) l.style.display='none'; }
+    { const t = document.getElementById('score-relances-ok'); if(t) t.style.display = tipsOk ? 'inline' : 'none'; }
     ok.style.display='block';
   }).catch(()=>{
     btn.disabled=false; btn.textContent='Recevoir mon score ->';
@@ -2890,6 +2909,15 @@ function startRec(e) {
   launchDeepgram();
 }
 
+// Navigateurs sans WebM (anciens iPhone) : format par défaut du navigateur, au lieu d'un enregistrement qui échoue en silence
+function jwMakeRecorder(stream){
+  try {
+    const webm = typeof MediaRecorder.isTypeSupported !== 'function' || MediaRecorder.isTypeSupported('audio/webm');
+    if(webm) return new MediaRecorder(stream, {mimeType:'audio/webm'});
+  } catch(e) {}
+  return new MediaRecorder(stream);
+}
+
 async function launchDeepgram() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
@@ -2905,7 +2933,7 @@ async function launchDeepgram() {
     dgSocket = socket;
     dgSocket._stream = stream;
     socket.onopen = () => {
-      const mr = new MediaRecorder(stream,{mimeType:'audio/webm'});
+      const mr = jwMakeRecorder(stream);
       dgSocket._mediaRecorder = mr;
       mr.ondataavailable = ev => { if(socket.readyState===WebSocket.OPEN && ev.data.size>0) socket.send(ev.data); };
       mr.start(250);
@@ -4421,6 +4449,8 @@ async function crashShowResults(){
   const C = S.crash;
   // Pixel Meta (si consentement) : Lead = pré-entretien TERMINÉ (résultats affichés), une seule fois par essai
   try { if(window.jwTrack && C && C.ans && C.ans.length && !C.trkLead){ C.trkLead = true; window.jwTrack('Lead', {content_name:'Pre-entretien termine', content_category:'essai_gratuit'}); } } catch(e){}
+  // Essai gratuit consommé : seulement maintenant qu'il est terminé (au moins une réponse, résultats affichés)
+  try { if(C && C.ans && C.ans.length) localStorage.setItem('jw_free_used', '1'); } catch(e){}
   _g('express-results').style.display = 'block';
   _g('pack-results').style.display = 'none';
   _g('results-sub').textContent = 'Ton pré-entretien';
@@ -4571,6 +4601,8 @@ Réponds UNIQUEMENT avec ce JSON : {"score":0,"progres":"ce qui a changé par ra
 /* Init */
 if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices());}
 if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
+else if(window.location.hash==='#gratuit'){setTimeout(()=>selectMode('express'),100);} // liens « Pré-entretien gratuit » : directement au formulaire
+window.addEventListener('hashchange',()=>{ if(location.hash==='#gratuit') selectMode('express'); else if(location.hash==='#packs') goTo('packs'); });
 </script>
 
 <!-- =========== PACKS =========== -->
@@ -4600,7 +4632,7 @@ if(window.location.hash==='#packs'){setTimeout(()=>goTo('packs'),100);}
 
     <!-- Pack Essentiel - Recommandé -->
     <div style="background:var(--white);border:2.5px solid var(--blue);border-radius:var(--r-sm);padding:18px;margin-bottom:12px;box-shadow:0 4px 20px rgba(37,99,235,.15);position:relative">
-      <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-size:11px;font-weight:700;padding:3px 14px;border-radius:20px;white-space:nowrap"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg> LE PLUS POPULAIRE</div>
+      <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-size:11px;font-weight:700;padding:3px 14px;border-radius:20px;white-space:nowrap"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg> RECOMMANDÉ</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:6px">
         <div>
           <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)">Pack Essentiel</div>

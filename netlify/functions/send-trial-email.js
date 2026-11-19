@@ -101,7 +101,7 @@ exports.handler = async (event) => {
 
       <!-- CTA -->
       <div style="text-align:center;margin:28px 0 8px 0;">
-        <a href="https://jobwin.fr/#packs"
+        <a href="https://jobwin.fr/?utm_source=email&amp;utm_medium=score&amp;utm_campaign=score#pricing"
            style="display:inline-block;background:#2563EB;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 32px;border-radius:10px;">
           Continuer ma préparation →
         </a>

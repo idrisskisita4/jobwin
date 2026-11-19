@@ -4,6 +4,10 @@
 [functions]
   directory = "netlify/functions"
 
+# Emails de conseils après le Pré-entretien (J+1, J+3, J+6) : vérification chaque heure
+[functions."relances-envoi"]
+  schedule = "@hourly"
+
 [[headers]]
   for = "/llms.txt"
   [headers.values]
