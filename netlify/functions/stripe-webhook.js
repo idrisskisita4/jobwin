@@ -5,6 +5,38 @@ const crypto = require('crypto');
 const SELLER = 'Jobwin — Idriss Kisita, entrepreneur individuel — 142 rue de Rivoli, 75001 Paris — SIRET 106 681 976 00010 — contact@jobwin.fr';
 const PACK_LABELS = { DECOUVERTE: 'Découverte', ESSENTIEL: 'Essentiel', INTENSIF: 'Intensif' };
 
+// Packs vendus et nombre d'entretiens
+const PACKS = {
+  DECOUVERTE: { name: 'DECOUVERTE', credits: 3 },
+  ESSENTIEL: { name: 'ESSENTIEL', credits: 8 },
+  INTENSIF: { name: 'INTENSIF', credits: 20 },
+};
+// Montants connus, en centimes : prix normaux et prix promo (passés ou en cours).
+// Un nouveau prix promo doit être ajouté ici, ou porter pack=… dans les métadonnées de son lien Stripe.
+const KNOWN_AMOUNTS = {
+  990: 'DECOUVERTE',
+  1390: 'ESSENTIEL', // Black Friday 2026
+  1490: 'ESSENTIEL', // promo d'octobre 2026
+  1990: 'ESSENTIEL',
+  2440: 'INTENSIF', // Black Friday 2026
+  3490: 'INTENSIF',
+};
+const REGULAR = [[990, 'DECOUVERTE'], [1990, 'ESSENTIEL'], [3490, 'INTENSIF']];
+
+// Quel pack a été payé ?
+// 1. les métadonnées du lien de paiement (pack=ESSENTIEL…), que Stripe recopie dans la session ;
+// 2. sinon un montant connu ;
+// 3. sinon le plus petit pack dont le prix normal couvre le montant payé (how = 'guess' : on prévient JOBWIN).
+function detectPack(session) {
+  const meta = String((session && session.metadata && session.metadata.pack) || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase();
+  if (PACKS[meta]) return { ...PACKS[meta], how: 'metadata' };
+  const total = Number(session && session.amount_total) || 0;
+  if (KNOWN_AMOUNTS[total]) return { ...PACKS[KNOWN_AMOUNTS[total]], how: 'amount' };
+  const fit = REGULAR.find(([cents]) => total <= cents);
+  return { ...PACKS[fit ? fit[1] : 'INTENSIF'], how: 'guess' };
+}
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
@@ -113,15 +145,11 @@ exports.handler = async (event) => {
       return { statusCode: 200, body: `Payment status ${paymentStatus} ignored` };
     }
 
-    // Détection du pack par montant (en centimes)
-    // Découverte 9,90 / Essentiel 14,90 (promo incluse) / Intensif 34,90
+    // Pack payé : métadonnées du lien, sinon montant connu, sinon estimation (voir detectPack)
     const total = session?.amount_total || 0;
-    let pack;
-    if (total <= 1100) pack = { name: 'DECOUVERTE', credits: 3 };
-    else if (total <= 2500) pack = { name: 'ESSENTIEL', credits: 8 };
-    else pack = { name: 'INTENSIF', credits: 20 };
+    const pack = detectPack(session);
 
-    console.log('Total cents:', total, 'Pack:', pack.name);
+    console.log('Total cents:', total, 'Pack:', pack.name, 'via', pack.how);
 
     if (!customerEmail) {
       await alertOwner('Paiement sans email', [
@@ -168,6 +196,15 @@ exports.handler = async (event) => {
     }
 
     console.log('Code saved:', code);
+
+    if (pack.how === 'guess') {
+      // Montant jamais vu : le client reçoit quand même son code, mais JOBWIN vérifie le pack
+      await alertOwner('Montant de paiement inattendu', [
+        `Paiement de ${(total / 100).toFixed(2)} € : pack estimé ${pack.name} (${pack.credits} entretiens), code ${code}.`,
+        `Client : ${customerEmail}. Session Stripe : ${session?.id}`,
+        'Vérifie dans Stripe le produit acheté. Si le pack ne correspond pas, corrige le nombre d’entretiens (colonne credits) de ce code dans Supabase.',
+      ]);
+    }
 
     const brevoKey = process.env.BREVO_API_KEY;
     const prix = (total / 100).toFixed(2).replace('.', ',') + ' €';

@@ -402,8 +402,31 @@ footer{background:var(--navy);padding:52px 0 32px}
 .pc-x{width:16px;height:16px;line-height:16px;text-align:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px}
 .faq-a-inner a{color:var(--blue)}
 .hero-sub strong{color:var(--navy);font-weight:600}
+
+/* ─ BLACK FRIDAY 2026 : affiché seulement pendant l'offre (classe jw-bf posée par /jw-promo.js) ─ */
+html:not(.jw-bf) .bf-on{display:none!important}
+html.jw-bf .bf-off{display:none!important}
+.bf-bar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;background:#0F1C2E;color:#fff;text-decoration:none;padding:10px 16px;font-size:14px;line-height:1.35;text-align:center}
+.bf-bar b{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;color:#93C5FD}
+.bf-kicker{font-family:'Bricolage Grotesque',sans-serif;font-weight:800}
+.bf-more{text-decoration:underline;text-underline-offset:3px}
+.bf-count{font-variant-numeric:tabular-nums;background:rgba(255,255,255,.12);border-radius:99px;padding:3px 10px;font-size:12.5px;font-weight:500;color:#DBEAFE;white-space:nowrap}
+.bf-count:empty{display:none}
+.bf-note{max-width:600px;margin:18px auto 24px;font-size:14.5px;line-height:1.5;color:var(--navy);background:var(--sky);border:1px solid var(--sky2);border-radius:12px;padding:11px 16px}
+.bf-note small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.bf-old{font-weight:500;color:#94a3b8;text-decoration:line-through;letter-spacing:0;white-space:nowrap}
+.pt-price .bf-old{font-size:14px;margin-right:6px;vertical-align:.2em}
+.pc .bf-old{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;margin-right:8px;vertical-align:.55em}
+.pc.best .bf-old{color:rgba(255,255,255,.45)}
+.bf-tag{display:inline-block;background:#0F1C2E;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.pt-price + .bf-tag,.pt-sub + .bf-tag{margin-top:6px}
+.pc .bf-tag{margin-left:8px;vertical-align:.9em}
+.pc.best .bf-tag{background:#fff;color:var(--navy)}
+@media(max-width:600px){.bf-bar{font-size:13px;padding:9px 12px;gap:4px 10px}.bf-long{display:none}}
 </style>
 
+<!-- Offre Black Friday : doit se charger avant l'affichage de la page (ne fait rien hors offre) -->
+<script src="/jw-promo.js"></script>
 <!-- Mesure d'audience et pubs : chargées par /jw-track.js, uniquement après accord (bandeau cookies) -->
 <script src="/jw-track.js" defer></script>
 <script src="/jw-checkout.js" defer></script>
@@ -413,6 +436,11 @@ footer{background:var(--navy);padding:52px 0 32px}
 </head>
 <body>
 
+<!-- BANDEAU BLACK FRIDAY (visible seulement pendant l'offre) -->
+<a class="bf-bar bf-on" href="#pricing">
+  <span><span class="bf-kicker">Black Friday :</span> <b>−30 %</b> sur les packs Essentiel et Intensif<span class="bf-long">, jusqu'à lundi 23h59. <span class="bf-more">Voir les prix</span></span></span>
+  <span class="bf-count" data-bf-count></span>
+</a>
 
 <!-- NAV -->
 <nav id="nav">
@@ -677,6 +705,7 @@ footer{background:var(--navy);padding:52px 0 32px}
       <div class="sec-tag">Tarifs</div>
       <h2 class="sec-title">Entraîne-toi jusqu'à être prêt le jour J</h2>
       <p class="sec-sub" style="margin:0 auto">Accès immédiat après paiement · Sans abonnement · Clé par email</p>
+      <p class="bf-note bf-on"><strong>Black Friday : −30 % sur les packs Essentiel et Intensif</strong>, jusqu'au lundi 30 novembre à 23h59.<small>Prix barrés : prix pratiqués ces 30 derniers jours.</small></p>
     </div>
     <div class="ptable-wrap reveal pt-desktop">
       <table class="ptable">
@@ -691,13 +720,19 @@ footer{background:var(--navy);padding:52px 0 32px}
             <th class="pt-best">
               <div class="pt-pop">★ Recommandé</div>
               <div class="pt-name">Essentiel</div>
-              <div class="pt-price">19,90<span>€</span></div>
-              <div class="pt-sub">8 entretiens · 2,49€/entretien</div>
+              <div class="pt-price bf-off">19,90<span>€</span></div>
+              <div class="pt-price bf-on"><s class="bf-old">19,90 €</s>13,90<span>€</span></div>
+              <div class="pt-sub bf-off">8 entretiens · 2,49€/entretien</div>
+              <div class="pt-sub bf-on">8 entretiens · 1,74€/entretien</div>
+              <div class="bf-tag bf-on">−30 %</div>
             </th>
             <th>
               <div class="pt-name">Intensif</div>
-              <div class="pt-price">34,90<span>€</span></div>
-              <div class="pt-sub">20 entretiens · 1,75€/entretien</div>
+              <div class="pt-price bf-off">34,90<span>€</span></div>
+              <div class="pt-price bf-on"><s class="bf-old">34,90 €</s>24,40<span>€</span></div>
+              <div class="pt-sub bf-off">20 entretiens · 1,75€/entretien</div>
+              <div class="pt-sub bf-on">20 entretiens · 1,22€/entretien</div>
+              <div class="bf-tag bf-on">−30 %</div>
             </th>
           </tr>
         </thead>
@@ -736,8 +771,10 @@ footer{background:var(--navy);padding:52px 0 32px}
       <div class="pc best">
         <div class="pc-pop">⭐ Recommandé</div>
         <h3>Pack Essentiel</h3>
-        <div class="pc-desc">8 entretiens · 2,49€/entretien</div>
-        <div><span class="pc-price">19,90</span><span class="pc-per">€</span></div>
+        <div class="pc-desc bf-off">8 entretiens · 2,49€/entretien</div>
+        <div class="pc-desc bf-on">8 entretiens · 1,74€/entretien</div>
+        <div class="bf-off"><span class="pc-price">19,90</span><span class="pc-per">€</span></div>
+        <div class="bf-on"><s class="bf-old">19,90 €</s><span class="pc-price">13,90</span><span class="pc-per">€</span><span class="bf-tag">−30 %</span></div>
         <div class="pc-sep"></div>
         <div class="pc-feats">
           <div class="pc-feat"><div class="pc-check"></div>Recruteur au choix</div>
@@ -750,8 +787,10 @@ footer{background:var(--navy);padding:52px 0 32px}
       </div>
       <div class="pc">
         <h3>Pack Intensif</h3>
-        <div class="pc-desc">20 entretiens · 1,75€/entretien</div>
-        <div><span class="pc-price">34,90</span><span class="pc-per">€</span></div>
+        <div class="pc-desc bf-off">20 entretiens · 1,75€/entretien</div>
+        <div class="pc-desc bf-on">20 entretiens · 1,22€/entretien</div>
+        <div class="bf-off"><span class="pc-price">34,90</span><span class="pc-per">€</span></div>
+        <div class="bf-on"><s class="bf-old">34,90 €</s><span class="pc-price">24,40</span><span class="pc-per">€</span><span class="bf-tag">−30 %</span></div>
         <div class="pc-sep"></div>
         <div class="pc-feats">
           <div class="pc-feat"><div class="pc-check"></div>Recruteur au choix</div>

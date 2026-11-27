@@ -72,9 +72,12 @@
     build();
     href = h;
     var m = String(h).match(/buy\.stripe\.com\/([A-Za-z0-9]+)/);
-    var p = (m && PACKS[m[1]]) || null;
+    var promo = window.JW_PROMO && window.JW_PROMO.packs; // liens promo déclarés par /jw-promo.js
+    var p = (m && (PACKS[m[1]] || (promo && promo[m[1]]))) || null;
     document.getElementById('jw-co-t').textContent = p ? 'Pack ' + p.n + ' — ' + p.p : 'Ton pack Jobwin';
-    document.getElementById('jw-co-e').textContent = p ? p.e + ' entretiens complets · paiement unique, sans abonnement' : 'Paiement unique, sans abonnement';
+    document.getElementById('jw-co-e').textContent = p
+      ? p.e + ' entretiens complets · ' + (p.old ? 'prix Black Friday au lieu de ' + p.old + ', paiement unique' : 'paiement unique, sans abonnement')
+      : 'Paiement unique, sans abonnement';
     chk.checked = false;
     go.disabled = true;
     lastFocus = document.activeElement;

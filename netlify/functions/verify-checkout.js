@@ -24,8 +24,12 @@ exports.handler = async (event) => {
     if (!paid || (s.currency || '').toLowerCase() !== 'eur') return no(200);
 
     const cents = Number(s.amount_total) || 0;
-    // Même logique de détection que le webhook (montant en centimes)
-    const pack = cents <= 1100 ? 'Decouverte' : cents <= 2500 ? 'Essentiel' : 'Intensif';
+    // Même logique de détection que le webhook : métadonnées du lien, sinon montant connu, sinon estimation
+    const LABEL = { DECOUVERTE: 'Decouverte', ESSENTIEL: 'Essentiel', INTENSIF: 'Intensif' };
+    const KNOWN = { 990: 'DECOUVERTE', 1390: 'ESSENTIEL', 1490: 'ESSENTIEL', 1990: 'ESSENTIEL', 2440: 'INTENSIF', 3490: 'INTENSIF' };
+    const meta = String((s.metadata && s.metadata.pack) || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase();
+    const packKey = LABEL[meta] ? meta : KNOWN[cents] || (cents <= 990 ? 'DECOUVERTE' : cents <= 1990 ? 'ESSENTIEL' : 'INTENSIF');
+    const pack = LABEL[packKey];
     return { statusCode: 200, headers, body: JSON.stringify({ paid: true, value: Math.round(cents) / 100, currency: 'EUR', pack }) };
   } catch (e) {
     return no(200);

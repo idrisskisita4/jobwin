@@ -208,8 +208,9 @@
   function essentielPrice() { return Date.now() < new Date('2026-10-16T00:00:00+02:00').getTime() ? 14.90 : 19.90; }
   function trackCheckout(src) {
     var m = String(src || '').match(/buy\.stripe\.com\/([A-Za-z0-9]+)/); if (!m) return;
-    var p = PACKS[m[1]] || { name: 'Inconnu', value: null };
-    var value = p.name === 'Essentiel' ? essentielPrice() : p.value;
+    var promo = window.JW_PROMO && window.JW_PROMO.packs && window.JW_PROMO.packs[m[1]]; // liens promo de /jw-promo.js
+    var p = PACKS[m[1]] || (promo ? { name: promo.n, value: promo.value } : { name: 'Inconnu', value: null });
+    var value = p.value != null ? p.value : (p.name === 'Essentiel' ? essentielPrice() : null);
     var params = { content_name: 'Pack ' + p.name, currency: 'EUR' };
     if (value) params.value = value;
     window.jwTrack('InitiateCheckout', params);
