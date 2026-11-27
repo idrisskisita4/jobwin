@@ -110,11 +110,20 @@
   }
 
   // Intercepte tous les liens de paiement Stripe, avant tout autre script (phase de capture sur window)
+  // ainsi que les cartes cliquables qui ouvrent Stripe par onclick (écran « Clé d'accès » de l'appli).
   window.addEventListener('click', function (e) {
-    var a = e.target && e.target.closest ? e.target.closest('a[href*="buy.stripe.com"]') : null;
-    if (!a) return;
+    var t = e.target && e.target.closest ? e.target : null;
+    if (!t) return;
+    var a = t.closest('a[href*="buy.stripe.com"]');
+    var url = a ? a.getAttribute('href') : null;
+    if (!a) {
+      var c = t.closest('[onclick*="buy.stripe.com"]');
+      var m = c && String(c.getAttribute('onclick')).match(/https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+/);
+      if (!m) return;
+      url = m[0];
+    }
     e.preventDefault();
-    e.stopPropagation();
-    open(a.getAttribute('href'));
+    e.stopPropagation(); // empêche aussi le onclick de la carte d'ouvrir Stripe directement
+    open(url);
   }, true);
 })();
