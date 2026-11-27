@@ -13,8 +13,8 @@
 
   // lien de paiement normal → lien promo (identifiants buy.stripe.com/…)
   var LINKS = {
-    '28E7sN8el1678cnenE8bS03': { slug: 'A_REMPLIR_ESSENTIEL', n: 'Essentiel', p: '13,90 €', old: '19,90 €', e: 8, value: 13.90 },
-    '7sY9AV5297uv3W7bbs8bS00': { slug: 'A_REMPLIR_INTENSIF', n: 'Intensif', p: '24,40 €', old: '34,90 €', e: 20, value: 24.40 }
+    '28E7sN8el1678cnenE8bS03': { slug: '8x23cx0LT6qr78jdjA8bS04', n: 'Essentiel', p: '13,90 €', old: '19,90 €', e: 8, value: 13.90 },
+    '7sY9AV5297uv3W7bbs8bS00': { slug: '6oU6oJ66d3efgIT6Vc8bS05', n: 'Intensif', p: '24,40 €', old: '34,90 €', e: 20, value: 24.40 }
   };
 
   var std, packs = {};
